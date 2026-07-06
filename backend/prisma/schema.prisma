@@ -1,0 +1,473 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [postgis]
+}
+
+// ==================== ENUMS ====================
+
+enum UserRole {
+  OWNER
+  BUSINESS
+  ORGANIZER
+  ADMIN
+}
+
+enum PetSize {
+  MINI
+  SMALL
+  MEDIUM
+  LARGE
+  GIANT
+}
+
+enum EnergyLevel {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum BusinessCategory {
+  VETERINARY
+  EMERGENCY_CLINIC
+  WALKER
+  HOTEL
+  DAYCARE
+  STORE
+  GROOMING
+  TRAINER
+  OTHER
+}
+
+enum BusinessStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  SUSPENDED
+}
+
+enum EventStatus {
+  UPCOMING
+  ACTIVE
+  FINISHED
+  CANCELLED
+}
+
+enum RouteDifficulty {
+  EASY
+  MODERATE
+  HARD
+}
+
+enum WalkStatus {
+  IN_PROGRESS
+  PAUSED
+  COMPLETED
+  CANCELLED
+}
+
+enum TrafficLevel {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum CleanlinessLevel {
+  DIRTY
+  REGULAR
+  CLEAN
+}
+
+enum ShadeLevel {
+  NONE
+  SOME
+  PLENTY
+}
+
+enum SecurityLevel {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+// ==================== MODELS ====================
+
+model User {
+  id            String   @id @default(uuid())
+  email         String   @unique
+  passwordHash  String?
+  firstName     String   @map("first_name")
+  lastName      String   @map("last_name")
+  avatarUrl     String?  @map("avatar_url")
+  phone         String?
+  city          String?
+  district      String?
+  role          UserRole @default(OWNER)
+  isActive      Boolean  @default(true) @map("is_active")
+  googleId      String?  @unique @map("google_id")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  pets              Pet[]
+  businesses        Business[]
+  organizedEvents   Event[]           @relation("EventOrganizer")
+  eventAttendances  EventAttendance[]
+  walks             Walk[]
+  reviews           Review[]
+  favorites         Favorite[]
+  posts             Post[]
+  postLikes         PostLike[]
+  postComments      PostComment[]
+  notifications     Notification[]
+  followedBy        Follow[]          @relation("Following")
+  following         Follow[]          @relation("Follower")
+
+  @@map("users")
+}
+
+model Pet {
+  id          String      @id @default(uuid())
+  userId      String      @map("user_id")
+  name        String
+  photoUrl    String?     @map("photo_url")
+  breed       String?
+  birthDate   DateTime?   @map("birth_date")
+  size        PetSize?
+  weight      Float?
+  energyLevel EnergyLevel @default(MEDIUM) @map("energy_level")
+  allergies   String?
+  createdAt   DateTime    @default(now()) @map("created_at")
+  updatedAt   DateTime    @updatedAt @map("updated_at")
+
+  user              User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  vaccines          PetVaccine[]
+  eventAttendances  EventAttendance[]
+  walks             Walk[]
+  photos            Photo[]
+
+  @@map("pets")
+}
+
+model PetVaccine {
+  id        String    @id @default(uuid())
+  petId     String    @map("pet_id")
+  name      String
+  date      DateTime
+  nextDate  DateTime? @map("next_date")
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  pet Pet @relation(fields: [petId], references: [id], onDelete: Cascade)
+
+  @@map("pet_vaccines")
+}
+
+model Business {
+  id          String           @id @default(uuid())
+  ownerId     String           @map("owner_id")
+  name        String
+  description String?
+  category    BusinessCategory
+  status      BusinessStatus   @default(PENDING)
+  phone       String?
+  whatsapp    String?
+  email       String?
+  website     String?
+  address     String
+  city        String
+  district    String?
+  latitude    Float
+  longitude   Float
+  is24Hours   Boolean          @default(false) @map("is_24_hours")
+  isPetFriendly Boolean       @default(true) @map("is_pet_friendly")
+  isVerified  Boolean          @default(false) @map("is_verified")
+  priceRange  String?          @map("price_range")
+  createdAt   DateTime         @default(now()) @map("created_at")
+  updatedAt   DateTime         @updatedAt @map("updated_at")
+
+  owner     User               @relation(fields: [ownerId], references: [id])
+  hours     BusinessHour[]
+  services  BusinessService[]
+  photos    Photo[]
+  reviews   Review[]
+  favorites Favorite[]
+
+  @@map("businesses")
+}
+
+model BusinessHour {
+  id         String  @id @default(uuid())
+  businessId String  @map("business_id")
+  dayOfWeek  Int     @map("day_of_week") // 0=Sunday, 6=Saturday
+  openTime   String  @map("open_time")   // "08:00"
+  closeTime  String  @map("close_time")  // "18:00"
+  isClosed   Boolean @default(false) @map("is_closed")
+
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@unique([businessId, dayOfWeek])
+  @@map("business_hours")
+}
+
+model BusinessService {
+  id         String  @id @default(uuid())
+  businessId String  @map("business_id")
+  name       String
+  price      Float?
+  currency   String  @default("PEN")
+
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@map("business_services")
+}
+
+model Event {
+  id              String      @id @default(uuid())
+  organizerId     String      @map("organizer_id")
+  routeId         String?     @map("route_id")
+  title           String
+  description     String?
+  date            DateTime
+  endDate         DateTime?   @map("end_date")
+  meetingPoint    String      @map("meeting_point")
+  meetingLat      Float       @map("meeting_lat")
+  meetingLng      Float       @map("meeting_lng")
+  city            String
+  district        String?
+  maxAttendees    Int?        @map("max_attendees")
+  price           Float       @default(0)
+  currency        String      @default("PEN")
+  isFree          Boolean     @default(true) @map("is_free")
+  isPublic        Boolean     @default(true) @map("is_public")
+  energyLevel     EnergyLevel? @map("energy_level")
+  recommendedSize PetSize[]   @map("recommended_size")
+  requirements    String[]
+  status          EventStatus @default(UPCOMING)
+  createdAt       DateTime    @default(now()) @map("created_at")
+  updatedAt       DateTime    @updatedAt @map("updated_at")
+
+  organizer   User              @relation("EventOrganizer", fields: [organizerId], references: [id])
+  route       Route?            @relation(fields: [routeId], references: [id])
+  attendances EventAttendance[]
+  photos      Photo[]
+  reviews     Review[]
+  favorites   Favorite[]
+
+  @@map("events")
+}
+
+model EventAttendance {
+  id        String   @id @default(uuid())
+  eventId   String   @map("event_id")
+  userId    String   @map("user_id")
+  petId     String   @map("pet_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id])
+  pet   Pet   @relation(fields: [petId], references: [id])
+
+  @@unique([eventId, userId, petId])
+  @@map("event_attendances")
+}
+
+model Route {
+  id          String          @id @default(uuid())
+  creatorId   String          @map("creator_id")
+  name        String
+  description String?
+  startLat    Float           @map("start_lat")
+  startLng    Float           @map("start_lng")
+  endLat      Float           @map("end_lat")
+  endLng      Float           @map("end_lng")
+  waypoints   Json            // Array of {lat, lng} points for the polyline
+  distance    Float           // in kilometers
+  duration    Int             // estimated minutes
+  difficulty  RouteDifficulty @default(EASY)
+  city        String
+  district    String?
+  isPublic    Boolean         @default(true) @map("is_public")
+  hasShade    Boolean         @default(false) @map("has_shade")
+  hasWater    Boolean         @default(false) @map("has_water")
+  hasRestArea Boolean         @default(false) @map("has_rest_area")
+  timesWalked Int             @default(0) @map("times_walked")
+  avgRating   Float           @default(0) @map("avg_rating")
+  createdAt   DateTime        @default(now()) @map("created_at")
+  updatedAt   DateTime        @updatedAt @map("updated_at")
+
+  events    Event[]
+  walks     Walk[]
+  reviews   Review[]
+  favorites Favorite[]
+  photos    Photo[]
+
+  @@map("routes")
+}
+
+model Walk {
+  id          String     @id @default(uuid())
+  userId      String     @map("user_id")
+  petId       String     @map("pet_id")
+  routeId     String?    @map("route_id")
+  status      WalkStatus @default(IN_PROGRESS)
+  startedAt   DateTime   @default(now()) @map("started_at")
+  finishedAt  DateTime?  @map("finished_at")
+  distance    Float?     // km
+  duration    Int?       // minutes
+  trackPoints Json?      @map("track_points") // Array of {lat, lng, timestamp}
+  rating      Int?       // 1-5
+  comment     String?
+  // Route feedback
+  security    SecurityLevel?
+  cleanliness CleanlinessLevel?
+  shade       ShadeLevel?
+  traffic     TrafficLevel?
+  hasWater    Boolean?   @map("has_water")
+  hasDogs     Boolean?   @map("has_dogs")
+  createdAt   DateTime   @default(now()) @map("created_at")
+  updatedAt   DateTime   @updatedAt @map("updated_at")
+
+  user   User    @relation(fields: [userId], references: [id])
+  pet    Pet     @relation(fields: [petId], references: [id])
+  route  Route?  @relation(fields: [routeId], references: [id])
+  photos Photo[]
+
+  @@map("walks")
+}
+
+model Photo {
+  id         String   @id @default(uuid())
+  url        String
+  publicId   String?  @map("public_id") // Cloudinary public_id
+  caption    String?
+  businessId String?  @map("business_id")
+  eventId    String?  @map("event_id")
+  routeId    String?  @map("route_id")
+  walkId     String?  @map("walk_id")
+  petId      String?  @map("pet_id")
+  postId     String?  @map("post_id")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  business Business? @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  event    Event?    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  route    Route?    @relation(fields: [routeId], references: [id], onDelete: Cascade)
+  walk     Walk?     @relation(fields: [walkId], references: [id], onDelete: Cascade)
+  pet      Pet?      @relation(fields: [petId], references: [id], onDelete: Cascade)
+  post     Post?     @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@map("photos")
+}
+
+model Review {
+  id         String   @id @default(uuid())
+  userId     String   @map("user_id")
+  rating     Int      // 1-5
+  comment    String?
+  businessId String?  @map("business_id")
+  eventId    String?  @map("event_id")
+  routeId    String?  @map("route_id")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  user     User      @relation(fields: [userId], references: [id])
+  business Business? @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  event    Event?    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  route    Route?    @relation(fields: [routeId], references: [id], onDelete: Cascade)
+
+  @@map("reviews")
+}
+
+model Favorite {
+  id         String   @id @default(uuid())
+  userId     String   @map("user_id")
+  businessId String?  @map("business_id")
+  eventId    String?  @map("event_id")
+  routeId    String?  @map("route_id")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  business Business? @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  event    Event?    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  route    Route?    @relation(fields: [routeId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, businessId])
+  @@unique([userId, eventId])
+  @@unique([userId, routeId])
+  @@map("favorites")
+}
+
+model Post {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  content   String?
+  location  String?
+  latitude  Float?
+  longitude Float?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user     User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  photos   Photo[]
+  likes    PostLike[]
+  comments PostComment[]
+
+  @@map("posts")
+}
+
+model PostLike {
+  id        String   @id @default(uuid())
+  postId    String   @map("post_id")
+  userId    String   @map("user_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, userId])
+  @@map("post_likes")
+}
+
+model PostComment {
+  id        String   @id @default(uuid())
+  postId    String   @map("post_id")
+  userId    String   @map("user_id")
+  content   String
+  createdAt DateTime @default(now()) @map("created_at")
+
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("post_comments")
+}
+
+model Follow {
+  id          String   @id @default(uuid())
+  followerId  String   @map("follower_id")
+  followingId String   @map("following_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  follower  User @relation("Follower", fields: [followerId], references: [id], onDelete: Cascade)
+  following User @relation("Following", fields: [followingId], references: [id], onDelete: Cascade)
+
+  @@unique([followerId, followingId])
+  @@map("follows")
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  type      String   // event_reminder, vaccine_reminder, walk_reminder, new_review, etc.
+  title     String
+  body      String
+  data      Json?    // Additional payload
+  isRead    Boolean  @default(false) @map("is_read")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notifications")
+}
