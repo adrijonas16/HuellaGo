@@ -64,6 +64,12 @@ export default function LoginPage() {
               <p className="text-sm text-error text-center">{error}</p>
             )}
 
+            <div className="text-right">
+              <Link href="/forgot-password" className="text-xs text-primary font-semibold hover:underline">
+                Olvidaste tu contrasena?
+              </Link>
+            </div>
+
             <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? 'Ingresando...' : 'Iniciar sesion'}
             </Button>

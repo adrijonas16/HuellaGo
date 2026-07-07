@@ -11,6 +11,9 @@ export interface HuellaEvent {
   meetingPoint: string;
   meetingLat: number;
   meetingLng: number;
+  endPoint: string | null;
+  endLat: number | null;
+  endLng: number | null;
   city: string;
   district: string | null;
   maxAttendees: number | null;
@@ -40,6 +43,9 @@ export interface CreateEventPayload {
   meetingPoint: string;
   meetingLat: number;
   meetingLng: number;
+  endPoint?: string;
+  endLat?: number;
+  endLng?: number;
   city: string;
   district?: string;
   maxAttendees?: number;

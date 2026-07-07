@@ -22,7 +22,15 @@ export class BusinessesService {
 
   async findAll(query: QueryBusinessDto) {
     const { data, total } = await this.businessesRepository.findMany(query);
-    return new PaginatedResponse(data, total, query.page, query.limit);
+    const enriched = data.map((biz: any) => {
+      const reviews = biz.reviews || [];
+      const avgRating = reviews.length > 0
+        ? Math.round((reviews.reduce((sum: number, r: any) => sum + r.rating, 0) / reviews.length) * 10) / 10
+        : 0;
+      const { reviews: _, ...rest } = biz;
+      return { ...rest, avgRating };
+    });
+    return new PaginatedResponse(enriched, total, query.page, query.limit);
   }
 
   async findOne(id: string) {

@@ -24,7 +24,7 @@ export class WalksRepository {
   async findByUser(userId: string, skip = 0, take = 20) {
     const [data, total] = await Promise.all([
       this.prisma.walk.findMany({
-        where: { userId, status: WalkStatus.COMPLETED },
+        where: { userId, walkStatus: WalkStatus.COMPLETED },
         skip,
         take,
         orderBy: { startedAt: 'desc' },
@@ -35,7 +35,7 @@ export class WalksRepository {
         },
       }),
       this.prisma.walk.count({
-        where: { userId, status: WalkStatus.COMPLETED },
+        where: { userId, walkStatus: WalkStatus.COMPLETED },
       }),
     ]);
     return { data, total };
@@ -47,7 +47,7 @@ export class WalksRepository {
 
   async getUserStats(userId: string) {
     const result = await this.prisma.walk.aggregate({
-      where: { userId, status: WalkStatus.COMPLETED },
+      where: { userId, walkStatus: WalkStatus.COMPLETED },
       _count: true,
       _sum: { distance: true, duration: true },
     });

@@ -14,7 +14,7 @@ export function Footer() {
               <span className="font-heading font-bold text-xl">HuellaGo</span>
             </div>
             <p className="text-gray-400 text-sm">
-              Cada paseo deja huella. Todo para tu perro, en un solo lugar.
+              Cada paseo deja huella. Todo para tu mascota, en un solo lugar.
             </p>
           </div>
 
@@ -26,6 +26,8 @@ export function Footer() {
               <li><Link href="/events" className="hover:text-primary transition-colors">Eventos</Link></li>
               <li><Link href="/routes" className="hover:text-primary transition-colors">Rutas</Link></li>
               <li><Link href="/directory" className="hover:text-primary transition-colors">Servicios</Link></li>
+              <li><Link href="/community" className="hover:text-primary transition-colors">Comunidad</Link></li>
+              <li><Link href="/adoptions" className="hover:text-primary transition-colors">Adopciones</Link></li>
             </ul>
           </div>
 
@@ -49,7 +51,7 @@ export function Footer() {
         </div>
 
         <div className="border-t border-gray-700 mt-8 pt-8 text-center text-sm text-gray-500">
-          Hecho con amor en Peru para los que caminan con su mejor amigo.
+          Hecho con amor en Peru para los que caminan con su mejor amigo peludo.
         </div>
       </div>
     </footer>

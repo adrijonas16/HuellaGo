@@ -37,7 +37,7 @@ export class BusinessesRepository {
 
   async findMany(query: QueryBusinessDto) {
     const where: Prisma.BusinessWhereInput = {
-      status: BusinessStatus.APPROVED,
+      businessStatus: BusinessStatus.APPROVED,
       ...(query.category && { category: query.category }),
       ...(query.is24Hours && { is24Hours: true }),
       ...(query.isVerified && { isVerified: true }),
@@ -50,6 +50,7 @@ export class BusinessesRepository {
         take: query.limit,
         include: {
           photos: { take: 1 },
+          reviews: { select: { rating: true } },
           _count: { select: { reviews: true } },
         },
         orderBy: { createdAt: 'desc' },

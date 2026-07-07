@@ -10,6 +10,7 @@ import '../../presentation/screens/shell/app_shell.dart';
 import '../../presentation/screens/map/map_screen.dart';
 import '../../presentation/screens/events/events_screen.dart';
 import '../../presentation/screens/routes/routes_screen.dart';
+import '../../presentation/screens/community/community_screen.dart';
 import '../../presentation/screens/profile/profile_screen.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
@@ -50,6 +51,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: '/routes',
             builder: (_, __) => const RoutesScreen(),
+          ),
+          GoRoute(
+            path: '/community',
+            builder: (_, __) => const CommunityScreen(),
           ),
           GoRoute(
             path: '/profile',

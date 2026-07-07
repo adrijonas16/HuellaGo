@@ -16,18 +16,18 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   final _pages = const [
     _OnboardingPage(
       icon: Icons.pets,
-      title: 'Todo para tu perro en un solo lugar',
-      subtitle: 'Veterinarias, paseadores, tiendas y mas, cerca de ti.',
+      title: 'Todo para tu mascota en un solo lugar',
+      subtitle: 'Veterinarias, paseadores, tiendas y mas. Para perros, gatos, conejos y todas las mascotas.',
     ),
     _OnboardingPage(
       icon: Icons.explore,
       title: 'Descubre rutas y eventos',
-      subtitle: 'Paseos grupales, mascotatones y aventuras pet friendly.',
+      subtitle: 'Paseos grupales, mascotatones, ferias y comunidades pet friendly.',
     ),
     _OnboardingPage(
       icon: Icons.camera_alt,
       title: 'Cada paseo deja huella',
-      subtitle: 'Guarda rutas, sube fotos y crea recuerdos con tu perro.',
+      subtitle: 'Guarda rutas, sube fotos y crea recuerdos con tu mascota.',
     ),
   ];
 

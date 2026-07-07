@@ -4,31 +4,70 @@ import {
   ForbiddenException,
   BadRequestException,
 } from '@nestjs/common';
-import { EventStatus } from '@prisma/client';
+import { EventStatus, Prisma } from '@prisma/client';
 import { EventsRepository } from './events.repository';
+import { RoutesRepository } from '../routes/routes.repository';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
 import { PaginationDto, PaginatedResponse } from '@common/dto/pagination.dto';
 
 @Injectable()
 export class EventsService {
-  constructor(private eventsRepository: EventsRepository) {}
+  constructor(
+    private eventsRepository: EventsRepository,
+    private routesRepository: RoutesRepository,
+  ) {}
 
   async create(organizerId: string, dto: CreateEventDto) {
-    const { routeId, ...rest } = dto;
+    const { routeId, inlineRoute, ...rest } = dto;
+
+    if (routeId && inlineRoute) {
+      throw new BadRequestException(
+        'Envia routeId o inlineRoute, no ambos',
+      );
+    }
+
+    let finalRouteId = routeId;
+
+    // Si viene una ruta grabada desde la app, crearla primero
+    if (inlineRoute) {
+      const newRoute = await this.routesRepository.create({
+        name: inlineRoute.name,
+        description: inlineRoute.description,
+        startLat: dto.meetingLat,
+        startLng: dto.meetingLng,
+        endLat: dto.endLat ?? dto.meetingLat,
+        endLng: dto.endLng ?? dto.meetingLng,
+        waypoints: JSON.parse(
+          JSON.stringify(inlineRoute.waypoints),
+        ) as Prisma.InputJsonValue,
+        distance: inlineRoute.distance,
+        duration: inlineRoute.duration,
+        difficulty: (inlineRoute.difficulty as any) ?? 'EASY',
+        city: dto.city,
+        district: dto.district,
+        isPublic: true,
+        hasShade: inlineRoute.hasShade ?? false,
+        hasWater: inlineRoute.hasWater ?? false,
+        hasRestArea: inlineRoute.hasRestArea ?? false,
+        creatorId: organizerId,
+      });
+      finalRouteId = newRoute.id;
+    }
+
     return this.eventsRepository.create({
       ...rest,
       date: new Date(dto.date),
       endDate: dto.endDate ? new Date(dto.endDate) : undefined,
       organizer: { connect: { id: organizerId } },
-      ...(routeId && { route: { connect: { id: routeId } } }),
+      ...(finalRouteId && { route: { connect: { id: finalRouteId } } }),
     });
   }
 
   async findAll(query: PaginationDto & { city?: string; status?: EventStatus }) {
     const where = {
       ...(query.city && { city: query.city }),
-      ...(query.status && { status: query.status }),
+      ...(query.status && { eventStatus: query.status }),
     };
 
     const { data, total } = await this.eventsRepository.findMany({
@@ -62,7 +101,7 @@ export class EventsService {
   async attend(eventId: string, userId: string, petId: string) {
     const event = await this.findOne(eventId);
 
-    if (event.status !== EventStatus.UPCOMING) {
+    if (event.eventStatus !== EventStatus.UPCOMING) {
       throw new BadRequestException('Solo puedes inscribirte a eventos proximos');
     }
 

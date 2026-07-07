@@ -7,6 +7,7 @@ export type BusinessCategory =
   | 'STORE'
   | 'GROOMING'
   | 'TRAINER'
+  | 'SHELTER'
   | 'OTHER';
 
 export type BusinessStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'SUSPENDED';

@@ -10,9 +10,68 @@ import {
   IsInt,
   Min,
   MaxLength,
+  ValidateNested,
 } from 'class-validator';
+import { Type } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { EnergyLevel, PetSize } from '@prisma/client';
+
+class InlineWaypointDto {
+  @ApiProperty()
+  @IsNumber()
+  lat: number;
+
+  @ApiProperty()
+  @IsNumber()
+  lng: number;
+}
+
+export class InlineRouteDto {
+  @ApiProperty({ example: 'Ruta del evento' })
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(150)
+  name: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  description?: string;
+
+  @ApiProperty({ type: [InlineWaypointDto] })
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => InlineWaypointDto)
+  waypoints: InlineWaypointDto[];
+
+  @ApiProperty({ description: 'Distancia en km' })
+  @IsNumber()
+  distance: number;
+
+  @ApiProperty({ description: 'Duracion estimada en minutos' })
+  @IsNumber()
+  duration: number;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  difficulty?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsBoolean()
+  hasShade?: boolean;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsBoolean()
+  hasWater?: boolean;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsBoolean()
+  hasRestArea?: boolean;
+}
 
 export class CreateEventDto {
   @ApiProperty({ example: 'Mascotatone Arequipa 2026' })
@@ -36,6 +95,7 @@ export class CreateEventDto {
   @IsDateString()
   endDate?: string;
 
+  // Punto de partida
   @ApiProperty({ example: 'Parque Selva Alegre, Arequipa' })
   @IsString()
   @IsNotEmpty()
@@ -48,6 +108,22 @@ export class CreateEventDto {
   @ApiProperty({ example: -71.535 })
   @IsNumber()
   meetingLng: number;
+
+  // Punto de fin
+  @ApiPropertyOptional({ example: 'Plaza de Armas, Arequipa' })
+  @IsOptional()
+  @IsString()
+  endPoint?: string;
+
+  @ApiPropertyOptional({ example: -16.3988 })
+  @IsOptional()
+  @IsNumber()
+  endLat?: number;
+
+  @ApiPropertyOptional({ example: -71.537 })
+  @IsOptional()
+  @IsNumber()
+  endLng?: number;
 
   @ApiProperty({ example: 'Arequipa' })
   @IsString()
@@ -98,8 +174,14 @@ export class CreateEventDto {
   @IsString({ each: true })
   requirements?: string[];
 
-  @ApiPropertyOptional({ description: 'ID de ruta existente' })
+  @ApiPropertyOptional({ description: 'ID de ruta existente (alternativa a inlineRoute)' })
   @IsOptional()
   @IsString()
   routeId?: string;
+
+  @ApiPropertyOptional({ description: 'Ruta nueva grabada desde la app (alternativa a routeId)' })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => InlineRouteDto)
+  inlineRoute?: InlineRouteDto;
 }

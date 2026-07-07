@@ -7,9 +7,11 @@ import {
   Body,
   Param,
   Query,
+  Headers,
   UseGuards,
+  ForbiddenException,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiBearerAuth, ApiHeader } from '@nestjs/swagger';
 import { RoutesService } from './routes.service';
 import { CreateRouteDto } from './dto/create-route.dto';
 import { UpdateRouteDto } from './dto/update-route.dto';
@@ -25,8 +27,18 @@ export class RoutesController {
   @Post()
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Crear una ruta' })
-  create(@CurrentUser('id') userId: string, @Body() dto: CreateRouteDto) {
+  @ApiHeader({ name: 'X-Client-Platform', enum: ['mobile'], required: true })
+  @ApiOperation({ summary: 'Crear una ruta (solo desde app movil)' })
+  create(
+    @CurrentUser('id') userId: string,
+    @Body() dto: CreateRouteDto,
+    @Headers('x-client-platform') platform?: string,
+  ) {
+    if (platform !== 'mobile') {
+      throw new ForbiddenException(
+        'Las rutas solo se pueden crear desde la app movil',
+      );
+    }
     return this.routesService.create(userId, dto);
   }
 

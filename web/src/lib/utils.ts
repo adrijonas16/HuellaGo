@@ -17,19 +17,28 @@ export function formatDuration(minutes: number): string {
   return mins > 0 ? `${hours}h ${mins}min` : `${hours}h`;
 }
 
+const MONTHS = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+const MONTHS_LONG = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+const DAYS = ['dom', 'lun', 'mar', 'mie', 'jue', 'vie', 'sab'];
+
 export function formatDate(dateString: string): string {
-  return new Date(dateString).toLocaleDateString('es-PE', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-  });
+  const d = new Date(dateString);
+  return `${d.getDate()} de ${MONTHS_LONG[d.getMonth()]} ${d.getFullYear()}`;
 }
 
 export function formatTime(dateString: string): string {
-  return new Date(dateString).toLocaleTimeString('es-PE', {
-    hour: '2-digit',
-    minute: '2-digit',
-  });
+  const d = new Date(dateString);
+  return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+}
+
+export function formatDateShort(dateString: string): string {
+  const d = new Date(dateString);
+  return `${d.getDate()} de ${MONTHS_LONG[d.getMonth()]}, ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+}
+
+export function formatDateFull(dateString: string): string {
+  const d = new Date(dateString);
+  return `${DAYS[d.getDay()]} ${d.getDate()} de ${MONTHS_LONG[d.getMonth()]} ${d.getFullYear()}`;
 }
 
 export const CATEGORY_LABELS: Record<string, string> = {

@@ -1,11 +1,11 @@
 import { api } from './api';
 import {
   WalkRoute,
-  CreateRoutePayload,
   PaginatedResponse,
   PaginationParams,
 } from '@/interfaces';
 
+// Rutas son solo lectura desde la web. Se crean unicamente desde la app movil.
 export const routesService = {
   async getAll(
     params?: PaginationParams & { city?: string; difficulty?: string },
@@ -21,20 +21,5 @@ export const routesService = {
 
   async getById(id: string): Promise<WalkRoute> {
     return api.get<WalkRoute>(`/routes/${id}`);
-  },
-
-  async create(payload: CreateRoutePayload): Promise<WalkRoute> {
-    return api.post<WalkRoute>('/routes', payload);
-  },
-
-  async update(
-    id: string,
-    payload: Partial<CreateRoutePayload>,
-  ): Promise<WalkRoute> {
-    return api.patch<WalkRoute>(`/routes/${id}`, payload);
-  },
-
-  async remove(id: string): Promise<void> {
-    return api.delete(`/routes/${id}`);
   },
 };
