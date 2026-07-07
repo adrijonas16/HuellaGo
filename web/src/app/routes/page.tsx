@@ -1,13 +1,22 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Navbar } from '@/components/layout/navbar';
 import { Footer } from '@/components/layout/footer';
 import { ScrollReveal } from '@/components/effects/scroll-reveal';
 import { MOCK_ROUTES, DIFFICULTY_LABELS } from '@/lib/mock-data';
+import { fetchApi } from '@/lib/api';
 import { Route, MapPin, Clock, Star, Smartphone } from 'lucide-react';
 
 export default function RoutesPage() {
+  const [routes, setRoutes] = useState(MOCK_ROUTES);
+
+  useEffect(() => {
+    fetchApi<{ data: any[] }>('/routes', { limit: '50' }).then((res) => {
+      if (res?.data?.length) setRoutes(res.data);
+    });
+  }, []);
   return (
     <>
       <Navbar />
@@ -34,7 +43,7 @@ export default function RoutesPage() {
           </ScrollReveal>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {MOCK_ROUTES.map((route, i) => (
+            {routes.map((route: any, i: number) => (
               <ScrollReveal key={route.id} delay={i * 80}>
                 <Link href={`/routes/${route.id}`}>
                 <div className="bg-white rounded-card shadow-card card-hover overflow-hidden cursor-pointer">

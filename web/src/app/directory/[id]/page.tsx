@@ -1,17 +1,26 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Navbar } from '@/components/layout/navbar';
 import { Footer } from '@/components/layout/footer';
 import { ScrollReveal } from '@/components/effects/scroll-reveal';
 import { MOCK_BUSINESSES, CATEGORY_ICONS, CATEGORY_LABELS, CATEGORY_COLORS, PET_TYPE_ICONS, PET_TYPE_LABELS } from '@/lib/mock-data';
+import { fetchApi } from '@/lib/api';
 import { formatDate } from '@/lib/utils';
 import { Star, MapPin, Phone, MessageCircle, Heart, Clock, ChevronLeft, Shield, ExternalLink, Globe, Tag, Percent } from 'lucide-react';
 import { AdSlot } from '@/components/ads/ad-slot';
 
 export default function BusinessDetailPage({ params }: { params: { id: string } }) {
   const { id } = params;
-  const biz = MOCK_BUSINESSES.find((b) => b.id === id);
+  const mockBiz = MOCK_BUSINESSES.find((b) => b.id === id);
+  const [biz, setBiz] = useState<any>(mockBiz || null);
+
+  useEffect(() => {
+    fetchApi<any>(`/businesses/${id}`).then((res) => {
+      if (res) setBiz(res);
+    });
+  }, [id]);
 
   if (!biz) {
     return (

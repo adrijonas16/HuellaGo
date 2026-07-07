@@ -1,18 +1,35 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Navbar } from '@/components/layout/navbar';
 import { Footer } from '@/components/layout/footer';
 import { MOCK_EVENTS, ENERGY_LABELS, ENERGY_COLORS, SIZE_LABELS } from '@/lib/mock-data';
+import { fetchApi } from '@/lib/api';
 import { formatDateFull, formatTime } from '@/lib/utils';
 import { Calendar, MapPin, Users, Clock, ChevronLeft, Share2, Heart, CheckCircle, AlertCircle, Route, Camera, Upload } from 'lucide-react';
 import { EventChat, ChatButton } from '@/components/chat/event-chat';
 
 export default function EventDetailPage({ params }: { params: { id: string } }) {
   const { id } = params;
-  const event = MOCK_EVENTS.find((e) => e.id === id);
+  const mockEvent = MOCK_EVENTS.find((e) => e.id === id);
+  const [event, setEvent] = useState<any>(mockEvent || null);
   const [chatOpen, setChatOpen] = useState(false);
+
+  useEffect(() => {
+    fetchApi<any>(`/events/${id}`).then((res) => {
+      if (res) {
+        setEvent({
+          ...res,
+          attendees: res.attendees || [],
+          _count: res._count || { attendances: 0 },
+          requirements: res.requirements || [],
+          recommendedSize: res.recommendedSize || [],
+          organizer: res.organizer || { firstName: 'Organizador', lastName: '' },
+        });
+      }
+    });
+  }, [id]);
 
   if (!event) {
     return (
@@ -185,21 +202,21 @@ export default function EventDetailPage({ params }: { params: { id: string } }) 
                 <div className="space-y-3">
                   <h3 className="text-sm font-semibold text-gray-500">Perritos que asistiran 🐶</h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    {event.attendees.map((att, i) => (
+                    {(event.attendees || []).map((att: any, i: number) => (
                       <div key={i} className="flex items-center gap-3 bg-cream rounded-xl p-3">
                         <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary/30 to-primary/10 flex items-center justify-center text-lg">
                           🐕
                         </div>
                         <div>
-                          <div className="text-sm font-semibold text-dark">{att.pet.name}</div>
-                          <div className="text-xs text-gray-400">{att.pet.breed} · {att.user.firstName} {att.user.lastName}</div>
+                          <div className="text-sm font-semibold text-dark">{att.pet?.name || 'Perrito'}</div>
+                          <div className="text-xs text-gray-400">{att.pet?.breed || ''} · {att.user?.firstName || ''} {att.user?.lastName || ''}</div>
                         </div>
                       </div>
                     ))}
-                    {event._count.attendances > event.attendees.length && (
+                    {event._count.attendances > (event.attendees || []).length && (
                       <div className="flex items-center gap-3 bg-cream rounded-xl p-3">
                         <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-sm font-bold text-gray-500">
-                          +{event._count.attendances - event.attendees.length}
+                          +{event._count.attendances - (event.attendees || []).length}
                         </div>
                         <div className="text-sm text-gray-400">mas perritos inscritos</div>
                       </div>

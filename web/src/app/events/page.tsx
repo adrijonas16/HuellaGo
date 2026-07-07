@@ -1,19 +1,36 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Navbar } from '@/components/layout/navbar';
 import { Footer } from '@/components/layout/footer';
 import { MOCK_EVENTS, ENERGY_LABELS, ENERGY_COLORS, SIZE_LABELS } from '@/lib/mock-data';
+import { fetchApi } from '@/lib/api';
 import { formatDateShort } from '@/lib/utils';
 import { Calendar, MapPin, Users, Clock, Star, ChevronRight } from 'lucide-react';
 
 export default function EventsPage() {
+  const [events, setEvents] = useState(MOCK_EVENTS);
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
 
+  useEffect(() => {
+    fetchApi<{ data: any[] }>('/events', { limit: '50' }).then((res) => {
+      if (res?.data?.length) {
+        // Ensure attendees array exists for graceful handling
+        const normalized = res.data.map((e: any) => ({
+          ...e,
+          attendees: e.attendees || [],
+          _count: e._count || { attendances: 0 },
+          recommendedSize: e.recommendedSize || [],
+        }));
+        setEvents(normalized);
+      }
+    });
+  }, []);
+
   const filtered = activeFilter
-    ? MOCK_EVENTS.filter((e) => e.energyLevel === activeFilter)
-    : MOCK_EVENTS;
+    ? events.filter((e: any) => e.energyLevel === activeFilter)
+    : events;
 
   return (
     <>
@@ -43,7 +60,7 @@ export default function EventsPage() {
                 !activeFilter ? 'bg-primary text-white shadow-button' : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-200'
               }`}
             >
-              Todos ({MOCK_EVENTS.length})
+              Todos ({events.length})
             </button>
             {['LOW', 'MEDIUM', 'HIGH'].map((level) => (
               <button
@@ -151,14 +168,14 @@ export default function EventsPage() {
                         )}
                       </div>
                       <div className="flex -space-x-2">
-                        {event.attendees.slice(0, 3).map((a, j) => (
+                        {(event.attendees || []).slice(0, 3).map((a: any, j: number) => (
                           <div key={j} className="w-6 h-6 rounded-full bg-gradient-to-br from-primary to-primary-dark text-white text-[9px] font-bold flex items-center justify-center border-2 border-white">
-                            {a.user.firstName[0]}
+                            {a.user?.firstName?.[0] || '?'}
                           </div>
                         ))}
-                        {event._count.attendances > 3 && (
+                        {event._count.attendances > (event.attendees || []).length && (
                           <div className="w-6 h-6 rounded-full bg-gray-200 text-gray-600 text-[9px] font-bold flex items-center justify-center border-2 border-white">
-                            +{event._count.attendances - 3}
+                            +{event._count.attendances - (event.attendees || []).length}
                           </div>
                         )}
                       </div>

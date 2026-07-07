@@ -1,22 +1,31 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Navbar } from '@/components/layout/navbar';
 import { Footer } from '@/components/layout/footer';
 import { MOCK_BUSINESSES, CATEGORY_ICONS, CATEGORY_LABELS, CATEGORY_COLORS } from '@/lib/mock-data';
+import { fetchApi } from '@/lib/api';
 import { Star, MapPin, Heart, Clock } from 'lucide-react';
 
 export default function DirectoryPage() {
+  const [businesses, setBusinesses] = useState(MOCK_BUSINESSES);
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
-  const categories = Array.from(new Set(MOCK_BUSINESSES.map((b) => b.category)));
+
+  useEffect(() => {
+    fetchApi<{ data: any[] }>('/businesses', { limit: '50' }).then((res) => {
+      if (res?.data?.length) setBusinesses(res.data);
+    });
+  }, []);
+
+  const categories = Array.from(new Set(businesses.map((b) => b.category)));
 
   const filtered = activeCategory
-    ? MOCK_BUSINESSES.filter((b) => {
-        const cats = (b as any).categories || [b.category];
+    ? businesses.filter((b: any) => {
+        const cats = b.categories || [b.category];
         return cats.includes(activeCategory) || b.category === activeCategory;
       })
-    : MOCK_BUSINESSES;
+    : businesses;
 
   return (
     <>
@@ -36,7 +45,7 @@ export default function DirectoryPage() {
                 !activeCategory ? 'bg-primary text-white shadow-button' : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
               }`}
             >
-              Todos ({MOCK_BUSINESSES.length})
+              Todos ({businesses.length})
             </button>
             {categories.map((cat) => (
               <button

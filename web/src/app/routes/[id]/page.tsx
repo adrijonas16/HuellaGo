@@ -1,17 +1,26 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { Navbar } from '@/components/layout/navbar';
 import { Footer } from '@/components/layout/footer';
 import { ScrollReveal } from '@/components/effects/scroll-reveal';
 import { MOCK_ROUTES, DIFFICULTY_LABELS } from '@/lib/mock-data';
+import { fetchApi } from '@/lib/api';
 import { MapPin, Clock, Star, ChevronLeft, Route, Footprints, Shield, Droplets, TreePine, Armchair, Smartphone } from 'lucide-react';
 
 const RouteMap = dynamic(() => import('@/components/map/route-map'), { ssr: false });
 
 export default function RouteDetailPage({ params }: { params: { id: string } }) {
-  const route = MOCK_ROUTES.find((r) => r.id === params.id);
+  const mockRoute = MOCK_ROUTES.find((r) => r.id === params.id);
+  const [route, setRoute] = useState<any>(mockRoute || null);
+
+  useEffect(() => {
+    fetchApi<any>(`/routes/${params.id}`).then((res) => {
+      if (res) setRoute(res);
+    });
+  }, [params.id]);
 
   if (!route) {
     return (
