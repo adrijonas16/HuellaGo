@@ -50,3 +50,26 @@ npm run build && npm start   # http://localhost:3001
 ```
 
 Se probaron 21 flujos de punta a punta con Playwright, todos aprobados: búsqueda, filtros, favoritos con recarga, inscripción, login demo, agregar mascota, publicar, unirse, reseña, cerrar sesión, menú móvil y ausencia de errores de JS.
+
+## Despliegue
+
+| Pieza | Dónde | URL |
+|-------|-------|-----|
+| Web (Next.js, carpeta `web/`) | Vercel, proyecto `huellago` | https://huellago-sooty.vercel.app |
+| API (NestJS, carpeta `backend/`) | Vercel, proyecto `huellago-api` | https://huellago-api.vercel.app/api |
+| Base de datos (PostgreSQL) | Supabase, proyecto "adrijonas16's Project", esquema aislado `huellago` con usuario propio `huellago_app` | — |
+
+- Cuenta de ejemplo: `maria.garcia@gmail.com` / `HuellaGo2026!` (en la pantalla de ingreso hay un botón que la rellena).
+- Variables de la API en Vercel: `DATABASE_URL` (pooler 6543 con `pgbouncer=true`), `DIRECT_URL` (pooler 5432), `JWT_SECRET`, `JWT_REFRESH_SECRET`, `JWT_EXPIRATION`, `JWT_REFRESH_EXPIRATION`, `FRONTEND_URL`.
+- Variable de la web en Vercel: `NEXT_PUBLIC_API_URL=https://huellago-api.vercel.app/api`.
+- Cambios de esquema: `cd backend && DATABASE_URL=... DIRECT_URL=... npm run db:push`; datos de ejemplo: `npm run prisma:seed` (borra y vuelve a crear los datos del esquema `huellago`).
+- Las fechas del seed son relativas al día en que se ejecuta, así que los eventos siempre son futuros.
+
+### Correcciones del backend para que funcione en producción
+
+- Los alias `@common/...` no se resolvían al ejecutar `dist/` (el servidor no arrancaba con `npm run start:prod`): ahora son rutas relativas.
+- El build incluía `prisma/seed.ts` y dejaba la salida en `dist/src/`: se agregó `tsconfig.build.json`.
+- Se quitó la extensión PostGIS (no se usaba y bloqueaba la creación del esquema).
+- `bcrypt` (nativo) → `bcryptjs`, compatible con funciones serverless.
+- `CreatePetDto` no aceptaba `petType`: crear un gato o conejo devolvía error 400.
+- CORS acepta varios orígenes y los despliegues de Vercel del front; filtro global de errores activado.
