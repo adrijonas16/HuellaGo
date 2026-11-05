@@ -222,7 +222,7 @@ function DirectoryContent() {
                       {biz.priceRange && <span className="ml-auto text-bark whitespace-nowrap hidden sm:inline">{biz.priceRange}</span>}
                     </div>
                   </div>
-                  <FavoriteButton kind="business" id={String(biz.id)} label={biz.name} className="absolute top-3 right-3" />
+                  <FavoriteButton kind="business" id={String(biz.id)} label={biz.name} subtitle={`${CATEGORY_LABELS[biz.category] ?? ''} en ${biz.district ?? biz.city ?? ''}`} className="absolute top-3 right-3" />
                 </Link>
               );
             })}

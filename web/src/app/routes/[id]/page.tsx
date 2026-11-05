@@ -18,12 +18,30 @@ const RouteMap = dynamic(() => import('@/components/map/route-map'), { ssr: fals
 export default function RouteDetailPage({ params }: { params: { id: string } }) {
   const mockRoute = MOCK_ROUTES.find((r) => r.id === params.id);
   const [route, setRoute] = useState<any>(mockRoute || null);
+  const [loaded, setLoaded] = useState(!!mockRoute);
 
   useEffect(() => {
     fetchApi<any>(`/routes/${params.id}`).then((res) => {
+      setLoaded(true);
       if (res) setRoute(res);
     });
   }, [params.id]);
+
+  if (!route && !loaded) {
+    return (
+      <>
+        <Navbar />
+        <main id="contenido" className="min-h-screen bg-cream">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-4" aria-busy="true" aria-label="Cargando">
+            <div className="skeleton h-56 rounded-card" />
+            <div className="skeleton h-8 w-2/3" />
+            <div className="skeleton h-4 w-1/2" />
+            <div className="skeleton h-32 rounded-card" />
+          </div>
+        </main>
+      </>
+    );
+  }
 
   if (!route) {
     return (
@@ -198,7 +216,7 @@ export default function RouteDetailPage({ params }: { params: { id: string } }) 
                     Crear evento con esta ruta
                   </Link>
                   <div className="flex items-center justify-center gap-2 mt-3">
-                    <FavoriteButton kind="route" id={route.id} label={route.name} className="shadow-none bg-cream" />
+                    <FavoriteButton kind="route" id={route.id} label={route.name} subtitle={`${route.distance} km · ${route.duration} min`} className="shadow-none bg-cream" />
                     <ShareButton title={route.name} className="shadow-none bg-cream" />
                   </div>
                 </div>

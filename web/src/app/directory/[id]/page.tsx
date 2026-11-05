@@ -16,11 +16,13 @@ import { Sheet } from '@/components/ui/sheet';
 import { CategoryIcon } from '@/components/ui/category-icon';
 import { useAppStore, useHydrated } from '@/lib/store';
 import { useAuth } from '@/hooks';
+import { hasRealSession, isApiId, createReview, errorMessage } from '@/lib/backend';
 
 export default function BusinessDetailPage({ params }: { params: { id: string } }) {
   const { id } = params;
   const mockBiz = MOCK_BUSINESSES.find((b) => b.id === id);
   const [biz, setBiz] = useState<any>(mockBiz || null);
+  const [loaded, setLoaded] = useState(!!mockBiz);
   const hydrated = useHydrated();
   const isFav = useAppStore((s) => !!s.favorites[`business:${id}`]) && hydrated;
   const toggleFavorite = useAppStore((s) => s.toggleFavorite);
@@ -33,13 +35,22 @@ export default function BusinessDetailPage({ params }: { params: { id: string } 
 
   useEffect(() => {
     fetchApi<any>(`/businesses/${id}`).then((res) => {
+      setLoaded(true);
       if (res) setBiz({ services: [], reviews: [], ...res });
     });
   }, [id]);
 
-  function submitReview(e: React.FormEvent) {
+  async function submitReview(e: React.FormEvent) {
     e.preventDefault();
     if (myComment.trim().length < 10) return;
+    if (hasRealSession() && isApiId(String(biz.id))) {
+      try {
+        await createReview({ businessId: String(biz.id), rating: myRating, comment: myComment.trim() });
+      } catch (err) {
+        notify(errorMessage(err, 'No pudimos publicar tu reseña.'), { tone: 'error' });
+        return;
+      }
+    }
     setExtraReviews((r) => [
       { user: { firstName: user?.firstName ?? 'Tú', lastName: user?.lastName ?? '' }, rating: myRating, comment: myComment.trim(), createdAt: new Date().toISOString(), mine: true },
       ...r,
@@ -47,6 +58,22 @@ export default function BusinessDetailPage({ params }: { params: { id: string } 
     setReviewOpen(false);
     setMyComment('');
     notify('Reseña publicada. ¡Gracias por ayudar a otros dueños!', { tone: 'success' });
+  }
+
+  if (!biz && !loaded) {
+    return (
+      <>
+        <Navbar />
+        <main id="contenido" className="min-h-screen bg-cream">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-4" aria-busy="true" aria-label="Cargando">
+            <div className="skeleton h-56 rounded-card" />
+            <div className="skeleton h-8 w-2/3" />
+            <div className="skeleton h-4 w-1/2" />
+            <div className="skeleton h-32 rounded-card" />
+          </div>
+        </main>
+      </>
+    );
   }
 
   if (!biz) {
@@ -66,6 +93,8 @@ export default function BusinessDetailPage({ params }: { params: { id: string } 
 
   const days = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
   biz.services = biz.services ?? [];
+  biz.hours = biz.hours ?? [];
+  biz.promotions = biz.promotions ?? [];
   const reviews = [...extraReviews, ...(biz.reviews ?? [])];
   const phone = String(biz.phone ?? '').replace(/[^0-9+]/g, '');
   const whatsapp = String(biz.whatsapp ?? '').replace(/\D/g, '');
@@ -101,7 +130,7 @@ export default function BusinessDetailPage({ params }: { params: { id: string } 
                 <div className="rounded-card overflow-hidden h-56 relative" style={{ background: `linear-gradient(135deg, ${CATEGORY_COLORS[biz.category]}25, ${CATEGORY_COLORS[biz.category]}05)` }}>
                   <CategoryIcon category={biz.category} size={220} strokeWidth={1} className="absolute -right-6 -bottom-10 opacity-20" style={{ color: CATEGORY_COLORS[biz.category] }} />
                   <div className="absolute top-4 right-4 flex gap-2">
-                    <FavoriteButton kind="business" id={String(biz.id)} label={biz.name} size={18} className="w-10 h-10" />
+                    <FavoriteButton kind="business" id={String(biz.id)} label={biz.name} subtitle={`${CATEGORY_LABELS[biz.category] ?? ''} en ${biz.district ?? biz.city ?? ''}`} size={18} className="w-10 h-10" />
                     <ShareButton title={biz.name} className="w-10 h-10" />
                     {biz.website && (
                       <a href={biz.website} target="_blank" rel="noopener noreferrer" aria-label={`Abrir la web de ${biz.name}`} className="w-10 h-10 bg-white/90 rounded-full shadow-card flex items-center justify-center hover:bg-white">
@@ -327,7 +356,7 @@ export default function BusinessDetailPage({ params }: { params: { id: string } 
                     <MapPin size={16} /> Cómo llegar
                   </a>
                   <button
-                    onClick={() => toggleFavorite('business', String(biz.id), biz.name)}
+                    onClick={() => toggleFavorite('business', String(biz.id), biz.name, { subtitle: `${CATEGORY_LABELS[biz.category] ?? ''} en ${biz.district ?? biz.city ?? ''}` })}
                     aria-pressed={isFav}
                     className={`w-full flex items-center justify-center gap-2 font-bold py-3 rounded-full transition-colors ${isFav ? 'bg-rose/10 text-rose-dark' : 'bg-cream text-dark hover:bg-sand'}`}
                   >

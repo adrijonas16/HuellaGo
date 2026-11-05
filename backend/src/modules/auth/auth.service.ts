@@ -20,7 +20,7 @@ export class AuthService {
   async register(dto: RegisterDto) {
     const existing = await this.authRepository.findUserByEmail(dto.email);
     if (existing) {
-      throw new ConflictException('El email ya esta registrado');
+      throw new ConflictException('Ya existe una cuenta con ese email');
     }
 
     const passwordHash = await bcrypt.hash(dto.password, 12);

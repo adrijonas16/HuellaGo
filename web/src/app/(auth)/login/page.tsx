@@ -58,6 +58,18 @@ export default function LoginPage() {
         </button>
       </form>
 
+      <div className="mt-6 rounded-2xl border border-dashed border-bark-light/60 bg-white/60 p-4 text-sm">
+        <p className="font-semibold text-dark">¿Solo quieres probar?</p>
+        <p className="text-bark mt-0.5">Entra con la cuenta de ejemplo de María, que ya tiene mascotas y favoritos.</p>
+        <button
+          type="button"
+          onClick={() => { setEmail('maria.garcia@gmail.com'); setPassword('HuellaGo2026!'); setTouched(false); setError(''); }}
+          className="mt-3 font-bold text-primary link-route"
+        >
+          Usar cuenta de ejemplo
+        </button>
+      </div>
+
       <p className="mt-8 text-center text-bark">
         ¿Aún no tienes cuenta?{' '}
         <Link href="/register" className="text-primary font-bold link-route">Crear cuenta gratis</Link>

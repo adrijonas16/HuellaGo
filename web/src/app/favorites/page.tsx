@@ -20,19 +20,31 @@ export default function FavoritesPage() {
   const toggle = useAppStore((s) => s.toggleFavorite);
   const [tab, setTab] = useState<Tab>('business');
 
-  const ids = useMemo(() => {
-    const by: Record<Tab, Set<string>> = { business: new Set(), route: new Set(), event: new Set() };
+  // Cada favorito guarda su nombre y enlace, así funcionan tanto los datos
+  // de ejemplo como los que llegan de la API.
+  const entries = useMemo(() => {
+    const by: Record<Tab, { id: string; label: string; href: string; subtitle?: string }[]> = { business: [], route: [], event: [] };
     if (!hydrated) return by;
-    Object.keys(favorites).forEach((k) => {
-      const [kind, id] = k.split(':');
-      if (kind in by) by[kind as Tab].add(id);
+    Object.entries(favorites).forEach(([k, meta]) => {
+      const [kind, id] = k.split(':') as [Tab, string];
+      if (!(kind in by)) return;
+      const m = meta === true ? null : meta;
+      const mockB = kind === 'business' ? MOCK_BUSINESSES.find((b) => String(b.id) === id) : null;
+      const mockE = kind === 'event' ? MOCK_EVENTS.find((e) => e.id === id) : null;
+      const mockR = kind === 'route' ? MOCK_ROUTES.find((r) => r.id === id) : null;
+      const label = m?.label ?? mockB?.name ?? mockE?.title ?? mockR?.name ?? 'Favorito';
+      const href = m?.href ?? (kind === 'business' ? `/directory/${id}` : kind === 'event' ? `/events/${id}` : `/routes/${id}`);
+      const subtitle =
+        m?.subtitle ??
+        (mockB ? `${CATEGORY_LABELS[mockB.category]} en ${mockB.district}` : mockE ? `${formatDateShort(mockE.date)} · ${mockE.meetingPoint}` : mockR ? `${mockR.distance} km · ${mockR.duration} min · ${DIFFICULTY_LABELS[mockR.difficulty]}` : undefined);
+      by[kind].push({ id, label, href, subtitle });
     });
     return by;
   }, [favorites, hydrated]);
 
-  const businesses = MOCK_BUSINESSES.filter((b) => ids.business.has(String(b.id)));
-  const routes = MOCK_ROUTES.filter((r) => ids.route.has(r.id));
-  const events = MOCK_EVENTS.filter((e) => ids.event.has(e.id));
+  const businesses = entries.business;
+  const routes = entries.route;
+  const events = entries.event;
 
   const TABS: { key: Tab; label: string; count: number }[] = [
     { key: 'business', label: 'Servicios', count: businesses.length },
@@ -97,59 +109,31 @@ export default function FavoritesPage() {
             </div>
           ) : (
             <ul className="space-y-3">
-              {tab === 'business' &&
-                businesses.map((b) => (
-                  <li key={b.id} className="bg-white rounded-card p-3 pr-2 flex items-center gap-3 animate-slide-up">
-                    <Link href={`/directory/${b.id}`} className="flex items-center gap-4 flex-1 min-w-0 rounded-2xl p-1">
-                      <span className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0" style={{ backgroundColor: CATEGORY_COLORS[b.category] + '18', color: CATEGORY_COLORS[b.category] }}>
-                        <CategoryIcon category={b.category} size={22} />
-                      </span>
-                      <span className="min-w-0">
-                        <span className="block font-heading font-bold text-dark truncate">{b.name}</span>
-                        <span className="flex items-center gap-3 text-sm text-bark">
-                          <span className="inline-flex items-center gap-1"><Star size={13} className="fill-accent text-accent" />{b.avgRating}</span>
-                          <span className="truncate">{CATEGORY_LABELS[b.category]} en {b.district}</span>
+              {(tab === 'business' ? businesses : tab === 'route' ? routes : events).map((f) => {
+                const mockB = tab === 'business' ? MOCK_BUSINESSES.find((b) => String(b.id) === f.id) : null;
+                const mockR = tab === 'route' ? MOCK_ROUTES.find((r) => r.id === f.id) : null;
+                return (
+                  <li key={f.id} className="bg-white rounded-card p-3 pr-2 flex items-center gap-3 animate-slide-up">
+                    <Link href={f.href} className="flex items-center gap-4 flex-1 min-w-0 rounded-2xl p-1">
+                      {mockR ? (
+                        <RouteSketch waypoints={mockR.waypoints} className="w-12 h-12 rounded-2xl bg-cream shrink-0" />
+                      ) : (
+                        <span
+                          className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 bg-primary-soft text-primary"
+                          style={mockB ? { backgroundColor: CATEGORY_COLORS[mockB.category] + '18', color: CATEGORY_COLORS[mockB.category] } : undefined}
+                        >
+                          {mockB ? <CategoryIcon category={mockB.category} size={22} /> : tab === 'event' ? <Calendar size={22} /> : tab === 'route' ? <Clock size={22} /> : <Star size={22} />}
                         </span>
+                      )}
+                      <span className="min-w-0">
+                        <span className="block font-heading font-bold text-dark truncate">{f.label}</span>
+                        {f.subtitle && <span className="block text-sm text-bark truncate">{f.subtitle}</span>}
                       </span>
                     </Link>
-                    <RemoveBtn kind="business" id={String(b.id)} label={b.name} />
+                    <RemoveBtn kind={tab} id={f.id} label={f.label} />
                   </li>
-                ))}
-              {tab === 'route' &&
-                routes.map((r) => (
-                  <li key={r.id} className="bg-white rounded-card p-3 pr-2 flex items-center gap-3 animate-slide-up">
-                    <Link href={`/routes/${r.id}`} className="flex items-center gap-4 flex-1 min-w-0">
-                      <RouteSketch waypoints={r.waypoints} className="w-14 h-14 rounded-2xl bg-cream shrink-0" />
-                      <span className="min-w-0">
-                        <span className="block font-heading font-bold text-dark truncate">{r.name}</span>
-                        <span className="flex items-center gap-3 text-sm text-bark">
-                          <span>{r.distance} km</span>
-                          <span className="inline-flex items-center gap-1"><Clock size={13} />{r.duration} min</span>
-                          <span>{DIFFICULTY_LABELS[r.difficulty]}</span>
-                        </span>
-                      </span>
-                    </Link>
-                    <RemoveBtn kind="route" id={r.id} label={r.name} />
-                  </li>
-                ))}
-              {tab === 'event' &&
-                events.map((e) => (
-                  <li key={e.id} className="bg-white rounded-card p-3 pr-2 flex items-center gap-3 animate-slide-up">
-                    <Link href={`/events/${e.id}`} className="flex items-center gap-4 flex-1 min-w-0">
-                      <span className="w-12 h-12 rounded-2xl bg-primary-soft text-primary flex items-center justify-center shrink-0">
-                        <Calendar size={22} />
-                      </span>
-                      <span className="min-w-0">
-                        <span className="block font-heading font-bold text-dark truncate">{e.title}</span>
-                        <span className="flex items-center gap-3 text-sm text-bark">
-                          <span>{formatDateShort(e.date)}</span>
-                          <span className="inline-flex items-center gap-1 truncate"><MapPin size={13} />{e.meetingPoint}</span>
-                        </span>
-                      </span>
-                    </Link>
-                    <RemoveBtn kind="event" id={e.id} label={e.title} />
-                  </li>
-                ))}
+                );
+              })}
             </ul>
           )}
           <PawMark className="w-10 h-10 mx-auto mt-16 text-bark/15" />

@@ -14,7 +14,7 @@ class ApiClient {
     return localStorage.getItem('accessToken');
   }
 
-  private async request<T>(
+  async request<T>(
     endpoint: string,
     options: RequestInit = {},
   ): Promise<T> {
@@ -32,16 +32,20 @@ class ApiClient {
 
     if (!response.ok) {
       const error = await response.json().catch(() => ({
-        message: 'Error de conexion',
+        message: 'Error de conexión',
       }));
-      throw new ApiError(
-        error.message || 'Error desconocido',
-        response.status,
-      );
+      const message = Array.isArray(error.message) ? error.message.join('. ') : error.message;
+      throw new ApiError(message || 'Error desconocido', response.status);
     }
 
-    const json: ApiResponse<T> = await response.json();
-    return json.data;
+    if (response.status === 204) return undefined as T;
+    const text = await response.text();
+    if (!text) return undefined as T;
+    const json = JSON.parse(text);
+    // La API puede responder con o sin el sobre { success, data }
+    return (json && typeof json === 'object' && 'success' in json && 'data' in json
+      ? (json as ApiResponse<T>).data
+      : json) as T;
   }
 
   async get<T>(endpoint: string, params?: Record<string, string>): Promise<T> {

@@ -11,12 +11,14 @@ interface FavoriteButtonProps {
   label: string;
   size?: number;
   className?: string;
+  /** texto secundario que se mostrará en Favoritos */
+  subtitle?: string;
 }
 
 const BURST = ['#F0506E', '#FFC531', '#3352F5', '#F0506E', '#0F8A5F', '#FFC531'];
 
 /** Corazón de favoritos persistente, con animación de "pop" y partículas. */
-export function FavoriteButton({ kind, id, label, size = 16, className }: FavoriteButtonProps) {
+export function FavoriteButton({ kind, id, label, size = 16, className, subtitle }: FavoriteButtonProps) {
   const hydrated = useHydrated();
   const active = useAppStore((s) => !!s.favorites[`${kind}:${id}`]) && hydrated;
   const toggle = useAppStore((s) => s.toggleFavorite);
@@ -30,7 +32,7 @@ export function FavoriteButton({ kind, id, label, size = 16, className }: Favori
       onClick={(e) => {
         e.preventDefault();
         e.stopPropagation();
-        const added = toggle(kind, id, label);
+        const added = toggle(kind, id, label, subtitle ? { subtitle } : undefined);
         if (added) setBurstKey((k) => k + 1);
       }}
       className={cn(

@@ -27,6 +27,7 @@ export default function EventDetailPage({ params }: { params: { id: string } }) 
   const { id } = params;
   const mockEvent = MOCK_EVENTS.find((e) => e.id === id);
   const [event, setEvent] = useState<any>(mockEvent || null);
+  const [loaded, setLoaded] = useState(!!mockEvent);
   const [chatOpen, setChatOpen] = useState(false);
   const notify = useAppStore((s) => s.notify);
   const hydrated = useHydrated();
@@ -34,6 +35,7 @@ export default function EventDetailPage({ params }: { params: { id: string } }) 
 
   useEffect(() => {
     fetchApi<any>(`/events/${id}`).then((res) => {
+      setLoaded(true);
       if (res) {
         setEvent({
           ...res,
@@ -46,6 +48,22 @@ export default function EventDetailPage({ params }: { params: { id: string } }) 
       }
     });
   }, [id]);
+
+  if (!event && !loaded) {
+    return (
+      <>
+        <Navbar />
+        <main id="contenido" className="min-h-screen bg-cream">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-4" aria-busy="true" aria-label="Cargando">
+            <div className="skeleton h-56 rounded-card" />
+            <div className="skeleton h-8 w-2/3" />
+            <div className="skeleton h-4 w-1/2" />
+            <div className="skeleton h-32 rounded-card" />
+          </div>
+        </main>
+      </>
+    );
+  }
 
   if (!event) {
     return (
@@ -87,7 +105,7 @@ export default function EventDetailPage({ params }: { params: { id: string } }) 
                 )}
                 <div className="absolute inset-0 bg-gradient-to-t from-dark/60 to-transparent" />
                 <div className="absolute top-4 right-4 flex gap-2">
-                  <FavoriteButton kind="event" id={event.id} label={event.title} size={18} className="w-10 h-10" />
+                  <FavoriteButton kind="event" id={event.id} label={event.title} subtitle={`${formatDateFull(event.date)} · ${event.meetingPoint}`} size={18} className="w-10 h-10" />
                   <ShareButton title={event.title} className="w-10 h-10" />
                 </div>
                 <div className="absolute top-4 left-4">

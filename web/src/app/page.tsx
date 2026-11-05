@@ -253,7 +253,7 @@ export default async function LandingPage() {
                           </span>
                         </span>
                       </Link>
-                      <FavoriteButton kind="business" id={String(biz.id)} label={biz.name} className="absolute right-4 top-1/2 -translate-y-1/2" />
+                      <FavoriteButton kind="business" id={String(biz.id)} label={biz.name} subtitle={`${CATEGORY_LABELS[biz.category] ?? ''} en ${biz.district ?? biz.city ?? ''}`} className="absolute right-4 top-1/2 -translate-y-1/2" />
                     </li>
                   ))}
                 </ul>

@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
+import { syncFavorite } from '@/lib/backend';
 
 /**
  * Estado local de la app (persistido en localStorage).
@@ -11,6 +12,13 @@ import { persist, createJSONStorage } from 'zustand/middleware';
  */
 
 export type FavoriteKind = 'business' | 'event' | 'route' | 'pet';
+
+export interface FavoriteMeta {
+  label: string;
+  href?: string;
+  subtitle?: string;
+  savedAt?: string;
+}
 
 export interface Toast {
   id: number;
@@ -32,13 +40,13 @@ interface AppState {
   myPets: NewPet[];
   addPet: (pet: Omit<NewPet, 'id' | 'createdAt'>) => void;
   removePet: (id: string) => void;
-  favorites: Record<string, true>; // clave `${kind}:${id}`
-  registrations: Record<string, { petName?: string; at: string }>;
+  favorites: Record<string, FavoriteMeta | true>; // clave `${kind}:${id}`
+  registrations: Record<string, { petName?: string; petId?: string; at: string }>;
   communities: Record<string, true>;
   toasts: Toast[];
 
   isFavorite: (kind: FavoriteKind, id: string) => boolean;
-  toggleFavorite: (kind: FavoriteKind, id: string, label?: string) => boolean;
+  toggleFavorite: (kind: FavoriteKind, id: string, label?: string, meta?: Omit<FavoriteMeta, 'label'>) => boolean;
   isRegistered: (eventId: string) => boolean;
   toggleRegistration: (eventId: string, petName?: string) => boolean;
   isMember: (communityId: string) => boolean;
@@ -70,13 +78,15 @@ export const useAppStore = create<AppState>()(
 
       isFavorite: (kind, id) => !!get().favorites[`${kind}:${id}`],
 
-      toggleFavorite: (kind, id, label) => {
+      toggleFavorite: (kind, id, label, meta) => {
         const key = `${kind}:${id}`;
         const favorites = { ...get().favorites };
         const added = !favorites[key];
-        if (added) favorites[key] = true;
+        const defaultHref = kind === 'business' ? `/directory/${id}` : kind === 'event' ? `/events/${id}` : kind === 'route' ? `/routes/${id}` : `/pets/${id}`;
+        if (added) favorites[key] = { label: label ?? 'Favorito', href: defaultHref, savedAt: new Date().toISOString(), ...meta };
         else delete favorites[key];
         set({ favorites });
+        if (kind !== 'pet') syncFavorite(kind, id, added);
         get().notify(
           added ? `${label ?? 'Elemento'} guardado en favoritos` : `${label ?? 'Elemento'} quitado de favoritos`,
           added ? { tone: 'success', action: { label: 'Ver favoritos', href: '/favorites' } } : { tone: 'info' },

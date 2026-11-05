@@ -1,7 +1,8 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { fetchApi } from '@/lib/api';
 import { Navbar } from '@/components/layout/navbar';
 import { MOCK_BUSINESSES, CATEGORY_ICONS, CATEGORY_LABELS, CATEGORY_COLORS } from '@/lib/mock-data';
 import { Star, Phone, MapPin, Clock, X, ExternalLink, Heart, MessageCircle } from 'lucide-react';
@@ -11,15 +12,22 @@ const MapView = dynamic(() => import('@/components/map/map-view'), { ssr: false 
 export default function MapPage() {
   const [selectedBiz, setSelectedBiz] = useState<any>(null);
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  const [businesses, setBusinesses] = useState<any[]>(MOCK_BUSINESSES);
+
+  useEffect(() => {
+    fetchApi<{ data: any[] }>('/businesses', { limit: '100' }).then((res) => {
+      if (res?.data?.length) setBusinesses(res.data.map((b) => ({ reviews: [], services: [], promotions: [], _count: { reviews: 0 }, ...b })));
+    });
+  }, []);
 
   const filtered = activeCategory
-    ? MOCK_BUSINESSES.filter((b) => {
+    ? businesses.filter((b) => {
         const cats = (b as any).categories || [b.category];
         return cats.includes(activeCategory) || b.category === activeCategory;
       })
-    : MOCK_BUSINESSES;
+    : businesses;
 
-  const categories = Array.from(new Set(MOCK_BUSINESSES.map((b) => b.category)));
+  const categories = Array.from(new Set(businesses.map((b) => b.category)));
 
   return (
     <>
@@ -35,7 +43,7 @@ export default function MapPage() {
                 : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
             }`}
           >
-            Todos ({MOCK_BUSINESSES.length})
+            Todos ({businesses.length})
           </button>
           {categories.map((cat) => (
             <button

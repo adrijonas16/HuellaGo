@@ -102,13 +102,13 @@ export class EventsService {
     const event = await this.findOne(eventId);
 
     if (event.eventStatus !== EventStatus.UPCOMING) {
-      throw new BadRequestException('Solo puedes inscribirte a eventos proximos');
+      throw new BadRequestException('Solo puedes inscribirte a eventos próximos');
     }
 
     if (event.maxAttendees) {
       const count = await this.eventsRepository.countAttendances(eventId);
       if (count >= event.maxAttendees) {
-        throw new BadRequestException('El evento esta lleno');
+        throw new BadRequestException('El evento está lleno');
       }
     }
 
@@ -118,7 +118,7 @@ export class EventsService {
       petId,
     );
     if (existing) {
-      throw new BadRequestException('Ya estas inscrito con esta mascota');
+      throw new BadRequestException('Ya estás inscrito con esta mascota');
     }
 
     return this.eventsRepository.addAttendance(eventId, userId, petId);

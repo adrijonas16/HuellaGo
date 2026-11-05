@@ -571,7 +571,8 @@ export const CATEGORY_COLORS: Record<string, string> = {
   STORE: '#3182CE',
   GROOMING: '#ED64A6',
   TRAINER: '#D9730D',
-  OTHER: '#A0AEC0',
+  SHELTER: '#F0506E',
+  OTHER: '#8A90A8',
 };
 
 export const CATEGORY_ICONS: Record<string, string> = {

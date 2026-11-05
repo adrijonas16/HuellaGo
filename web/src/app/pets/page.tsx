@@ -5,7 +5,8 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { Sheet } from '@/components/ui/sheet';
 import { Input } from '@/components/ui';
-import { useAppStore, useHydrated } from '@/lib/store';
+import { useAppStore, useHydrated, NewPet } from '@/lib/store';
+import { hasRealSession, getMyPets, createPet, deletePet, errorMessage } from '@/lib/backend';
 import { PET_TYPES } from '@/lib/mock-data';
 import { Trash2 } from 'lucide-react';
 
@@ -28,7 +29,7 @@ import { Plus, ChevronRight, Footprints, Camera, Calendar, Stethoscope, ChevronL
 import { SafeImage } from '@/components/ui/safe-image';
 
 export default function MyPetsPage() {
-  const pets = Object.values(MOCK_PETS).filter((p: any) => p.isOwn);
+  const demoPets = Object.values(MOCK_PETS).filter((p: any) => p.isOwn);
   const hydrated = useHydrated();
   const myPets = useAppStore((s) => s.myPets);
   const addPet = useAppStore((s) => s.addPet);
@@ -37,13 +38,47 @@ export default function MyPetsPage() {
   const [name, setName] = useState('');
   const [type, setType] = useState('dog');
   const [breed, setBreed] = useState('');
-  const extra = hydrated ? myPets : [];
+  const notify = useAppStore((s) => s.notify);
+  const [live, setLive] = useState(false);
+  const [apiPets, setApiPets] = useState<NewPet[]>([]);
+
+  // Con sesión real se muestran y guardan las mascotas de la cuenta
+  useEffect(() => {
+    if (!hydrated || !hasRealSession()) return;
+    setLive(true);
+    getMyPets()
+      .then((list) =>
+        setApiPets(
+          list.map((p) => ({
+            id: p.id,
+            name: p.name,
+            type: p.petType.toLowerCase(),
+            icon: PET_TYPES.find((t) => t.id === p.petType.toLowerCase())?.icon ?? '🐾',
+            breed: p.breed ?? undefined,
+            createdAt: '',
+          })),
+        ),
+      )
+      .catch(() => notify('No pudimos cargar tus mascotas.', { tone: 'error' }));
+  }, [hydrated, notify]);
+
+  const pets = live ? [] : demoPets;
+  const extra = live ? apiPets : hydrated ? myPets : [];
 
   function submit(e: FormEvent) {
     e.preventDefault();
     if (!name.trim()) return;
     const t = PET_TYPES.find((p) => p.id === type)!;
-    addPet({ name: name.trim(), type, icon: t.icon, breed: breed.trim() || undefined });
+    if (live) {
+      createPet({ name: name.trim(), petType: type.toUpperCase(), breed: breed.trim() || undefined })
+        .then((p) => {
+          setApiPets((list) => [...list, { id: p.id, name: p.name, type, icon: t.icon, breed: p.breed ?? undefined, createdAt: '' }]);
+          notify(`${p.name} ya es parte de tu manada`, { tone: 'success' });
+        })
+        .catch((err) => notify(errorMessage(err, 'No pudimos guardar a tu mascota.'), { tone: 'error' }));
+    } else {
+      addPet({ name: name.trim(), type, icon: t.icon, breed: breed.trim() || undefined });
+    }
     setName('');
     setBreed('');
     setOpen(false);
@@ -134,9 +169,15 @@ export default function MyPetsPage() {
                   <span className="w-14 h-14 rounded-2xl bg-primary-soft flex items-center justify-center text-3xl" aria-hidden>{p.icon}</span>
                   <div className="flex-1 min-w-0">
                     <p className="font-heading font-extrabold text-lg text-dark">{p.name}</p>
-                    <p className="text-sm text-bark">{p.breed || PET_TYPES.find((t) => t.id === p.type)?.name} · Agregada recién</p>
+                    <p className="text-sm text-bark">{p.breed || PET_TYPES.find((t) => t.id === p.type)?.name} </p>
                   </div>
-                  <button onClick={() => removePet(p.id)} aria-label={`Quitar a ${p.name}`} className="p-2.5 rounded-full text-bark hover:text-error hover:bg-error/5">
+                  <button onClick={() => {
+                    if (live) {
+                      deletePet(p.id)
+                        .then(() => { setApiPets((l) => l.filter((x) => x.id !== p.id)); notify(`${p.name} se quitó de tus mascotas`, { tone: 'info' }); })
+                        .catch((err) => notify(errorMessage(err), { tone: 'error' }));
+                    } else removePet(p.id);
+                  }} aria-label={`Quitar a ${p.name}`} className="p-2.5 rounded-full text-bark hover:text-error hover:bg-error/5">
                     <Trash2 size={18} />
                   </button>
                 </li>

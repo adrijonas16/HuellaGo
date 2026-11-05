@@ -1,12 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Navbar } from '@/components/layout/navbar';
 import { Footer } from '@/components/layout/footer';
 import { ScrollReveal } from '@/components/effects/scroll-reveal';
 import { useAuth } from '@/hooks';
 import { useAppStore, useHydrated } from '@/lib/store';
+import { hasRealSession, getMyPets } from '@/lib/backend';
+import { PET_TYPES } from '@/lib/mock-data';
 import { MOCK_EVENTS, MOCK_ROUTES } from '@/lib/mock-data';
 import { formatDateShort } from '@/lib/utils';
 import { MapPin, Calendar, Route, Star, Heart, Footprints, Camera, Settings, ChevronRight, Plus, Clock, Edit3, LogOut } from 'lucide-react';
@@ -21,7 +23,7 @@ const DEMO_USER = {
   memberSince: 'Marzo 2026',
 };
 
-const MY_PETS = [
+const DEMO_PETS = [
   { id: 'pet1', name: 'Firulais', type: 'DOG', icon: '🐕', breed: 'Golden Retriever', age: '3 años', weight: 32, energy: 'HIGH', walks: 47, events: 5, photos: 34, photo: 'https://picsum.photos/seed/golden-face/100/100' },
   { id: 'pet2', name: 'Michi', type: 'CAT', icon: '🐱', breed: 'Persa', age: '2 años', weight: 4.5, energy: 'LOW', walks: 0, events: 1, photos: 12, photo: 'https://picsum.photos/seed/persian-cat-face/100/100' },
 ];
@@ -57,6 +59,23 @@ export default function DashboardPage() {
     : DEMO_USER;
   const myEvents = hydrated ? MOCK_EVENTS.filter((e) => registrations[e.id]).map((e) => ({ ...e, myStatus: 'inscrito' })) : [];
   const MY_EVENTS = myEvents.length ? myEvents : DEMO_EVENTS;
+  const [apiPets, setApiPets] = useState<typeof DEMO_PETS | null>(null);
+  useEffect(() => {
+    if (!hydrated || !hasRealSession()) return;
+    getMyPets()
+      .then((list) =>
+        setApiPets(
+          list.map((p) => ({
+            id: p.id, name: p.name, type: p.petType,
+            icon: PET_TYPES.find((t) => t.id === p.petType.toLowerCase())?.icon ?? '🐾',
+            breed: p.breed ?? 'Sin raza registrada', age: '', weight: 0, energy: p.energyLevel ?? 'MEDIUM',
+            walks: 0, events: 0, photos: 0, photo: p.photoUrl ?? '',
+          })),
+        ),
+      )
+      .catch(() => setApiPets([]));
+  }, [hydrated]);
+  const MY_PETS = apiPets ?? DEMO_PETS;
   const [activeTab, setActiveTab] = useState<'overview' | 'pets' | 'walks' | 'events' | 'favorites'>('overview');
 
   return (
@@ -144,12 +163,12 @@ export default function DashboardPage() {
                   </div>
                   <div className="space-y-3">
                     {MY_PETS.map((pet) => (
-                      <Link key={pet.id} href={`/pets/${pet.id}`}>
+                      <Link key={pet.id} href={apiPets ? "/pets" : `/pets/${pet.id}`}>
                         <div className="flex items-center gap-3 p-3 rounded-xl bg-cream/50 card-hover cursor-pointer">
-                          <SafeImage src={pet.photo} alt={pet.name} className="w-12 h-12 rounded-2xl object-cover" />
+                          <SafeImage src={pet.photo} fallback={pet.icon} alt={pet.name} className="w-12 h-12 rounded-2xl object-cover" />
                           <div className="flex-1 min-w-0">
                             <div className="font-semibold text-dark text-sm">{pet.name}</div>
-                            <div className="text-[11px] text-bark">{pet.breed} · {pet.age} · {pet.weight} kg</div>
+                            <div className="text-[11px] text-bark">{[pet.breed, pet.age, pet.weight ? `${pet.weight} kg` : ''].filter(Boolean).join(' · ')}</div>
                           </div>
                           <div className="text-right shrink-0">
                             <div className="text-xs font-bold text-dark">{pet.walks} paseos</div>
@@ -249,13 +268,13 @@ export default function DashboardPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {MY_PETS.map((pet) => (
                   <ScrollReveal key={pet.id}>
-                    <Link href={`/pets/${pet.id}`}>
+                    <Link href={apiPets ? "/pets" : `/pets/${pet.id}`}>
                       <div className="bg-white rounded-card shadow-card p-5 card-hover cursor-pointer">
                         <div className="flex items-center gap-4 mb-4">
-                          <SafeImage src={pet.photo} alt={pet.name} className="w-16 h-16 rounded-2xl object-cover" />
+                          <SafeImage src={pet.photo} fallback={pet.icon} alt={pet.name} className="w-16 h-16 rounded-2xl object-cover" />
                           <div>
                             <h3 className="font-heading font-bold text-dark text-lg">{pet.name}</h3>
-                            <p className="text-sm text-bark">{pet.breed} · {pet.age}</p>
+                            <p className="text-sm text-bark">{[pet.breed, pet.age].filter(Boolean).join(' · ')}</p>
                           </div>
                         </div>
                         <div className="grid grid-cols-4 gap-2">

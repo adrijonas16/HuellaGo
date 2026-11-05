@@ -8,7 +8,7 @@ import {
   MaxLength,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { PetSize, EnergyLevel } from '@prisma/client';
+import { PetSize, EnergyLevel, PetType } from '@prisma/client';
 
 export class CreatePetDto {
   @ApiProperty({ example: 'Firulais' })
@@ -16,6 +16,11 @@ export class CreatePetDto {
   @IsNotEmpty()
   @MaxLength(50)
   name: string;
+
+  @ApiPropertyOptional({ enum: PetType, example: 'DOG' })
+  @IsOptional()
+  @IsEnum(PetType)
+  petType?: PetType;
 
   @ApiPropertyOptional()
   @IsOptional()
