@@ -12,6 +12,7 @@ import { EventChat, ChatButton } from '@/components/chat/event-chat';
 import { FavoriteButton } from '@/components/ui/favorite-button';
 import { ShareButton } from '@/components/ui/share-button';
 import { RegisterBox } from '@/components/events/register-box';
+import { isApiId, hasRealSession } from '@/lib/backend';
 import { useAppStore, useHydrated } from '@/lib/store';
 
 function daysUntil(date: string) {
@@ -31,9 +32,9 @@ export default function EventDetailPage({ params }: { params: { id: string } }) 
   const [chatOpen, setChatOpen] = useState(false);
   const notify = useAppStore((s) => s.notify);
   const hydrated = useHydrated();
-  const iAmIn = useAppStore((s) => !!s.registrations[id]) && hydrated;
+  const iAmIn = useAppStore((s) => !!s.registrations[id]) && hydrated && !(isApiId(id) && hasRealSession());
 
-  useEffect(() => {
+  const loadEvent = () =>
     fetchApi<any>(`/events/${id}`).then((res) => {
       setLoaded(true);
       if (res) {
@@ -47,6 +48,10 @@ export default function EventDetailPage({ params }: { params: { id: string } }) 
         });
       }
     });
+
+  useEffect(() => {
+    loadEvent();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   if (!event && !loaded) {
@@ -366,7 +371,7 @@ export default function EventDetailPage({ params }: { params: { id: string } }) 
                   )}
                 </div>
 
-                <RegisterBox eventId={event.id} eventTitle={event.title} spotsLeft={spotsLeft} />
+                <RegisterBox eventId={event.id} eventTitle={event.title} spotsLeft={spotsLeft} onChange={loadEvent} />
               </div>
 
               {/* Organizer */}

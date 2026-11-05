@@ -14,6 +14,8 @@ interface RegisterBoxProps {
   eventId: string;
   eventTitle: string;
   spotsLeft: number | null;
+  /** se llama tras inscribirse o cancelar en el servidor, para refrescar el conteo */
+  onChange?: () => void;
 }
 
 interface PetOption {
@@ -30,7 +32,7 @@ const iconFor = (petType?: string) => PET_TYPES.find((t) => t.id === petType?.to
  * Con sesión real y evento de la API se guarda en el servidor;
  * en otro caso queda guardado en el dispositivo.
  */
-export function RegisterBox({ eventId, eventTitle, spotsLeft }: RegisterBoxProps) {
+export function RegisterBox({ eventId, eventTitle, spotsLeft, onChange }: RegisterBoxProps) {
   const hydrated = useHydrated();
   const registration = useAppStore((s) => s.registrations[eventId]);
   const toggle = useAppStore((s) => s.toggleRegistration);
@@ -91,6 +93,7 @@ export function RegisterBox({ eventId, eventTitle, spotsLeft }: RegisterBoxProps
     }));
     setJustJoined(true);
     setOpen(false);
+    if (live) onChange?.();
   }
 
   async function cancel() {
@@ -105,6 +108,7 @@ export function RegisterBox({ eventId, eventTitle, spotsLeft }: RegisterBoxProps
     }
     toggle(eventId);
     setJustJoined(false);
+    if (live) onChange?.();
   }
 
   if (registered) {
