@@ -34,8 +34,8 @@ function generateNotifications(): Notification[] {
     {
       id: 'n2',
       type: 'event_reminder',
-      title: 'Evento manana!',
-      body: `${MOCK_EVENTS[1].title} empieza manana a las ${formatTime(MOCK_EVENTS[1].date)}`,
+      title: 'Evento mañana!',
+      body: `${MOCK_EVENTS[1].title} empieza mañana a las ${formatTime(MOCK_EVENTS[1].date)}`,
       icon: '⏰',
       link: `/events/${MOCK_EVENTS[1].id}`,
       eventId: MOCK_EVENTS[1].id,
@@ -56,8 +56,8 @@ function generateNotifications(): Notification[] {
     {
       id: 'n4',
       type: 'promo',
-      title: 'Promocion en Veterinaria Patitas Felices',
-      body: '20% OFF en vacunacion todo julio',
+      title: 'Promoción en Veterinaria Patitas Felices',
+      body: '20% OFF en vacunación por tiempo limitado',
       icon: '🏷️',
       link: '/directory/1',
       timestamp: new Date(Date.now() - 1000 * 60 * 60 * 5),
@@ -66,8 +66,8 @@ function generateNotifications(): Notification[] {
     {
       id: 'n5',
       type: 'new_event',
-      title: 'Jornada de Vacunacion Gratuita',
-      body: 'Campana gratuita en Plaza de Cayma este domingo',
+      title: 'Jornada de Vacunación Gratuita',
+      body: 'Campaña gratuita en Plaza de Cayma este domingo',
       icon: '💉',
       link: `/events/${MOCK_EVENTS[4].id}`,
       eventId: MOCK_EVENTS[4].id,
@@ -94,11 +94,14 @@ export function NotificationToast() {
 
   useEffect(() => {
     if (dismissed) return;
+    // Solo una vez por sesión y nunca en pantallas de acceso
+    if (window.innerWidth < 640 || sessionStorage.getItem('hg-toast-shown') || /\/(login|register|forgot-password)/.test(location.pathname)) return;
     const timer = setTimeout(() => {
+      sessionStorage.setItem('hg-toast-shown', '1');
       setToast({
         id: 'toast-1',
         type: 'new_event',
-        title: 'Nuevo evento en tu ciudad!',
+        title: 'Nuevo evento en tu ciudad',
         body: `${MOCK_EVENTS[0].title} - ${MOCK_EVENTS[0].meetingPoint}`,
         icon: '🎉',
         link: `/events/${MOCK_EVENTS[0].id}`,
@@ -112,20 +115,19 @@ export function NotificationToast() {
 
   useEffect(() => {
     if (!toast) return;
-    const timer = setTimeout(() => setToast(null), 12000);
+    const timer = setTimeout(() => setToast(null), 9000);
     return () => clearTimeout(timer);
   }, [toast]);
 
   if (!toast) return null;
 
   return (
-    <div className="fixed top-20 right-4 z-[100] animate-slide-in-right max-w-sm w-full">
-      <div className="bg-white rounded-card shadow-card-hover border-2 border-primary/20 p-4 relative overflow-hidden">
+    <div className="fixed top-20 right-4 left-4 sm:left-auto z-[100] animate-slide-in-right sm:max-w-sm">
+      <div className="bg-white rounded-2xl shadow-card-hover border border-sand p-4 relative overflow-hidden">
         {/* Color accent bar */}
-        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary via-accent to-secondary" />
 
         <div className="flex items-start gap-3">
-          <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-xl shrink-0">
+          <div className="w-10 h-10 bg-accent rounded-xl flex items-center justify-center text-xl shrink-0 -rotate-6">
             {toast.icon}
           </div>
           <div className="flex-1 min-w-0">
@@ -151,7 +153,8 @@ export function NotificationToast() {
           </div>
           <button
             onClick={() => { setToast(null); setDismissed(true); }}
-            className="p-1 text-bark/40 hover:text-bark shrink-0"
+            aria-label="Cerrar aviso"
+            className="p-1 text-bark/60 hover:text-bark shrink-0"
           >
             <X size={14} />
           </button>
@@ -182,11 +185,13 @@ export function NotificationDropdown() {
     <div className="relative">
       <button
         onClick={() => setOpen(!open)}
-        className="p-2 rounded-lg hover:bg-sand transition-colors relative"
+        aria-label={`Notificaciones${unreadCount ? `, ${unreadCount} sin leer` : ''}`}
+        aria-expanded={open}
+        className="p-2 rounded-full hover:bg-sand transition-colors relative"
       >
         <Bell size={20} className="text-bark" />
         {unreadCount > 0 && (
-          <span className="absolute top-1 right-1 w-4 h-4 bg-secondary text-white text-[9px] font-bold rounded-full flex items-center justify-center">
+          <span className="absolute top-1 right-1 w-4 h-4 bg-rose text-white text-[9px] ring-2 ring-white font-bold rounded-full flex items-center justify-center">
             {unreadCount}
           </span>
         )}
@@ -198,7 +203,7 @@ export function NotificationDropdown() {
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
 
           {/* Dropdown */}
-          <div className="absolute right-0 top-12 w-80 md:w-96 bg-white rounded-card shadow-card-hover border border-sand z-50 animate-slide-up overflow-hidden">
+          <div className="fixed sm:absolute left-3 right-3 sm:left-auto sm:right-0 top-16 sm:top-12 sm:w-96 bg-white rounded-2xl shadow-card-hover border border-sand z-50 animate-slide-down overflow-hidden">
             {/* Header */}
             <div className="flex items-center justify-between px-4 py-3 border-b border-sand">
               <h3 className="font-heading font-bold text-dark text-sm">Notificaciones</h3>
@@ -207,7 +212,7 @@ export function NotificationDropdown() {
                   onClick={markAllRead}
                   className="text-[11px] font-semibold text-primary hover:underline"
                 >
-                  Marcar todo como leido
+                  Marcar todo como leído
                 </button>
               )}
             </div>
@@ -222,7 +227,7 @@ export function NotificationDropdown() {
                       onClick={() => { markAsRead(notif.id); setOpen(false); }}
                       className={`flex items-start gap-3 px-4 py-3 hover:bg-cream/50 transition-colors border-b border-sand/50 ${!notif.read ? 'bg-primary/[0.03]' : ''}`}
                     >
-                      <div className="w-9 h-9 rounded-xl flex items-center justify-center text-lg shrink-0" style={{ backgroundColor: !notif.read ? '#E8825A15' : '#F5E6D3' }}>
+                      <div className="w-9 h-9 rounded-xl flex items-center justify-center text-lg shrink-0" style={{ backgroundColor: !notif.read ? '#3352F515' : '#E6E8EF' }}>
                         {notif.icon}
                       </div>
                       <div className="flex-1 min-w-0">
@@ -251,9 +256,9 @@ export function NotificationDropdown() {
 
             {/* Footer */}
             <div className="px-4 py-3 border-t border-sand text-center">
-              <button className="text-xs font-semibold text-primary hover:underline">
-                Ver todas las notificaciones
-              </button>
+              <Link href="/events" onClick={() => setOpen(false)} className="text-xs font-semibold text-primary hover:underline">
+                Ver todos los eventos
+              </Link>
             </div>
           </div>
         </>

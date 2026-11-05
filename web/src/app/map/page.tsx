@@ -92,7 +92,7 @@ export default function MapPage() {
                     ))}
                   </div>
                   <span className="font-bold text-sm">{selectedBiz.avgRating}</span>
-                  <span className="text-sm text-gray-400">({selectedBiz._count.reviews} resenas)</span>
+                  <span className="text-sm text-gray-400">({selectedBiz._count.reviews} reseñas)</span>
                 </div>
 
                 {/* Badges */}
@@ -135,7 +135,7 @@ export default function MapPage() {
                 {/* Reviews */}
                 {selectedBiz.reviews.length > 0 && (
                   <div className="mb-6">
-                    <h3 className="font-heading font-bold text-dark text-sm mb-3">Resenas recientes</h3>
+                    <h3 className="font-heading font-bold text-dark text-sm mb-3">Reseñas recientes</h3>
                     <div className="space-y-3">
                       {selectedBiz.reviews.map((r: any, i: number) => (
                         <div key={i} className="bg-cream rounded-xl p-3">
@@ -159,12 +159,12 @@ export default function MapPage() {
 
                 {/* Action buttons */}
                 <div className="grid grid-cols-2 gap-3 sticky bottom-0 bg-white pt-4 border-t border-gray-100">
-                  <button className="flex items-center justify-center gap-2 bg-primary text-white font-semibold py-3 rounded-button hover:bg-primary-dark transition-all">
+                  <a href={`tel:${String(selectedBiz.phone ?? '').replace(/[^0-9+]/g, '')}`} className="flex items-center justify-center gap-2 bg-primary text-white font-bold py-3 rounded-full boop-btn hover:bg-primary-dark">
                     <Phone size={16} /> Llamar
-                  </button>
-                  <button className="flex items-center justify-center gap-2 bg-success text-white font-semibold py-3 rounded-button hover:bg-green-700 transition-all">
+                  </a>
+                  <a href={`https://wa.me/${String(selectedBiz.whatsapp ?? '').replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 bg-secondary text-white font-bold py-3 rounded-full boop-btn hover:bg-secondary-dark">
                     <MessageCircle size={16} /> WhatsApp
-                  </button>
+                  </a>
                 </div>
               </div>
             </div>
@@ -186,17 +186,17 @@ export default function MapPage() {
                   {selectedBiz.address}
                 </div>
               </div>
-              <button onClick={() => setSelectedBiz(null)} className="p-1.5 bg-gray-100 rounded-full">
+              <button onClick={() => setSelectedBiz(null)} aria-label="Cerrar" className="p-1.5 bg-gray-100 rounded-full">
                 <X size={16} />
               </button>
             </div>
             <div className="grid grid-cols-2 gap-3">
-              <button className="flex items-center justify-center gap-2 bg-primary text-white font-semibold py-3 rounded-button">
-                <Phone size={16} /> Llamar
-              </button>
-              <button className="flex items-center justify-center gap-2 bg-success text-white font-semibold py-3 rounded-button">
-                <MessageCircle size={16} /> WhatsApp
-              </button>
+              <a href={`tel:${String(selectedBiz.phone ?? '').replace(/[^0-9+]/g, '')}`} className="flex items-center justify-center gap-2 bg-primary text-white font-bold py-3 rounded-full boop-btn hover:bg-primary-dark">
+                    <Phone size={16} /> Llamar
+                  </a>
+              <a href={`https://wa.me/${String(selectedBiz.whatsapp ?? '').replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 bg-secondary text-white font-bold py-3 rounded-full boop-btn hover:bg-secondary-dark">
+                    <MessageCircle size={16} /> WhatsApp
+                  </a>
             </div>
           </div>
         )}

@@ -9,7 +9,7 @@ import { EventsRepository } from './events.repository';
 import { RoutesRepository } from '../routes/routes.repository';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
-import { PaginationDto, PaginatedResponse } from '@common/dto/pagination.dto';
+import { PaginationDto, PaginatedResponse } from '../../common/dto/pagination.dto';
 
 @Injectable()
 export class EventsService {

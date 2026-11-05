@@ -1,570 +1,403 @@
 import Link from 'next/link';
-import { MapPin, Calendar, Route, Star, Users, Clock, ChevronRight, Zap, ArrowUpRight, Heart } from 'lucide-react';
+import { MapPin, Star, Users, Clock, ChevronRight, Heart, Droplets, Trees, Armchair, Store } from 'lucide-react';
 import { Navbar } from '@/components/layout/navbar';
 import { Footer } from '@/components/layout/footer';
+import { PawMark } from '@/components/layout/logo';
 import { ScrollReveal } from '@/components/effects/scroll-reveal';
-import { MOCK_EVENTS, MOCK_BUSINESSES, MOCK_ROUTES, MOCK_COMMUNITIES, PET_TYPES, CATEGORY_ICONS, CATEGORY_LABELS, ENERGY_LABELS, DIFFICULTY_LABELS, ENERGY_COLORS } from '@/lib/mock-data';
-import { formatDateShort } from '@/lib/utils';
-import { EventCarousel } from '@/components/banners/event-carousel';
+import { HeroWalk } from '@/components/home/hero-walk';
+import { HeroSearch } from '@/components/home/hero-search';
+import { FavoriteButton } from '@/components/ui/favorite-button';
+import { SafeImage } from '@/components/ui/safe-image';
+import { CategoryIcon } from '@/components/ui/category-icon';
+import { RouteSketch } from '@/components/ui/route-sketch';
+import {
+  MOCK_EVENTS,
+  MOCK_BUSINESSES,
+  MOCK_ROUTES,
+  MOCK_COMMUNITIES,
+  CATEGORY_LABELS,
+  ENERGY_LABELS,
+  DIFFICULTY_LABELS,
+  ENERGY_COLORS,
+  CATEGORY_COLORS,
+} from '@/lib/mock-data';
+import { formatTime } from '@/lib/utils';
 import { fetchApi } from '@/lib/api';
 
-function PawIcon({ className = '', decorative = false }: { className?: string; decorative?: boolean }) {
+const MONTHS = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+const WEEKDAYS = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
+
+const CATEGORIES = ['VETERINARY', 'EMERGENCY_CLINIC', 'GROOMING', 'WALKER', 'HOTEL', 'DAYCARE', 'STORE', 'TRAINER'];
+
+function SectionHead({ title, desc, href, cta }: { title: string; desc: string; href?: string; cta?: string }) {
   return (
-    <svg viewBox="0 0 60 60" className={className} fill="currentColor" aria-hidden={decorative ? 'true' : undefined} role={decorative ? 'presentation' : 'img'}>
-      <ellipse cx="20" cy="28" rx="5" ry="6.5"/><ellipse cx="30" cy="22" rx="4.5" ry="6"/>
-      <ellipse cx="40" cy="28" rx="5" ry="6.5"/><ellipse cx="25" cy="16" rx="3.5" ry="4.5"/>
-      <ellipse cx="35" cy="16" rx="3.5" ry="4.5"/>
-    </svg>
+    <div className="flex items-end justify-between gap-6 mb-8">
+      <div className="max-w-xl">
+        <h2 className="section-title">{title}</h2>
+        <p className="text-bark mt-3 text-[17px] leading-relaxed">{desc}</p>
+      </div>
+      {href && (
+        <Link href={href} className="hidden md:inline-flex shrink-0 items-center gap-1 font-bold text-dark hover:text-primary transition-colors">
+          <span className="link-route">{cta}</span> <ChevronRight size={18} />
+        </Link>
+      )}
+    </div>
   );
 }
 
-const HERO_PETS = [
-  {
-    name: 'Gatos',
-    desc: 'Veterinarias, grooming y todo para tu felino favorito',
-    img: 'https://www.freepnglogos.com/uploads/cat-png/cute-cat-images-download-7.png',
-    stat: '320+',
-    statLabel: 'gatitos registrados',
-    color: '#7C5CBF',
-    bg: 'linear-gradient(145deg, #F3E8FF 0%, #E8DEFF 100%)',
-    href: '/directory?petType=CAT',
-  },
-  {
-    name: 'Perros',
-    desc: 'Paseos, eventos, rutas y la mejor comunidad canina de Arequipa',
-    img: 'https://www.freepnglogos.com/uploads/dog-png/bow-wow-gourmet-dog-treats-are-healthy-natural-low-4.png',
-    stat: '2.1K+',
-    statLabel: 'perritos registrados',
-    color: '#E8825A',
-    bg: 'linear-gradient(145deg, #FFF0E0 0%, #FFE0C8 100%)',
-    featured: true,
-    href: '/directory?petType=DOG',
-  },
-  {
-    name: 'Conejos',
-    desc: 'Encuentra veterinarias especialistas y comunidad conejil',
-    img: 'https://www.freepnglogos.com/uploads/rabbit-png/download-rabbit-png-image-png-image-pngimg-4.png',
-    stat: '85+',
-    statLabel: 'conejitos registrados',
-    color: '#38A169',
-    bg: 'linear-gradient(145deg, #E6FFF0 0%, #C8F5D8 100%)',
-    href: '/directory?petType=RABBIT',
-  },
-];
+function MobileMore({ href, label }: { href: string; label: string }) {
+  return (
+    <Link href={href} className="md:hidden mt-6 flex items-center justify-center gap-1 w-full rounded-full border border-sand bg-white py-3 font-bold text-dark">
+      {label} <ChevronRight size={16} />
+    </Link>
+  );
+}
 
 export default async function LandingPage() {
-  // Fetch real data from API, fallback to mock data
   const [bizRes, evtRes, rtRes] = await Promise.all([
-    fetchApi<{ data: any[]; meta: any }>('/businesses', { limit: '4' }).catch(() => null),
-    fetchApi<{ data: any[]; meta: any }>('/events', { limit: '3' }).catch(() => null),
-    fetchApi<{ data: any[]; meta: any }>('/routes', { limit: '3' }).catch(() => null),
+    fetchApi<{ data: any[] }>('/businesses', { limit: '4' }).catch(() => null),
+    fetchApi<{ data: any[] }>('/events', { limit: '3' }).catch(() => null),
+    fetchApi<{ data: any[] }>('/routes', { limit: '3' }).catch(() => null),
   ]);
 
-  const featuredBusinesses = bizRes?.data ?? MOCK_BUSINESSES.slice(0, 4);
-  const upcomingEvents = evtRes?.data ?? MOCK_EVENTS.slice(0, 3);
-  const popularRoutes = rtRes?.data ?? MOCK_ROUTES.slice(0, 3);
+  const featuredBusinesses: any[] = bizRes?.data?.length ? bizRes.data : [...MOCK_BUSINESSES].sort((a, b) => b.avgRating - a.avgRating).slice(0, 4);
+  const upcomingEvents: any[] = evtRes?.data?.length
+    ? evtRes.data
+    : [...MOCK_EVENTS].sort((a, b) => +new Date(a.date) - +new Date(b.date)).slice(0, 3);
+  const popularRoutes: any[] = rtRes?.data?.length ? rtRes.data : [...MOCK_ROUTES].sort((a, b) => b.timesWalked - a.timesWalked).slice(0, 3);
 
   return (
     <>
       <Navbar />
-      <main>
+      <main id="contenido">
         {/* ==================== HERO ==================== */}
-        <section aria-label="Bienvenida" style={{ background: 'linear-gradient(160deg, #FFF9F2 0%, #FFF0E0 40%, #FFE8D6 70%, #FFF4EB 100%)' }} className="relative overflow-hidden">
-          <div className="absolute top-20 right-[10%] animate-float-slow opacity-[0.04]"><PawIcon className="w-32 h-32 text-primary" decorative /></div>
-          <div className="absolute bottom-32 left-[5%] animate-float opacity-[0.03]" style={{ animationDelay: '1.5s' }}><PawIcon className="w-24 h-24 text-secondary" decorative /></div>
+        <section aria-labelledby="hero-title" className="relative overflow-hidden">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 sm:pt-14 lg:pt-20 pb-20 lg:pb-28 grid lg:grid-cols-[1.08fr_1fr] gap-14 lg:gap-10 items-center">
+            <div>
+              <p className="inline-flex items-center gap-2 text-sm font-semibold text-dark bg-white border border-sand rounded-full pl-1.5 pr-3.5 py-1 animate-fade-in">
+                <span className="w-6 h-6 rounded-full bg-secondary text-white flex items-center justify-center">
+                  <MapPin size={13} />
+                </span>
+                Ya disponible en Arequipa
+              </p>
 
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 pt-16 lg:pt-24 pb-8">
-            <div className="text-center animate-scale-in delay-100">
-              <span className="inline-flex items-center gap-2 bg-primary/10 text-primary-dark px-5 py-2 rounded-full text-sm font-semibold border border-primary/10">
-                <PawIcon className="w-4 h-4" decorative /> Disponible en Arequipa
-              </span>
-            </div>
-
-            <div className="text-center mt-8">
-              <h1 className="font-serif-display text-dark leading-[0.95] tracking-tight" style={{ fontSize: 'clamp(40px, 7vw, 90px)' }}>
-                <span className="inline-block animate-word-pop delay-200">Cada</span>{' '}
-                <span className="inline-block animate-word-pop delay-300">Paseo</span>
-                <br />
-                <span className="inline-block animate-word-pop delay-400">Deja</span>{' '}
-                <span className="inline-block animate-word-pop delay-500 gradient-text">Huella</span>
+              <h1
+                id="hero-title"
+                className="font-heading font-extrabold text-dark mt-6"
+                style={{ fontSize: 'clamp(52px, 8.4vw, 112px)', lineHeight: 0.88, letterSpacing: '-0.055em' }}
+              >
+                <span className="block animate-word-pop delay-100">Cada paseo</span>
+                <span className="block animate-word-pop delay-200">
+                  deja huella
+                  <PawMark className="inline-block w-[0.42em] h-[0.42em] ml-[0.08em] -mb-[0.02em] text-primary align-baseline rotate-[18deg] animate-bounce-in delay-700" />
+                </span>
               </h1>
-            </div>
 
-            <p className="text-center text-dark/70 max-w-lg mx-auto mt-6 leading-relaxed animate-text-reveal delay-600" style={{ fontSize: 'clamp(15px, 1.6vw, 19px)' }}>
-              Veterinarias, eventos, rutas y comunidad pet friendly. Todo lo que tu mascota necesita, en un solo lugar.
-            </p>
+              <p className="text-bark text-lg sm:text-xl leading-relaxed mt-6 max-w-[34ch] animate-text-reveal delay-300">
+                Veterinarias, rutas para pasear y eventos pet friendly en tu ciudad. Todo lo que tu mascota necesita, cerca de ti.
+              </p>
 
-            <div className="flex flex-col sm:flex-row gap-3 justify-center mt-10 animate-fade-up delay-700">
-              <Link href="/map" className="boop-btn inline-flex items-center justify-center gap-2 bg-primary text-white font-semibold rounded-full shadow-button hover:bg-primary-dark transition-all px-8 py-4 text-base">
-                <MapPin size={20} /> Explorar mapa
-              </Link>
-              <Link href="/events" className="boop-btn inline-flex items-center justify-center gap-2 bg-white text-dark font-semibold rounded-full shadow-card hover:shadow-card-hover transition-all px-8 py-4 text-base border-2 border-sand">
-                <Calendar size={20} /> Ver eventos
-              </Link>
-            </div>
+              <div className="mt-8 animate-fade-up delay-400">
+                <HeroSearch />
+              </div>
 
-            <div className="flex justify-center gap-8 sm:gap-12 mt-10 animate-fade-up delay-800">
-              {[
-                { n: '2.8K+', l: 'Mascotas felices' },
-                { n: '50+', l: 'Servicios registrados' },
-                { n: '4.8', l: 'Calificacion promedio', icon: true },
-              ].map((s) => (
-                <div key={s.l} className="text-center">
-                  <div className="flex items-center justify-center gap-1">
-                    {s.icon && <Star size={16} className="fill-accent text-accent" />}
-                    <span className="font-extrabold text-dark" style={{ fontSize: 'clamp(18px, 2vw, 26px)' }}>{s.n}</span>
-                  </div>
-                  <div className="text-xs text-dark/50 font-medium mt-0.5">{s.l}</div>
+              <div className="flex items-center gap-3 mt-10 animate-fade-up delay-500">
+                <div className="flex -space-x-2" aria-hidden>
+                  {['🐕', '🐈', '🐇', '🦜'].map((e, i) => (
+                    <span key={i} className="w-9 h-9 rounded-full bg-white ring-2 ring-cream flex items-center justify-center text-lg">{e}</span>
+                  ))}
                 </div>
-              ))}
+                <p className="text-sm text-bark leading-snug">
+                  <strong className="text-dark">2.800 mascotas</strong> y <strong className="text-dark">50 negocios</strong>
+                  <br className="hidden sm:block" /> ya forman parte de la manada.
+                </p>
+              </div>
             </div>
-          </div>
 
-          {/* Pet cards */}
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-24 pt-12">
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 lg:gap-10 items-end">
-              {HERO_PETS.map((pet, i) => (
-                <div key={pet.name} className={`animate-fade-up ${pet.featured ? 'sm:-mt-6 delay-900' : i === 0 ? 'delay-1000' : 'delay-1100'}`}>
-                  <Link href={pet.href} aria-label={`Ver servicios para ${pet.name.toLowerCase()}`}>
-                    <div
-                      className="rounded-card overflow-visible shadow-card card-hover group relative"
-                      style={{ background: pet.bg }}
-                    >
-                      <div
-                        className="relative flex justify-center"
-                        style={{
-                          height: pet.featured ? 280 : 230,
-                          marginTop: pet.featured ? -40 : -24,
-                          pointerEvents: 'none',
-                        }}
-                      >
-                        <img
-                          src={pet.img}
-                          alt={`${pet.name} - ${pet.desc}`}
-                          loading="lazy"
-                          style={{
-                            maxHeight: '100%',
-                            maxWidth: '90%',
-                            objectFit: 'contain',
-                            filter: 'drop-shadow(0 12px 32px rgba(0,0,0,0.15))',
-                            transition: 'transform 0.5s cubic-bezier(0.16, 1, 0.3, 1)',
-                          }}
-                          className="group-hover:scale-110"
-                        />
-                      </div>
-
-                      <div className="bg-white rounded-t-[28px] px-6 py-6 -mt-6 relative" style={{ boxShadow: '0 -4px 20px rgba(0,0,0,0.03)' }}>
-                        <div className="flex items-center justify-between mb-3">
-                          <h3 className="font-heading font-extrabold text-dark text-xl group-hover:text-primary transition-colors">{pet.name}</h3>
-                          <span className="text-xs font-bold px-3 py-1.5 rounded-full" style={{ backgroundColor: pet.color + '15', color: pet.color }}>
-                            {pet.stat}
-                          </span>
-                        </div>
-                        <p className="text-sm text-dark/60 leading-relaxed mb-4">{pet.desc}</p>
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs text-dark/40 font-medium">{pet.statLabel}</span>
-                          <div
-                            className="w-9 h-9 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform"
-                            style={{ backgroundColor: pet.color + '15' }}
-                          >
-                            <ArrowUpRight size={18} style={{ color: pet.color }} />
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </Link>
-                </div>
-              ))}
-            </div>
+            <HeroWalk />
           </div>
         </section>
 
-        {/* CAROUSEL BANNER */}
-        <section className="py-4 bg-white" aria-label="Eventos destacados">
+        {/* ==================== EVENTOS ==================== */}
+        <section aria-labelledby="eventos" className="py-20 bg-white rounded-t-[40px] sm:rounded-t-[56px]">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <ScrollReveal>
-              <EventCarousel />
-            </ScrollReveal>
-          </div>
-        </section>
-
-        {/* SERVICIOS */}
-        <section className="py-20 bg-white" aria-label="Servicios">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <ScrollReveal>
-              <div className="flex items-center justify-between mb-10">
-                <div>
-                  <h2 className="font-heading font-extrabold text-3xl text-dark mb-2">Servicios en Arequipa</h2>
-                  <p className="text-dark/60">Veterinarias, grooming, hoteles y mas para tu mascota</p>
-                </div>
-                <Link href="/directory" className="hidden md:flex items-center gap-1 text-primary font-bold hover:underline">Ver todos <ChevronRight size={16} /></Link>
+              <div id="eventos">
+                <SectionHead
+                  title="Próximos planes con tu mascota"
+                  desc="Mascotatones, caminatas y ferias. Inscríbete en un toque y conoce a quién más va."
+                  href="/events"
+                  cta="Todos los eventos"
+                />
               </div>
             </ScrollReveal>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {featuredBusinesses.map((biz, i) => (
-                <ScrollReveal key={biz.id} delay={i * 80}>
-                  <Link href={`/directory/${biz.id}`}>
-                    <div className="group bg-cream hover:bg-white rounded-card p-5 border-2 border-transparent hover:border-primary/20 card-hover cursor-pointer">
-                      <div className="text-4xl mb-3 group-hover:animate-wiggle">{CATEGORY_ICONS[biz.category]}</div>
-                      <h3 className="font-heading font-bold text-dark text-sm mb-1 line-clamp-1 group-hover:text-primary transition-colors">{biz.name}</h3>
-                      <p className="text-xs text-dark/50 mb-2">{CATEGORY_LABELS[biz.category]}</p>
-                      <div className="flex items-center gap-1">
-                        <Star size={13} className="fill-accent text-accent" />
-                        <span className="text-xs font-bold">{biz.avgRating}</span>
-                        <span className="text-xs text-dark/40">({biz._count.reviews})</span>
+
+            <div className="flex md:grid md:grid-cols-3 gap-4 md:gap-6 overflow-x-auto snap-x snap-mandatory no-scrollbar -mx-4 px-4 md:mx-0 md:px-0 pb-2">
+              {upcomingEvents.map((event) => {
+                const d = new Date(event.date);
+                const energy = ENERGY_COLORS[event.energyLevel || 'MEDIUM'];
+                const pct = event.maxAttendees ? Math.min((event._count.attendances / event.maxAttendees) * 100, 100) : 0;
+                return (
+                  <Link
+                    key={event.id}
+                    href={`/events/${event.id}`}
+                    className="group snap-start shrink-0 w-[82%] sm:w-[60%] md:w-auto bg-cream rounded-card overflow-hidden card-hover border border-sand/60"
+                  >
+                    <div className="relative h-44 overflow-hidden">
+                      <SafeImage
+                        src={event.photos?.[0]?.url}
+                        alt=""
+                        fallback={<PawMark className="w-14 h-14 text-primary/30" />}
+                        className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-700"
+                      />
+                      <div className="absolute top-3 left-3 bg-white rounded-2xl px-3 py-2 text-center leading-none shadow-card">
+                        <span className="block font-heading font-extrabold text-2xl text-dark">{d.getDate()}</span>
+                        <span className="block text-[12px] font-semibold text-bark mt-1">{MONTHS[d.getMonth()]}</span>
                       </div>
-                      <div className="flex gap-1 mt-2 flex-wrap">
-                        {biz.is24Hours && <span className="text-[11px] font-bold text-rose bg-rose/10 px-2 py-0.5 rounded-full">24H</span>}
-                        {biz.isVerified && <span className="text-[11px] font-bold text-teal bg-teal/10 px-2 py-0.5 rounded-full">Verificado</span>}
-                      </div>
-                    </div>
-                  </Link>
-                </ScrollReveal>
-              ))}
-            </div>
-            {/* Mobile "Ver todos" */}
-            <div className="mt-6 text-center md:hidden">
-              <Link href="/directory" className="inline-flex items-center gap-1 text-primary font-bold text-sm hover:underline">
-                Ver todos los servicios <ChevronRight size={14} />
-              </Link>
-            </div>
-            <ScrollReveal delay={300}>
-              <div className="grid grid-cols-4 md:grid-cols-8 gap-3 mt-8 bg-sand/50 rounded-card p-4">
-                {Object.entries(CATEGORY_ICONS).map(([key, icon]) => (
-                  <Link href={`/directory?category=${key}`} key={key}>
-                    <div className="text-center p-3 rounded-xl hover:bg-white hover:shadow-card transition-all cursor-pointer group">
-                      <div className="text-2xl mb-1 group-hover:animate-wiggle">{icon}</div>
-                      <div className="text-[11px] text-dark/50 group-hover:text-primary font-semibold">{CATEGORY_LABELS[key]}</div>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            </ScrollReveal>
-          </div>
-        </section>
-
-        {/* EVENTOS */}
-        <section className="py-20" style={{ background: 'linear-gradient(180deg, #FFF4EB 0%, #FFF9F2 100%)' }} aria-label="Eventos">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <ScrollReveal>
-              <div className="flex items-center justify-between mb-10">
-                <div>
-                  <h2 className="font-heading font-extrabold text-3xl text-dark mb-2">Proximos eventos</h2>
-                  <p className="text-dark/60">Mascotatones, caminatas y mas en tu ciudad</p>
-                </div>
-                <Link href="/events" className="hidden md:flex items-center gap-1 text-primary font-bold hover:underline">Ver todos <ChevronRight size={16} /></Link>
-              </div>
-            </ScrollReveal>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {upcomingEvents.map((event, i) => (
-                <ScrollReveal key={event.id} delay={i * 120}>
-                  <Link href={`/events/${event.id}`}>
-                    <div className="group bg-white rounded-card shadow-card card-hover overflow-hidden">
-                      <div className="h-40 relative overflow-hidden">
-                        {event.photos?.[0]?.url ? (
-                          <img src={event.photos[0].url} alt={event.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
-                        ) : (
-                          <div className="w-full h-full" style={{ background: `linear-gradient(135deg, ${ENERGY_COLORS[event.energyLevel || 'MEDIUM']}25, ${ENERGY_COLORS[event.energyLevel || 'MEDIUM']}08)` }} />
-                        )}
-                        <div className="absolute inset-0 bg-gradient-to-t from-dark/40 to-transparent" />
-                        <div className="absolute top-3 left-3 right-3 flex justify-between">
-                          <span className="bg-accent/25 text-amber-800 text-xs font-bold px-3 py-1.5 rounded-full backdrop-blur-sm">Proximo</span>
-                          {event.isFree ? (
-                            <span className="bg-teal/20 text-teal-dark text-xs font-bold px-3 py-1.5 rounded-full">Gratis</span>
-                          ) : (
-                            <span className="bg-white/90 text-dark text-sm font-extrabold px-3 py-1.5 rounded-full">S/ {event.price}</span>
-                          )}
-                        </div>
-                      </div>
-                      <div className="p-5">
-                        <h3 className="font-heading font-bold text-dark text-lg mb-3 group-hover:text-primary transition-colors">{event.title}</h3>
-                        <div className="space-y-2 mb-4">
-                          <div className="flex items-center gap-2 text-sm text-dark/60"><Calendar size={14} className="text-primary" />{formatDateShort(event.date)}</div>
-                          <div className="flex items-center gap-2 text-sm text-dark/60"><MapPin size={14} className="text-rose" />{event.meetingPoint}</div>
-                          <div className="flex items-center gap-2 text-sm text-dark/60">
-                            <Users size={14} className="text-secondary" />{event._count.attendances} inscritos{event.maxAttendees && ` de ${event.maxAttendees}`}
-                            {event.maxAttendees && (
-                              <div className="flex-1 h-1.5 bg-sand rounded-full overflow-hidden ml-1">
-                                <div className="h-full bg-gradient-to-r from-primary to-accent rounded-full" style={{ width: `${Math.min((event._count.attendances / event.maxAttendees) * 100, 100)}%` }} />
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                        <div className="flex items-center justify-between pt-3 border-t border-sand">
-                          {event.energyLevel && ENERGY_COLORS[event.energyLevel] && (
-                            <span className="text-[11px] font-bold px-2.5 py-1 rounded-full" style={{ backgroundColor: ENERGY_COLORS[event.energyLevel] + '18', color: ENERGY_COLORS[event.energyLevel] }}>
-                              <Zap size={10} className="inline -mt-0.5" /> {ENERGY_LABELS[event.energyLevel]}
-                            </span>
-                          )}
-                          {event._count?.attendances > 0 && (
-                            <div className="flex items-center gap-1.5">
-                              <Users size={13} className="text-dark/30" />
-                              <span className="text-[11px] font-bold text-dark/50">{event._count.attendances} inscritos</span>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </Link>
-                </ScrollReveal>
-              ))}
-            </div>
-            {/* Mobile "Ver todos" */}
-            <div className="mt-6 text-center md:hidden">
-              <Link href="/events" className="inline-flex items-center gap-1 text-primary font-bold text-sm hover:underline">
-                Ver todos los eventos <ChevronRight size={14} />
-              </Link>
-            </div>
-          </div>
-        </section>
-
-        {/* ADOPCIONES */}
-        <section className="py-20 bg-white" aria-label="Adopciones">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="rounded-card overflow-hidden" style={{ background: 'linear-gradient(135deg, #FDE8E8 0%, #FFF0F0 50%, #FFF5F0 100%)' }}>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-0">
-                <div className="p-8 md:p-12 flex flex-col justify-center">
-                  <ScrollReveal>
-                    <span className="inline-flex items-center gap-2 bg-rose/10 text-rose-dark px-4 py-1.5 rounded-full text-xs font-bold mb-6 w-fit">
-                      <Heart size={14} className="fill-rose text-rose" /> Adopta, no compres
-                    </span>
-                    <h2 className="font-heading font-extrabold text-3xl text-dark mb-4">Dale un hogar a quien mas lo necesita</h2>
-                    <p className="text-dark/60 leading-relaxed mb-6">
-                      Conoce mascotas en busca de familia. Perros, gatos y conejos rescatados por organizaciones de Arequipa esperan por ti.
-                    </p>
-                    <div className="flex flex-col sm:flex-row gap-3">
-                      <Link href="/adoptions" className="boop-btn inline-flex items-center justify-center gap-2 bg-rose text-white font-semibold rounded-full hover:bg-rose-dark transition-all px-6 py-3 text-sm">
-                        <Heart size={16} /> Ver mascotas en adopcion
-                      </Link>
-                      <Link href="/directory?category=SHELTER" className="inline-flex items-center justify-center gap-1 text-dark/60 font-medium text-sm hover:text-primary transition-colors">
-                        Conocer refugios <ChevronRight size={14} />
-                      </Link>
-                    </div>
-                  </ScrollReveal>
-                </div>
-                <div className="hidden md:flex items-center justify-center p-8">
-                  <ScrollReveal>
-                    <div className="grid grid-cols-2 gap-4 max-w-xs">
-                      {['🐕', '🐈', '🐇', '🐾'].map((emoji, i) => (
-                        <div key={i} className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 text-center card-hover">
-                          <div className="text-4xl mb-2">{emoji}</div>
-                          <div className="text-xs text-dark/50 font-medium">
-                            {['Perros', 'Gatos', 'Conejos', 'Y mas...'][i]}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </ScrollReveal>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* FEATURES */}
-        <section className="py-20" style={{ background: 'linear-gradient(180deg, #FFF9F2 0%, #FFF4EB 100%)' }} aria-label="Funcionalidades">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <ScrollReveal>
-              <div className="text-center mb-14">
-                <h2 className="font-heading font-extrabold text-3xl text-dark mb-3">Lo que hace unico a HuellaGo</h2>
-                <p className="text-dark/60 max-w-lg mx-auto">Funciones pensadas para ti y tu mascota, sea perro, gato, conejo o la que sea</p>
-              </div>
-            </ScrollReveal>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-              {[
-                { icon: <MapPin size={28} />, color: '#2EC4B6', title: 'Mapa centralizado', desc: 'Veterinarias, tiendas, parques y mas en un mapa interactivo.' },
-                { icon: <Calendar size={28} />, color: '#7C5CBF', title: 'Eventos pet friendly', desc: 'Mascotatones, caminatas y ferias. Inscribete con un tap.' },
-                { icon: <PawIcon className="w-7 h-7" />, color: '#E85D75', title: 'Huella del Paseo', desc: 'Cada paseo genera un recuerdo visual con ruta y fotos.' },
-                { icon: <Users size={28} />, color: '#E8825A', title: 'Mascotas asistentes', desc: 'Ve que mascotas iran al evento. Perros, gatos y mas.' },
-                { icon: <Heart size={28} />, color: '#38A169', title: 'Comunidades', desc: 'Unete a comunidades por tipo de mascota, raza o ciudad.' },
-                { icon: <Route size={28} />, color: '#FFB627', title: 'Recrear ruta', desc: 'Repite paseos o crea eventos desde una ruta guardada.' },
-              ].map((f, i) => (
-                <ScrollReveal key={f.title} delay={i * 80}>
-                  <div className="rounded-card p-6 card-hover border-2 border-sand hover:border-primary/15 bg-white" style={{ background: `linear-gradient(135deg, ${f.color}06, white)` }}>
-                    <div className="w-12 h-12 rounded-2xl flex items-center justify-center mb-4" style={{ backgroundColor: f.color + '15', color: f.color }}>
-                      {f.icon}
-                    </div>
-                    <h3 className="font-heading font-bold text-dark mb-2">{f.title}</h3>
-                    <p className="text-sm text-dark/60 leading-relaxed">{f.desc}</p>
-                  </div>
-                </ScrollReveal>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* TIPOS DE MASCOTAS */}
-        <section className="py-16 bg-white" aria-label="Tipos de mascotas">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <ScrollReveal>
-              <div className="text-center mb-10">
-                <h2 className="font-heading font-extrabold text-3xl text-dark mb-2">Para todo tipo de mascotas</h2>
-                <p className="text-dark/60">No importa si es perro, gato, conejo o ave. En HuellaGo todos son bienvenidos.</p>
-              </div>
-            </ScrollReveal>
-            <div className="flex flex-wrap justify-center gap-4">
-              {PET_TYPES.map((pet, i) => (
-                <ScrollReveal key={pet.id} delay={i * 60}>
-                  <div className="bg-cream rounded-card px-6 py-4 card-hover border-2 border-transparent hover:border-primary/20 text-center min-w-[110px] cursor-pointer">
-                    <div className="text-4xl mb-2">{pet.icon}</div>
-                    <div className="font-heading font-bold text-dark text-sm">{pet.name}</div>
-                    <div className="text-[11px] text-dark/40 mt-1">{pet.count} miembros</div>
-                  </div>
-                </ScrollReveal>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* COMUNIDADES */}
-        <section className="py-20" style={{ background: 'linear-gradient(180deg, #FFF9F2 0%, #FFF4EB 100%)' }} aria-label="Comunidades">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <ScrollReveal>
-              <div className="flex items-center justify-between mb-10">
-                <div>
-                  <h2 className="font-heading font-extrabold text-3xl text-dark mb-2">Comunidades</h2>
-                  <p className="text-dark/60">Unete a grupos por tipo de mascota, raza o interes</p>
-                </div>
-                <Link href="/community" className="hidden md:flex items-center gap-1 text-primary font-bold hover:underline">Ver todas <ChevronRight size={16} /></Link>
-              </div>
-            </ScrollReveal>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {MOCK_COMMUNITIES.map((com, i) => (
-                <ScrollReveal key={com.id} delay={i * 70}>
-                  <div className="group rounded-card p-5 card-hover border-2 border-transparent hover:border-primary/20 cursor-pointer bg-white">
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className="w-11 h-11 rounded-xl flex items-center justify-center text-2xl" style={{ backgroundColor: com.color + '15' }}>{com.icon}</div>
-                      <div>
-                        <h3 className="font-heading font-bold text-dark text-sm group-hover:text-primary transition-colors line-clamp-1">{com.name}</h3>
-                        <div className="text-[11px] text-dark/40">{com.members} miembros</div>
-                      </div>
-                    </div>
-                    <p className="text-xs text-dark/50 leading-relaxed line-clamp-2 mb-3">{com.description}</p>
-                    <div className="flex gap-1 flex-wrap">
-                      {com.tags.map((tag) => (
-                        <span key={tag} className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-sand text-dark/40">#{tag}</span>
-                      ))}
-                    </div>
-                  </div>
-                </ScrollReveal>
-              ))}
-            </div>
-            <div className="mt-6 text-center md:hidden">
-              <Link href="/community" className="inline-flex items-center gap-1 text-primary font-bold text-sm hover:underline">
-                Ver todas las comunidades <ChevronRight size={14} />
-              </Link>
-            </div>
-          </div>
-        </section>
-
-        {/* RUTAS */}
-        <section className="py-20 bg-white" aria-label="Rutas de paseo">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <ScrollReveal>
-              <div className="flex items-center justify-between mb-10">
-                <div>
-                  <h2 className="font-heading font-extrabold text-3xl text-dark mb-2">Rutas populares</h2>
-                  <p className="text-dark/60">Calificadas por otros paseadores de Arequipa</p>
-                </div>
-                <Link href="/routes" className="hidden md:flex items-center gap-1 text-primary font-bold hover:underline">Ver todas <ChevronRight size={16} /></Link>
-              </div>
-            </ScrollReveal>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {popularRoutes.map((route, i) => (
-                <ScrollReveal key={route.id} delay={i * 100}>
-                  <Link href={`/routes/${route.id}`}>
-                    <div className="bg-cream hover:bg-white rounded-card p-5 card-hover border-2 border-transparent hover:border-primary/15">
-                      <div className="flex items-start justify-between mb-3">
-                        <div className="w-12 h-12 bg-gradient-to-br from-teal/20 to-primary/10 rounded-2xl flex items-center justify-center">
-                          <Route size={22} className="text-teal" />
-                        </div>
-                        <span className={`text-xs font-bold px-3 py-1 rounded-full ${route.difficulty === 'EASY' ? 'bg-success/10 text-success' : route.difficulty === 'MODERATE' ? 'bg-accent/15 text-amber-700' : 'bg-error/10 text-error'}`}>
-                          {DIFFICULTY_LABELS[route.difficulty]}
+                      <div className="absolute top-3 right-3 flex gap-2">
+                        <span className={`text-xs font-bold px-3 py-1.5 rounded-full ${event.isFree ? 'bg-secondary text-white' : 'bg-white text-dark'}`}>
+                          {event.isFree ? 'Gratis' : `S/ ${event.price}`}
                         </span>
                       </div>
-                      <h3 className="font-heading font-bold text-dark mb-2">{route.name}</h3>
-                      <p className="text-sm text-dark/60 mb-3 line-clamp-2">{route.description}</p>
-                      <div className="flex items-center gap-4 text-sm text-dark/50 mb-3">
-                        <span className="flex items-center gap-1"><MapPin size={13} className="text-primary" /> {route.distance} km</span>
-                        <span className="flex items-center gap-1"><Clock size={13} className="text-secondary" /> {route.duration} min</span>
-                        <span className="flex items-center gap-1"><Star size={13} className="fill-accent text-accent" /> {route.avgRating}</span>
+                    </div>
+                    <div className="p-5">
+                      <p className="text-[13px] font-semibold text-bark first-letter:uppercase">
+                        {WEEKDAYS[d.getDay()]}, {formatTime(event.date)}
+                      </p>
+                      <h3 className="font-heading font-bold text-dark text-xl leading-tight mt-1 group-hover:text-primary transition-colors">{event.title}</h3>
+                      <p className="flex items-center gap-1.5 text-sm text-bark mt-2">
+                        <MapPin size={14} className="shrink-0" /> <span className="truncate">{event.meetingPoint}</span>
+                      </p>
+                      <div className="mt-4 pt-4 border-t border-sand flex items-center gap-3">
+                        <span className="text-[12px] font-bold px-2.5 py-1 rounded-full" style={{ backgroundColor: energy + '18', color: energy }}>
+                          {ENERGY_LABELS[event.energyLevel || 'MEDIUM']}
+                        </span>
+                        <div className="flex-1 flex items-center gap-2 min-w-0">
+                          <Users size={14} className="text-bark shrink-0" />
+                          {event.maxAttendees ? (
+                            <div className="flex-1 h-1.5 bg-sand rounded-full overflow-hidden" title={`${event._count.attendances} de ${event.maxAttendees} cupos`}>
+                              <div className="h-full bg-primary rounded-full" style={{ width: `${pct}%` }} />
+                            </div>
+                          ) : null}
+                          <span className="text-[12px] font-semibold text-bark whitespace-nowrap">{event._count.attendances} van</span>
+                        </div>
                       </div>
-                      <div className="flex gap-1.5 flex-wrap">
-                        {route.hasShade && <span className="text-[11px] font-bold bg-teal/10 text-teal-dark px-2 py-1 rounded-full">Sombra</span>}
-                        {route.hasWater && <span className="text-[11px] font-bold bg-info/10 text-info px-2 py-1 rounded-full">Agua</span>}
-                        {route.hasRestArea && <span className="text-[11px] font-bold bg-secondary/10 text-secondary px-2 py-1 rounded-full">Descanso</span>}
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+            <MobileMore href="/events" label="Todos los eventos" />
+          </div>
+        </section>
+
+        {/* ==================== SERVICIOS ==================== */}
+        <section aria-labelledby="servicios" className="py-20 bg-white">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <ScrollReveal>
+              <div id="servicios">
+                <SectionHead
+                  title="Lo que tu mascota necesita, cerca"
+                  desc="Negocios revisados por el equipo de HuellaGo, con reseñas reales de otros dueños."
+                  href="/directory"
+                  cta="Ver directorio"
+                />
+              </div>
+            </ScrollReveal>
+
+            <div className="grid lg:grid-cols-[1fr_1.15fr] gap-6 [&>*]:min-w-0">
+              {/* categorías */}
+              <ScrollReveal>
+                <div className="grid grid-cols-[repeat(4,minmax(0,1fr))] gap-2 sm:gap-3 bg-cream rounded-card p-2.5 sm:p-4 h-full content-start">
+                  {CATEGORIES.map((key) => (
+                    <Link
+                      key={key}
+                      href={`/directory?category=${key}`}
+                      className="group flex flex-col items-center justify-center gap-1.5 sm:gap-2 rounded-2xl bg-white p-1.5 sm:p-4 aspect-square min-w-0 hover:bg-dark hover:text-white transition-colors"
+                    >
+                      <span
+                        className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300 ease-spring"
+                        style={{ backgroundColor: CATEGORY_COLORS[key] + '18', color: CATEGORY_COLORS[key] }}
+                      >
+                        <CategoryIcon category={key} size={22} />
+                      </span>
+                      <span className="text-[11px] sm:text-[13px] font-semibold text-center leading-tight break-words hyphens-auto w-full">{CATEGORY_LABELS[key]}</span>
+                    </Link>
+                  ))}
+                </div>
+              </ScrollReveal>
+
+              {/* destacados */}
+              <ScrollReveal>
+                <ul className="divide-y divide-sand border border-sand rounded-card overflow-hidden">
+                  {featuredBusinesses.map((biz) => (
+                    <li key={biz.id} className="relative group">
+                      <Link href={`/directory/${biz.id}`} className="flex items-center gap-4 p-4 sm:p-5 pr-16 hover:bg-cream transition-colors">
+                        <span
+                          className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0"
+                          style={{ backgroundColor: CATEGORY_COLORS[biz.category] + '18', color: CATEGORY_COLORS[biz.category] }}
+                        >
+                          <CategoryIcon category={biz.category} size={22} />
+                        </span>
+                        <span className="min-w-0 flex-1">
+                          <span className="flex items-center gap-2">
+                            <span className="font-heading font-bold text-dark text-[17px] truncate group-hover:text-primary transition-colors">{biz.name}</span>
+                            {biz.is24Hours && <span className="shrink-0 text-[11px] font-bold text-white bg-rose px-2 py-0.5 rounded-full">24h</span>}
+                          </span>
+                          <span className="flex items-center gap-3 text-sm text-bark mt-0.5">
+                            <span className="inline-flex items-center gap-1 font-semibold text-dark">
+                              <Star size={14} className="fill-accent text-accent" /> {biz.avgRating}
+                              <span className="font-normal text-bark">({biz._count?.reviews ?? 0})</span>
+                            </span>
+                            <span className="truncate">{CATEGORY_LABELS[biz.category]} en {biz.district}</span>
+                          </span>
+                        </span>
+                      </Link>
+                      <FavoriteButton kind="business" id={String(biz.id)} label={biz.name} className="absolute right-4 top-1/2 -translate-y-1/2" />
+                    </li>
+                  ))}
+                </ul>
+              </ScrollReveal>
+            </div>
+            <MobileMore href="/directory" label="Ver directorio" />
+          </div>
+        </section>
+
+        {/* ==================== RUTAS ==================== */}
+        <section aria-labelledby="rutas" className="py-20 bg-cream map-grid">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <ScrollReveal>
+              <div id="rutas">
+                <SectionHead
+                  title="Rutas que otros ya caminaron"
+                  desc="Con sombra, agua y lugares para descansar marcados por la comunidad."
+                  href="/routes"
+                  cta="Explorar rutas"
+                />
+              </div>
+            </ScrollReveal>
+            <div className="grid md:grid-cols-3 gap-5">
+              {popularRoutes.map((route) => (
+                <ScrollReveal key={route.id}>
+                  <Link href={`/routes/${route.id}`} className="group block bg-white rounded-card p-5 card-hover h-full">
+                    <div className="flex items-start gap-4">
+                      <RouteSketch waypoints={route.waypoints} className="w-24 h-24 shrink-0 rounded-2xl bg-cream group-hover:bg-primary-soft transition-colors" />
+                      <div className="min-w-0">
+                        <span className={`inline-block text-[12px] font-bold px-2.5 py-0.5 rounded-full ${route.difficulty === 'EASY' ? 'bg-secondary/10 text-secondary' : route.difficulty === 'MODERATE' ? 'bg-accent-soft text-[#8A5A00]' : 'bg-rose/10 text-rose-dark'}`}>
+                          {DIFFICULTY_LABELS[route.difficulty]}
+                        </span>
+                        <h3 className="font-heading font-bold text-dark text-lg leading-tight mt-2 group-hover:text-primary transition-colors">{route.name}</h3>
+                        <p className="text-sm text-bark mt-1">{route.district}</p>
                       </div>
-                      <div className="mt-3 text-xs text-dark/40">Realizada {route.timesWalked} veces</div>
+                    </div>
+                    <dl className="grid grid-cols-3 gap-2 mt-5 text-center">
+                      <div className="bg-cream rounded-xl py-2">
+                        <dt className="text-[12px] text-bark">Distancia</dt>
+                        <dd className="font-heading font-bold text-dark">{route.distance} km</dd>
+                      </div>
+                      <div className="bg-cream rounded-xl py-2">
+                        <dt className="text-[12px] text-bark">Duración</dt>
+                        <dd className="font-heading font-bold text-dark flex items-center justify-center gap-1"><Clock size={13} />{route.duration} min</dd>
+                      </div>
+                      <div className="bg-cream rounded-xl py-2">
+                        <dt className="text-[12px] text-bark">Valoración</dt>
+                        <dd className="font-heading font-bold text-dark flex items-center justify-center gap-1"><Star size={13} className="fill-accent text-accent" />{route.avgRating}</dd>
+                      </div>
+                    </dl>
+                    <div className="flex flex-wrap gap-1.5 mt-4">
+                      {route.hasShade && <span className="inline-flex items-center gap-1 text-[12px] font-semibold text-secondary bg-secondary/10 px-2 py-1 rounded-full"><Trees size={12} /> Sombra</span>}
+                      {route.hasWater && <span className="inline-flex items-center gap-1 text-[12px] font-semibold text-info bg-info/10 px-2 py-1 rounded-full"><Droplets size={12} /> Agua</span>}
+                      {route.hasRestArea && <span className="inline-flex items-center gap-1 text-[12px] font-semibold text-bark bg-sand px-2 py-1 rounded-full"><Armchair size={12} /> Descanso</span>}
+                      <span className="ml-auto text-[12px] text-bark self-center">{route.timesWalked} paseos</span>
                     </div>
                   </Link>
                 </ScrollReveal>
               ))}
             </div>
-            <div className="mt-6 text-center md:hidden">
-              <Link href="/routes" className="inline-flex items-center gap-1 text-primary font-bold text-sm hover:underline">
-                Ver todas las rutas <ChevronRight size={14} />
-              </Link>
-            </div>
+            <MobileMore href="/routes" label="Explorar rutas" />
           </div>
         </section>
 
-        {/* CTA MAPA */}
-        <section className="py-24 relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #2D1B0E 0%, #4A2E1C 50%, #2D1B0E 100%)' }} aria-label="Mapa interactivo">
-          <div className="absolute inset-0 opacity-5">
-            <PawIcon className="w-48 h-48 absolute top-8 left-8 text-primary" decorative />
-            <PawIcon className="w-36 h-36 absolute bottom-8 right-16 text-accent" decorative />
-          </div>
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative">
-            <ScrollReveal>
-              <MapPin size={48} className="mx-auto mb-6 text-primary-light animate-float" />
-              <h2 className="font-heading font-extrabold text-4xl text-white mb-4">Explora el mapa de Arequipa</h2>
-              <p className="text-primary-light/80 max-w-lg mx-auto mb-10 text-lg">Veterinarias, grooming, tiendas, hoteles y mas con filtros inteligentes.</p>
-              <Link href="/map" className="boop-btn inline-flex items-center gap-2 bg-primary text-white font-bold px-10 py-5 rounded-full shadow-button hover:bg-primary-dark transition-all text-lg">
-                <MapPin size={22} /> Abrir mapa interactivo
-              </Link>
-            </ScrollReveal>
-          </div>
-        </section>
-
-        {/* NEGOCIOS */}
-        <section className="py-20" style={{ background: 'linear-gradient(135deg, #F3E8FF 0%, #FFF9F2 50%, #FFF0E0 100%)' }} aria-label="Para negocios">
+        {/* ==================== ADOPCIÓN ==================== */}
+        <section aria-labelledby="adopción" className="py-20 bg-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <ScrollReveal>
-              <div className="max-w-2xl mx-auto text-center">
-                <div className="w-16 h-16 bg-secondary/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                  <MapPin size={32} className="text-secondary" />
+              <div className="relative overflow-hidden rounded-[36px] bg-rose text-white px-6 py-12 sm:px-12 sm:py-16 grid md:grid-cols-[1.3fr_1fr] gap-10 items-center">
+                <PawMark aria-hidden className="absolute -right-10 -bottom-12 w-72 h-72 text-white/10 rotate-[24deg]" />
+                <div className="relative">
+                  <h2 id="adopción" className="font-heading font-extrabold leading-[0.95]" style={{ fontSize: 'clamp(34px, 4.6vw, 60px)', letterSpacing: '-0.045em' }}>
+                    71 mascotas esperan un hogar en Arequipa
+                  </h2>
+                  <p className="text-white/85 text-lg mt-5 max-w-md">
+                    Conoce a perros, gatos y conejos rescatados por refugios locales. Puedes adoptar, ser hogar temporal o apadrinar.
+                  </p>
+                  <div className="flex flex-col sm:flex-row gap-3 mt-8">
+                    <Link href="/adoptions" className="inline-flex items-center justify-center gap-2 bg-white text-rose-dark font-bold rounded-full px-6 py-3.5 boop-btn">
+                      <Heart size={18} className="fill-rose text-rose" /> Conocer mascotas
+                    </Link>
+                    <Link href="/adoptions#refugios" className="inline-flex items-center justify-center gap-1 font-bold rounded-full px-6 py-3.5 ring-2 ring-white/40 hover:ring-white transition-shadow">
+                      Ver refugios
+                    </Link>
+                  </div>
                 </div>
-                <h2 className="font-heading font-extrabold text-3xl text-dark mb-4">Lleva tu negocio pet al siguiente nivel</h2>
-                <p className="text-dark/60 mb-8">Registra tu servicio y conecta con miles de duenos de mascotas en tu ciudad. Gratis.</p>
-                <Link href="/business/register" className="boop-btn inline-flex items-center gap-2 bg-secondary text-white font-bold px-8 py-4 rounded-full shadow-button-secondary hover:bg-secondary-dark transition-all text-lg">
-                  Registrar mi negocio gratis
-                </Link>
+                <div className="relative grid grid-cols-3 gap-3" aria-hidden>
+                  {['🐕', '🐈', '🐇', '🐈‍⬛', '🐩', '🐹'].map((e, i) => (
+                    <span
+                      key={i}
+                      className={`aspect-square rounded-3xl bg-white/15 backdrop-blur-sm flex items-center justify-center text-4xl sm:text-5xl ${i % 2 ? 'translate-y-4' : ''}`}
+                    >
+                      {e}
+                    </span>
+                  ))}
+                </div>
               </div>
             </ScrollReveal>
           </div>
         </section>
 
-        {/* CTA FINAL */}
-        <section className="py-28 relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #FFE8D6 0%, #FFF0E0 30%, #FFF4EB 60%, #FFF9F2 100%)' }}>
-          <div className="absolute -bottom-16 -right-16 opacity-[0.03] select-none animate-float-slow">
-            <PawIcon className="w-64 h-64 text-dark" decorative />
-          </div>
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative">
+        {/* ==================== COMUNIDAD + NEGOCIOS ==================== */}
+        <section aria-labelledby="comunidad" className="pb-24 bg-white">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid lg:grid-cols-[1.5fr_1fr] gap-6">
             <ScrollReveal>
-              <PawIcon className="w-16 h-16 text-primary mx-auto mb-6 animate-float" decorative />
-              <h2 className="font-heading font-extrabold text-4xl md:text-5xl text-dark mb-5">
-                Tu mascota merece la<br /><span className="gradient-text-fun">mejor experiencia</span>
-              </h2>
-              <p className="text-dark/60 max-w-lg mx-auto mb-10 text-lg">Descubre servicios, eventos, rutas y comunidad para ti y todas tus mascotas.</p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Link href="/map" className="boop-btn inline-flex items-center justify-center gap-2 bg-primary text-white font-bold px-10 py-5 rounded-full shadow-button hover:bg-primary-dark transition-all text-lg">
-                  Empezar a explorar
-                </Link>
-                <Link href="/events" className="boop-btn inline-flex items-center justify-center gap-2 bg-white text-dark font-bold px-10 py-5 rounded-full shadow-card hover:shadow-card-hover transition-all text-lg border-2 border-sand">
-                  Ver eventos
+              <div className="rounded-card border border-sand p-6 sm:p-8 h-full">
+                <div className="flex items-end justify-between gap-4 mb-6">
+                  <h2 id="comunidad" className="font-heading font-extrabold text-dark text-3xl leading-none" style={{ letterSpacing: '-0.035em' }}>
+                    Encuentra tu manada
+                  </h2>
+                  <Link href="/community" className="text-sm font-bold text-primary link-route shrink-0">Ver comunidades</Link>
+                </div>
+                <ul className="grid sm:grid-cols-2 gap-3">
+                  {MOCK_COMMUNITIES.slice(0, 4).map((c) => (
+                    <li key={c.id}>
+                      <Link href="/community" className="flex items-center gap-3 rounded-2xl p-3 hover:bg-cream transition-colors">
+                        <span className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl shrink-0" style={{ backgroundColor: c.color + '18' }} aria-hidden>
+                          {c.icon}
+                        </span>
+                        <span className="min-w-0">
+                          <span className="block font-heading font-bold text-dark truncate">{c.name}</span>
+                          <span className="block text-sm text-bark">{c.members.toLocaleString('es-PE')} miembros</span>
+                        </span>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </ScrollReveal>
+            <ScrollReveal>
+              <div className="rounded-card bg-accent p-6 sm:p-8 h-full flex flex-col">
+                <span className="w-12 h-12 rounded-2xl bg-dark text-accent flex items-center justify-center">
+                  <Store size={22} />
+                </span>
+                <h2 className="font-heading font-extrabold text-dark text-3xl leading-none mt-6" style={{ letterSpacing: '-0.035em' }}>
+                  ¿Tienes un negocio pet?
+                </h2>
+                <p className="text-dark/75 mt-3 flex-1">
+                  Aparece en el mapa, publica promociones y recibe reseñas de dueños de mascotas en tu distrito. El plan básico es gratis.
+                </p>
+                <Link href="/business/register" className="mt-6 inline-flex items-center justify-center gap-2 bg-dark text-white font-bold rounded-full px-6 py-3.5 boop-btn hover:bg-primary transition-colors">
+                  Registrar mi negocio
                 </Link>
               </div>
-              <p className="text-sm text-dark/40 mt-6">Gratis. Hecho con amor en Peru.</p>
             </ScrollReveal>
           </div>
         </section>

@@ -11,7 +11,7 @@ import {
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { ReviewsService, CreateReviewDto } from './reviews.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { CurrentUser } from '@common/decorators';
+import { CurrentUser } from '../../common/decorators';
 
 @ApiTags('Reviews')
 @Controller('reviews')

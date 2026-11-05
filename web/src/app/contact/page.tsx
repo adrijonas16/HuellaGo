@@ -12,13 +12,13 @@ export default function ContactPage() {
   return (
     <>
       <Navbar />
-      <main className="min-h-screen bg-cream paw-bg">
+      <main id="contenido" className="min-h-screen bg-cream paw-bg">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <ScrollReveal>
             <div className="text-center mb-12">
               <div className="text-5xl mb-4">💬</div>
               <h1 className="font-heading font-extrabold text-4xl text-dark mb-2">Hablemos</h1>
-              <p className="text-bark text-lg">Estamos aqui para ayudarte</p>
+              <p className="text-bark text-lg">Estamos aquí para ayudarte</p>
             </div>
           </ScrollReveal>
 
@@ -54,8 +54,8 @@ export default function ContactPage() {
                   <div className="flex items-center gap-3 mb-2">
                     <div className="w-10 h-10 bg-secondary/10 rounded-xl flex items-center justify-center"><MapPin size={18} className="text-secondary" /></div>
                     <div>
-                      <h3 className="font-heading font-bold text-dark text-sm">Ubicacion</h3>
-                      <p className="text-sm text-bark">Arequipa, Peru</p>
+                      <h3 className="font-heading font-bold text-dark text-sm">Ubicación</h3>
+                      <p className="text-sm text-bark">Arequipa, Perú</p>
                     </div>
                   </div>
                 </div>

@@ -1,83 +1,76 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import { X, Smartphone } from 'lucide-react';
+import { PawMark } from '@/components/layout/logo';
+import { useAppStore } from '@/lib/store';
 
+const KEY = 'hg-app-banner-dismissed-at';
+const WEEK = 7 * 24 * 60 * 60 * 1000;
+
+/**
+ * Invitación a la app móvil. Menos intrusiva que antes:
+ * - Escritorio: franja fina arriba.
+ * - Móvil: tarjeta compacta que aparece solo tras hacer scroll,
+ *   nunca en pantallas de acceso, y se oculta 7 días al cerrarla.
+ */
 export function AppBanner() {
-  const [show, setShow] = useState(false);
-  const [dismissed, setDismissed] = useState(false);
+  const pathname = usePathname();
+  const notify = useAppStore((s) => s.notify);
+  const [eligible, setEligible] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
-    const wasDismissed = sessionStorage.getItem('app-banner-dismissed');
-    if (wasDismissed) {
-      setDismissed(true);
-      return;
-    }
-    // Show after 2 seconds
-    const timer = setTimeout(() => setShow(true), 2000);
-    return () => clearTimeout(timer);
+    const at = Number(localStorage.getItem(KEY) || 0);
+    setEligible(Date.now() - at > WEEK);
+    const onScroll = () => window.scrollY > 700 && setScrolled(true);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
   function dismiss() {
-    setShow(false);
-    setDismissed(true);
-    sessionStorage.setItem('app-banner-dismissed', 'true');
+    setEligible(false);
+    localStorage.setItem(KEY, String(Date.now()));
   }
 
-  if (dismissed || !show) return null;
+  function openApp() {
+    dismiss();
+    notify('La app de HuellaGo llega pronto a iOS y Android. Te avisaremos.', { tone: 'info' });
+  }
+
+  if (!eligible || /^\/(login|register|forgot-password)/.test(pathname || '')) return null;
 
   return (
     <>
-      {/* Mobile bottom banner */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 lg:hidden animate-slide-up">
-        <div className="bg-white border-t border-sand shadow-2xl px-4 py-3 safe-bottom">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary-dark rounded-2xl flex items-center justify-center text-xl shrink-0 shadow-button">
-              🐾
+      {scrolled && (
+        <div className="fixed bottom-3 left-3 right-3 z-40 lg:hidden animate-toast-in">
+          <div className="bg-white border border-sand rounded-2xl shadow-card-hover p-3 flex items-center gap-3">
+            <div className="w-10 h-10 bg-primary text-white rounded-xl flex items-center justify-center shrink-0 -rotate-6">
+              <PawMark className="w-6 h-6" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="font-heading font-bold text-dark text-sm">Mejor experiencia en la app</p>
-              <p className="text-xs text-bark truncate">Crea rutas, inicia paseos y mas desde tu celular</p>
+              <p className="font-heading font-bold text-dark text-sm leading-tight">Registra tus paseos con la app</p>
+              <p className="text-xs text-bark truncate">Rutas, fotos y huellas desde tu celular</p>
             </div>
-            <button
-              onClick={dismiss}
-              className="p-1.5 text-bark hover:bg-sand rounded-lg shrink-0"
-            >
+            <button onClick={openApp} className="bg-dark text-white text-xs font-bold px-3 py-2 rounded-full shrink-0">
+              Avísame
+            </button>
+            <button onClick={dismiss} aria-label="Cerrar" className="p-1.5 text-bark hover:bg-sand rounded-full shrink-0">
               <X size={16} />
             </button>
           </div>
-          <div className="flex gap-2 mt-3">
-            <button className="flex-1 bg-primary text-white font-bold text-sm py-2.5 rounded-button boop-btn flex items-center justify-center gap-1.5">
-              <Smartphone size={14} /> Abrir en la app
-            </button>
-            <button
-              onClick={dismiss}
-              className="px-4 text-bark text-sm font-medium py-2.5 rounded-button border border-sand hover:bg-sand/50"
-            >
-              Continuar en la web
-            </button>
-          </div>
         </div>
-      </div>
+      )}
 
-      {/* Desktop top banner (subtle) */}
-      <div className="hidden lg:block bg-gradient-to-r from-primary/5 via-secondary/5 to-accent/5 border-b border-sand">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 flex items-center justify-between">
-          <div className="flex items-center gap-2 text-sm">
-            <span>📱</span>
-            <span className="text-bark">
-              <span className="font-semibold text-dark">HuellaGo</span> esta disponible como app.
-              Crea rutas, inicia paseos y registra huellas desde tu celular.
-            </span>
-          </div>
-          <div className="flex items-center gap-3">
-            <button className="bg-primary text-white font-semibold text-xs px-4 py-1.5 rounded-full boop-btn hover:bg-primary-dark transition-all">
-              Descargar app
-            </button>
-            <button onClick={dismiss} className="text-bark hover:text-dark">
-              <X size={14} />
-            </button>
-          </div>
+      <div className="hidden lg:block bg-dark text-white">
+        <div className="max-w-7xl mx-auto px-8 py-1.5 flex items-center justify-center gap-3 text-[13px]">
+          <Smartphone size={14} className="text-accent" />
+          <span className="text-white/75">La app de HuellaGo llega pronto: registra rutas, fotos y huellas de cada paseo.</span>
+          <button onClick={openApp} className="font-bold text-accent hover:underline">Quiero que me avisen</button>
+          <button onClick={dismiss} aria-label="Cerrar aviso de la app" className="ml-2 text-white/50 hover:text-white">
+            <X size={14} />
+          </button>
         </div>
       </div>
     </>

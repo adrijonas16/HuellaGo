@@ -10,6 +10,9 @@ import { MOCK_ROUTES, DIFFICULTY_LABELS } from '@/lib/mock-data';
 import { fetchApi } from '@/lib/api';
 import { MapPin, Clock, Star, ChevronLeft, Route, Footprints, Shield, Droplets, TreePine, Armchair, Smartphone } from 'lucide-react';
 
+import { FavoriteButton } from '@/components/ui/favorite-button';
+import { ShareButton } from '@/components/ui/share-button';
+
 const RouteMap = dynamic(() => import('@/components/map/route-map'), { ssr: false });
 
 export default function RouteDetailPage({ params }: { params: { id: string } }) {
@@ -42,7 +45,7 @@ export default function RouteDetailPage({ params }: { params: { id: string } }) 
   return (
     <>
       <Navbar />
-      <main className="min-h-screen bg-cream">
+      <main id="contenido" className="min-h-screen bg-cream">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <Link href="/routes" className="inline-flex items-center gap-1 text-bark hover:text-primary mb-6 text-sm font-medium">
             <ChevronLeft size={16} /> Volver a rutas
@@ -103,7 +106,7 @@ export default function RouteDetailPage({ params }: { params: { id: string } }) 
                   <h2 className="font-heading font-bold text-dark text-lg mb-3">Comentarios de paseadores</h2>
                   <div className="space-y-3">
                     {[
-                      { user: 'Maria G.', rating: 5, text: 'Excelente ruta! Mucha sombra y bien senalizada. Mi perro la disfruto mucho.', date: '3 jul' },
+                      { user: 'María G.', rating: 5, text: 'Excelente ruta! Mucha sombra y bien senalizada. Mi perro la disfruto mucho.', date: '3 jul' },
                       { user: 'Carlos Q.', rating: 4, text: 'Buena ruta, algo de trafico en la parte del centro pero en general segura.', date: '28 jun' },
                       { user: 'Ana T.', rating: 5, text: 'La hicimos con mi Golden y la paso genial. Hay piletas donde pueden tomar agua.', date: '20 jun' },
                     ].map((r, i) => (
@@ -161,7 +164,7 @@ export default function RouteDetailPage({ params }: { params: { id: string } }) 
 
                   {/* Location */}
                   <div className="flex items-center justify-between py-3 border-t border-sand">
-                    <span className="text-sm text-bark">Ubicacion</span>
+                    <span className="text-sm text-bark">Ubicación</span>
                     <span className="text-sm font-semibold text-dark">{route.district}, {route.city}</span>
                   </div>
 
@@ -177,18 +180,27 @@ export default function RouteDetailPage({ params }: { params: { id: string } }) 
                       <Smartphone size={16} className="text-secondary" />
                       <span className="text-sm font-bold text-dark">Hacer esta ruta</span>
                     </div>
-                    <p className="text-xs text-bark mb-3">Abre la app para seguir esta ruta con GPS en tiempo real.</p>
-                    <button className="w-full bg-primary text-white font-bold py-3 rounded-button shadow-button boop-btn hover:bg-primary-dark transition-all text-sm">
-                      Abrir en la app
-                    </button>
+                    <p className="text-xs text-bark mb-3">Abre la ruta en tu app de mapas para seguirla con GPS.</p>
+                    <a
+                      href={`https://www.google.com/maps/dir/?api=1&origin=${route.startLat},${route.startLng}&destination=${route.endLat},${route.endLng}&travelmode=walking${
+                        route.waypoints?.length > 2 ? `&waypoints=${route.waypoints.slice(1, -1).map((w: any) => `${w.lat},${w.lng}`).join('|')}` : ''
+                      }`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block text-center w-full bg-primary text-white font-bold py-3 rounded-full shadow-button boop-btn hover:bg-primary-dark text-sm"
+                    >
+                      Empezar paseo con GPS
+                    </a>
                   </div>
 
                   {/* Create event from route */}
-                  <Link href="/events/create" className="block mt-3">
-                    <button className="w-full border-2 border-primary text-primary font-semibold py-3 rounded-button hover:bg-primary/5 transition-all text-sm">
-                      Crear evento con esta ruta
-                    </button>
+                  <Link href="/events/create" className="block text-center mt-3 w-full border-2 border-dark text-dark font-bold py-3 rounded-full hover:bg-dark hover:text-white transition-colors text-sm">
+                    Crear evento con esta ruta
                   </Link>
+                  <div className="flex items-center justify-center gap-2 mt-3">
+                    <FavoriteButton kind="route" id={route.id} label={route.name} className="shadow-none bg-cream" />
+                    <ShareButton title={route.name} className="shadow-none bg-cream" />
+                  </div>
                 </div>
               </ScrollReveal>
             </div>

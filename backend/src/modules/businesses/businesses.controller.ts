@@ -15,7 +15,7 @@ import { CreateBusinessDto } from './dto/create-business.dto';
 import { UpdateBusinessDto } from './dto/update-business.dto';
 import { QueryBusinessDto } from './dto/query-business.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { CurrentUser } from '@common/decorators';
+import { CurrentUser } from '../../common/decorators';
 
 @ApiTags('Businesses')
 @Controller('businesses')

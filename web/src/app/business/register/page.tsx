@@ -9,14 +9,14 @@ import { LocationPicker } from '@/components/map/location-picker';
 
 const STEPS = [
   { title: 'Tipo de negocio', icon: '🏪' },
-  { title: 'Datos basicos', icon: '📝' },
-  { title: 'Ubicacion', icon: '📍' },
+  { title: 'Datos básicos', icon: '📝' },
+  { title: 'Ubicación', icon: '📍' },
   { title: 'Servicios y horarios', icon: '🕐' },
   { title: 'Fotos', icon: '📸' },
   { title: 'Confirmar', icon: '✅' },
 ];
 
-const DAYS = ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado', 'Domingo'];
+const DAYS = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
 
 export default function BusinessRegisterPage() {
   const [step, setStep] = useState(0);
@@ -36,12 +36,34 @@ export default function BusinessRegisterPage() {
     ownerPhone: '',
   });
 
-  const canNext = step === 0 ? !!selectedCategory : true;
+  const [submitted, setSubmitted] = useState(false);
+  const canNext = step === 0 ? !!selectedCategory : step === 1 ? formData.name.trim().length > 1 : true;
+
+  if (submitted) {
+    return (
+      <>
+        <Navbar />
+        <main id="contenido" className="min-h-screen bg-cream flex items-center justify-center px-4 py-16">
+          <div className="max-w-md w-full bg-white rounded-card p-8 text-center animate-bounce-in">
+            <span className="w-16 h-16 mx-auto rounded-full bg-secondary text-white flex items-center justify-center"><Check size={30} strokeWidth={3} /></span>
+            <h1 className="font-heading font-extrabold text-3xl text-dark mt-5" style={{ letterSpacing: '-0.035em' }}>Registro enviado</h1>
+            <p className="text-bark mt-3">
+              Revisaremos <strong className="text-dark">{formData.name || 'tu negocio'}</strong> en un plazo de 24 a 48 horas y te avisaremos por email cuando aparezca en el mapa.
+            </p>
+            <div className="flex flex-col gap-2 mt-7">
+              <Link href="/directory" className="bg-primary text-white font-bold rounded-full py-3.5 shadow-button boop-btn">Ver el directorio</Link>
+              <Link href="/pricing" className="font-bold text-dark rounded-full py-3 hover:bg-cream">Conocer los planes</Link>
+            </div>
+          </div>
+        </main>
+      </>
+    );
+  }
 
   return (
     <>
       <Navbar />
-      <main className="min-h-screen bg-cream">
+      <main id="contenido" className="min-h-screen bg-cream">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8">
           {/* Back */}
           <Link href="/pricing" className="inline-flex items-center gap-1 text-bark hover:text-primary mb-6 text-sm font-medium">
@@ -54,8 +76,18 @@ export default function BusinessRegisterPage() {
             <p className="text-bark">Completa los pasos y empieza a recibir clientes en HuellaGo</p>
           </div>
 
+          {/* Progreso compacto en móvil */}
+          <div className="sm:hidden mb-8">
+            <div className="flex justify-between text-sm font-semibold mb-2">
+              <span className="text-dark">{STEPS[step].title}</span>
+              <span className="text-bark">Paso {step + 1} de {STEPS.length}</span>
+            </div>
+            <div className="h-2 rounded-full bg-sand overflow-hidden">
+              <div className="h-full bg-primary rounded-full transition-all duration-500 ease-out" style={{ width: `${((step + 1) / STEPS.length) * 100}%` }} />
+            </div>
+          </div>
           {/* Progress */}
-          <div className="flex items-center justify-between mb-10 px-4">
+          <div className="hidden sm:flex items-center justify-between mb-10 px-4">
             {STEPS.map((s, i) => (
               <div key={i} className="flex items-center">
                 <div className="flex flex-col items-center">
@@ -83,7 +115,7 @@ export default function BusinessRegisterPage() {
             {step === 0 && (
               <div>
                 <h2 className="font-heading font-bold text-xl text-dark mb-2">Que tipo de negocio tienes?</h2>
-                <p className="text-sm text-bark mb-6">Selecciona la categoria que mejor describe tu negocio</p>
+                <p className="text-sm text-bark mb-6">Selecciona la categoría que mejor describe tu negocio</p>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                   {Object.entries(CATEGORY_ICONS).map(([key, icon]) => (
                     <button
@@ -103,23 +135,23 @@ export default function BusinessRegisterPage() {
               </div>
             )}
 
-            {/* Step 1: Datos basicos */}
+            {/* Step 1: Datos básicos */}
             {step === 1 && (
               <div>
                 <h2 className="font-heading font-bold text-xl text-dark mb-2">Datos de tu negocio</h2>
-                <p className="text-sm text-bark mb-6">Informacion que veran tus clientes</p>
+                <p className="text-sm text-bark mb-6">Información que verán tus clientes</p>
                 <div className="space-y-4">
                   <div>
                     <label className="text-sm font-semibold text-dark block mb-1.5">Nombre del negocio *</label>
                     <input className="w-full px-4 py-3 rounded-button border-[1.5px] border-sand focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" placeholder="Ej: Veterinaria Patitas Felices" value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} />
                   </div>
                   <div>
-                    <label className="text-sm font-semibold text-dark block mb-1.5">Descripcion</label>
+                    <label className="text-sm font-semibold text-dark block mb-1.5">Descripción</label>
                     <textarea className="w-full px-4 py-3 rounded-button border-[1.5px] border-sand focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all min-h-[100px]" placeholder="Describe tu negocio, servicios principales, experiencia..." value={formData.description} onChange={(e) => setFormData({...formData, description: e.target.value})} />
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label className="text-sm font-semibold text-dark block mb-1.5">Telefono</label>
+                      <label className="text-sm font-semibold text-dark block mb-1.5">Teléfono</label>
                       <input className="w-full px-4 py-3 rounded-button border-[1.5px] border-sand focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" placeholder="054-234567" value={formData.phone} onChange={(e) => setFormData({...formData, phone: e.target.value})} />
                     </div>
                     <div>
@@ -135,15 +167,15 @@ export default function BusinessRegisterPage() {
               </div>
             )}
 
-            {/* Step 2: Ubicacion */}
+            {/* Step 2: Ubicación */}
             {step === 2 && (
               <div>
                 <h2 className="font-heading font-bold text-xl text-dark mb-2">Donde esta tu negocio?</h2>
-                <p className="text-sm text-bark mb-6">Tu ubicacion aparecera en el mapa de HuellaGo</p>
+                <p className="text-sm text-bark mb-6">Tu ubicación aparecerá en el mapa de HuellaGo</p>
                 <div className="space-y-4">
                   <div>
-                    <label className="text-sm font-semibold text-dark block mb-1.5">Direccion *</label>
-                    <input className="w-full px-4 py-3 rounded-button border-[1.5px] border-sand focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" placeholder="Av. Ejercito 420" value={formData.address} onChange={(e) => setFormData({...formData, address: e.target.value})} />
+                    <label className="text-sm font-semibold text-dark block mb-1.5">Dirección *</label>
+                    <input className="w-full px-4 py-3 rounded-button border-[1.5px] border-sand focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" placeholder="Av. Ejército 420" value={formData.address} onChange={(e) => setFormData({...formData, address: e.target.value})} />
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
@@ -162,9 +194,9 @@ export default function BusinessRegisterPage() {
                   </div>
                   {/* Location picker with geolocation */}
                   <LocationPicker
-                    label="Ubicacion exacta *"
+                    label="Ubicación exacta *"
                     onChange={(loc) => setFormData({...formData, address: loc.address || formData.address })}
-                    placeholder="Selecciona la ubicacion de tu negocio"
+                    placeholder="Selecciona la ubicación de tu negocio"
                   />
                 </div>
               </div>
@@ -180,7 +212,7 @@ export default function BusinessRegisterPage() {
                 <div className="flex items-center justify-between bg-cream rounded-card p-4 mb-6">
                   <div className="flex items-center gap-2">
                     <Clock size={18} className="text-rose" />
-                    <span className="text-sm font-semibold text-dark">Atencion 24 horas</span>
+                    <span className="text-sm font-semibold text-dark">Atención 24 horas</span>
                   </div>
                   <button
                     onClick={() => setFormData({...formData, is24Hours: !formData.is24Hours})}
@@ -193,7 +225,7 @@ export default function BusinessRegisterPage() {
                 {/* Hours */}
                 {!formData.is24Hours && (
                   <div className="space-y-2 mb-6">
-                    <label className="text-sm font-semibold text-dark block mb-2">Horarios por dia</label>
+                    <label className="text-sm font-semibold text-dark block mb-2">Horarios por día</label>
                     {DAYS.map((day) => (
                       <div key={day} className="flex items-center gap-3 py-2">
                         <span className="text-sm text-dark w-24 font-medium">{day}</span>
@@ -236,7 +268,7 @@ export default function BusinessRegisterPage() {
                     </div>
                   ))}
                 </div>
-                <p className="text-xs text-bark mt-3">Formatos: JPG, PNG. Maximo 5MB por foto.</p>
+                <p className="text-xs text-bark mt-3">Formatos: JPG, PNG. Máximo 5MB por foto.</p>
               </div>
             )}
 
@@ -272,7 +304,7 @@ export default function BusinessRegisterPage() {
                 </div>
 
                 <p className="text-xs text-bark">
-                  Puedes mejorar tu plan despues desde tu dashboard. <Link href="/pricing" className="text-primary font-semibold hover:underline">Ver planes</Link>
+                  Puedes mejorar tu plan después desde tu dashboard. <Link href="/pricing" className="text-primary font-semibold hover:underline">Ver planes</Link>
                 </p>
               </div>
             )}
@@ -291,7 +323,8 @@ export default function BusinessRegisterPage() {
 
             {step < STEPS.length - 1 ? (
               <button
-                onClick={() => canNext && setStep(step + 1)}
+                onClick={() => { if (canNext) { setStep(step + 1); window.scrollTo({ top: 0, behavior: 'smooth' }); } }}
+                aria-disabled={!canNext}
                 className={`flex items-center gap-1 px-6 py-3 rounded-button font-semibold text-sm transition-all ${
                   canNext
                     ? 'bg-primary text-white shadow-button hover:bg-primary-dark boop-btn'
@@ -301,7 +334,7 @@ export default function BusinessRegisterPage() {
                 Siguiente <ChevronRight size={16} />
               </button>
             ) : (
-              <button className="flex items-center gap-1 px-8 py-3 rounded-button font-bold text-sm bg-success text-white shadow-sm hover:bg-green-700 boop-btn transition-all">
+              <button onClick={() => { setSubmitted(true); window.scrollTo({ top: 0 }); }} className="flex items-center gap-1 px-8 py-3 rounded-full font-bold text-sm bg-secondary text-white shadow-button-secondary hover:bg-secondary-dark boop-btn transition-all">
                 <Check size={16} /> Enviar registro
               </button>
             )}

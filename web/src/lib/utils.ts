@@ -43,10 +43,10 @@ export function formatDateFull(dateString: string): string {
 
 export const CATEGORY_LABELS: Record<string, string> = {
   VETERINARY: 'Veterinaria',
-  EMERGENCY_CLINIC: 'Clinica 24h',
+  EMERGENCY_CLINIC: 'Clínica 24h',
   WALKER: 'Paseador',
   HOTEL: 'Hotel',
-  DAYCARE: 'Guarderia',
+  DAYCARE: 'Guardería',
   STORE: 'Tienda',
   GROOMING: 'Grooming',
   TRAINER: 'Entrenador',
@@ -54,20 +54,20 @@ export const CATEGORY_LABELS: Record<string, string> = {
 };
 
 export const DIFFICULTY_LABELS: Record<string, string> = {
-  EASY: 'Facil',
+  EASY: 'Fácil',
   MODERATE: 'Moderada',
-  HARD: 'Dificil',
+  HARD: 'Difícil',
 };
 
 export const ENERGY_LABELS: Record<string, string> = {
   LOW: 'Tranquilo',
   MEDIUM: 'Moderado',
-  HIGH: 'Energico',
+  HIGH: 'Enérgico',
 };
 
 export const SIZE_LABELS: Record<string, string> = {
   MINI: 'Mini',
-  SMALL: 'Pequeno',
+  SMALL: 'Pequeño',
   MEDIUM: 'Mediano',
   LARGE: 'Grande',
   GIANT: 'Gigante',

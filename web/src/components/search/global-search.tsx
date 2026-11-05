@@ -38,17 +38,18 @@ export function GlobalSearch() {
 
   return (
     <>
-      <button onClick={() => setOpen(true)} className="p-2 rounded-lg hover:bg-sand transition-colors flex items-center gap-2">
-        <Search size={20} className="text-bark" />
-        <span className="hidden lg:inline text-xs text-bark/40 bg-sand px-2 py-0.5 rounded font-mono">Ctrl+K</span>
+      <button onClick={() => setOpen(true)} aria-label="Buscar (Ctrl+K)" className="p-2 xl:pl-3 xl:pr-2 rounded-full hover:bg-sand xl:bg-white xl:border xl:border-sand transition-colors flex items-center gap-2">
+        <Search size={18} className="text-bark" />
+        <span className="hidden xl:inline text-sm text-bark/70">Buscar</span>
+        <kbd className="hidden xl:inline text-[11px] text-bark/60 bg-sand px-1.5 py-0.5 rounded-md font-body">Ctrl K</kbd>
       </button>
 
       {open && (
         <div className="fixed inset-0 z-[200]">
           <div className="absolute inset-0 bg-dark/30 backdrop-blur-sm" onClick={() => setOpen(false)} />
 
-          <div className="relative max-w-2xl mx-auto mt-[10vh] px-4 animate-slide-up">
-            <div className="bg-white rounded-card shadow-card-hover overflow-hidden">
+          <div className="relative max-w-2xl mx-auto mt-[10vh] px-4 animate-slide-down">
+            <div className="bg-white rounded-2xl shadow-card-hover overflow-hidden">
               {/* Search input */}
               <div className="flex items-center gap-3 px-5 py-4 border-b border-sand">
                 <Search size={20} className="text-bark/40 shrink-0" />

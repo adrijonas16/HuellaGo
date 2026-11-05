@@ -10,7 +10,7 @@ interface LocationPickerProps {
   placeholder?: string;
 }
 
-export function LocationPicker({ label, value, onChange, placeholder = 'Selecciona una ubicacion' }: LocationPickerProps) {
+export function LocationPicker({ label, value, onChange, placeholder = 'Selecciona una ubicación' }: LocationPickerProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -32,11 +32,11 @@ export function LocationPicker({ label, value, onChange, placeholder = 'Seleccio
       (err) => {
         setLoading(false);
         if (err.code === err.PERMISSION_DENIED) {
-          setError('Permiso de ubicacion denegado. Activa la ubicacion en tu navegador.');
+          setError('Permiso de ubicación denegado. Activa la ubicación en tu navegador.');
         } else if (err.code === err.POSITION_UNAVAILABLE) {
-          setError('Ubicacion no disponible. Intenta de nuevo.');
+          setError('Ubicación no disponible. Intenta de nuevo.');
         } else {
-          setError('No se pudo obtener tu ubicacion.');
+          setError('No se pudo obtener tu ubicación.');
         }
       },
       { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 },
@@ -74,7 +74,7 @@ export function LocationPicker({ label, value, onChange, placeholder = 'Seleccio
             ) : (
               <Crosshair size={14} />
             )}
-            {loading ? 'Obteniendo...' : 'Usar mi ubicacion actual'}
+            {loading ? 'Obteniendo...' : 'Usar mi ubicación actual'}
           </button>
         </div>
 
@@ -92,7 +92,7 @@ export function LocationPicker({ label, value, onChange, placeholder = 'Seleccio
               </div>
             </div>
             <p className="absolute bottom-2 left-0 right-0 text-center text-[10px] text-bark/50">
-              Puedes ajustar la ubicacion en el mapa de la app
+              Puedes ajustar la ubicación en el mapa de la app
             </p>
           </div>
         )}

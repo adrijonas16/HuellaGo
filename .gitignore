@@ -31,3 +31,4 @@ Thumbs.db
 **/android/local.properties
 **/.flutter-plugins
 **/.flutter-plugins-dependencies
+*.tsbuildinfo

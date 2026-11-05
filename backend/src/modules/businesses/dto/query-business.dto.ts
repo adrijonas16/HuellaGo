@@ -2,7 +2,7 @@ import { IsOptional, IsEnum, IsNumber, IsBoolean } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { BusinessCategory } from '@prisma/client';
-import { PaginationDto } from '@common/dto/pagination.dto';
+import { PaginationDto } from '../../../common/dto/pagination.dto';
 
 export class QueryBusinessDto extends PaginationDto {
   @ApiPropertyOptional({ enum: BusinessCategory })

@@ -6,7 +6,7 @@ import { HuellaEvent, EventStatus } from '@/interfaces';
 import { formatDate, formatTime, ENERGY_LABELS } from '@/lib/utils';
 
 const STATUS_CONFIG: Record<EventStatus, { label: string; variant: 'warning' | 'success' | 'default' | 'error' }> = {
-  UPCOMING: { label: 'Proximo', variant: 'warning' },
+  UPCOMING: { label: 'Próximo', variant: 'warning' },
   ACTIVE: { label: 'Activo', variant: 'success' },
   FINISHED: { label: 'Finalizado', variant: 'default' },
   CANCELLED: { label: 'Cancelado', variant: 'error' },

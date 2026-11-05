@@ -14,12 +14,12 @@ interface ChatMessage {
 }
 
 const MOCK_MESSAGES: ChatMessage[] = [
-  { id: 'm1', user: 'Maria G.', avatar: 'M', text: 'Hola! Alguien sabe si hay estacionamiento cerca?', time: '09:15', isOwn: false, pet: '🐕 Toby' },
+  { id: 'm1', user: 'María G.', avatar: 'M', text: 'Hola! Alguien sabe si hay estacionamiento cerca?', time: '09:15', isOwn: false, pet: '🐕 Toby' },
   { id: 'm2', user: 'Carlos Q.', avatar: 'C', text: 'Si! Hay estacionamiento en la calle de atras, es gratis los domingos', time: '09:18', isOwn: false, pet: '🐕 Luna' },
   { id: 'm3', user: 'Tu', avatar: 'T', text: 'Genial! Llevaremos agua extra por si acaso', time: '09:20', isOwn: true },
   { id: 'm4', user: 'Ana T.', avatar: 'A', text: 'Mi perrito Rocky esta super emocionado! 🐶', time: '09:22', isOwn: false, pet: '🐕 Rocky' },
-  { id: 'm5', user: 'Luis M.', avatar: 'L', text: 'Alguien mas va caminando desde Yanahuara?', time: '09:25', isOwn: false, pet: '🐕 Mia' },
-  { id: 'm6', user: 'Maria G.', avatar: 'M', text: 'Yo voy desde ahi! Nos encontramos en el mirador?', time: '09:27', isOwn: false, pet: '🐕 Toby' },
+  { id: 'm5', user: 'Luis M.', avatar: 'L', text: 'Alguien más va caminando desde Yanahuara?', time: '09:25', isOwn: false, pet: '🐕 Mia' },
+  { id: 'm6', user: 'María G.', avatar: 'M', text: 'Yo voy desde ahi! Nos encontramos en el mirador?', time: '09:27', isOwn: false, pet: '🐕 Toby' },
 ];
 
 interface EventChatProps {
@@ -57,7 +57,7 @@ export function EventChat({ eventTitle, isOpen, onClose }: EventChatProps) {
       setTyping(false);
       setMessages((prev) => [...prev, {
         id: `m${Date.now() + 1}`,
-        user: 'Maria G.',
+        user: 'María G.',
         avatar: 'M',
         text: 'Nos vemos ahi! 🐾',
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
@@ -84,7 +84,7 @@ export function EventChat({ eventTitle, isOpen, onClose }: EventChatProps) {
               </div>
             </div>
           </div>
-          <button onClick={onClose} className="text-white/70 hover:text-white boop-btn"><X size={18} /></button>
+          <button onClick={onClose} aria-label="Cerrar chat" className="text-white/70 hover:text-white boop-btn"><X size={18} /></button>
         </div>
 
         {/* Messages */}
@@ -125,7 +125,7 @@ export function EventChat({ eventTitle, isOpen, onClose }: EventChatProps) {
         {/* Input */}
         <div className="p-3 border-t border-sand bg-white shrink-0">
           <div className="flex items-center gap-2">
-            <button className="text-bark/40 hover:text-bark boop-btn"><Smile size={20} /></button>
+            <button onClick={() => setInput((v) => v + '🐾')} aria-label="Agregar una huellita" className="text-bark/60 hover:text-bark boop-btn"><Smile size={20} /></button>
             <input
               className="flex-1 px-3 py-2 rounded-full bg-cream border border-sand text-sm focus:border-primary outline-none"
               placeholder="Escribe un mensaje..."
@@ -133,7 +133,7 @@ export function EventChat({ eventTitle, isOpen, onClose }: EventChatProps) {
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
             />
-            <button onClick={sendMessage} className="w-8 h-8 bg-primary rounded-full flex items-center justify-center boop-btn hover:bg-primary-dark transition-all">
+            <button onClick={sendMessage} aria-label="Enviar mensaje" className="w-8 h-8 bg-primary rounded-full flex items-center justify-center boop-btn hover:bg-primary-dark transition-all">
               <Send size={14} className="text-white" />
             </button>
           </div>
@@ -146,7 +146,7 @@ export function EventChat({ eventTitle, isOpen, onClose }: EventChatProps) {
 // Floating chat button
 export function ChatButton({ onClick }: { onClick: () => void }) {
   return (
-    <button onClick={onClick} className="fixed bottom-6 right-6 z-40 w-14 h-14 bg-gradient-to-br from-primary to-primary-dark rounded-full shadow-card-hover flex items-center justify-center boop-btn hover:scale-110 transition-transform group">
+    <button onClick={onClick} aria-label="Abrir chat del evento" className="fixed bottom-6 right-6 z-40 w-14 h-14 bg-gradient-to-br from-primary to-primary-dark rounded-full shadow-card-hover flex items-center justify-center boop-btn hover:scale-110 transition-transform group">
       <MessageCircle size={24} className="text-white" />
       <div className="absolute -top-1 -right-1 w-5 h-5 bg-secondary rounded-full text-[9px] font-bold text-white flex items-center justify-center border-2 border-white">3</div>
       <span className="absolute right-full mr-3 bg-dark text-white text-xs font-semibold px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">

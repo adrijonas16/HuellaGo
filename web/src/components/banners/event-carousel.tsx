@@ -21,12 +21,12 @@ const SLIDES = [
   {
     type: 'ad' as const,
     id: 'ad1',
-    title: '20% OFF en vacunacion',
-    subtitle: 'Veterinaria Patitas Felices · Valido todo julio',
+    title: '20% OFF en vacunación',
+    subtitle: 'Veterinaria Patitas Felices · Por tiempo limitado',
     badge: '🏷️ Promo',
     attendees: 0,
     link: '/directory/1',
-    color: '#FFB627',
+    color: '#FFC531',
     emoji: '🏥',
   },
 ];

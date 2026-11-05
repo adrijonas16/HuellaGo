@@ -10,7 +10,7 @@ import {
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { NotificationsService } from './notifications.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { CurrentUser } from '@common/decorators';
+import { CurrentUser } from '../../common/decorators';
 
 @ApiTags('Notifications')
 @Controller('notifications')

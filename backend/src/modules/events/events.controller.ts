@@ -16,8 +16,8 @@ import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
 import { AttendEventDto } from './dto/attend-event.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { CurrentUser } from '@common/decorators';
-import { PaginationDto } from '@common/dto/pagination.dto';
+import { CurrentUser } from '../../common/decorators';
+import { PaginationDto } from '../../common/dto/pagination.dto';
 
 @ApiTags('Events')
 @Controller('events')

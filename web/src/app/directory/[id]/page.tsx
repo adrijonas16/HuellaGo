@@ -10,17 +10,44 @@ import { fetchApi } from '@/lib/api';
 import { formatDate } from '@/lib/utils';
 import { Star, MapPin, Phone, MessageCircle, Heart, Clock, ChevronLeft, Shield, ExternalLink, Globe, Tag, Percent } from 'lucide-react';
 import { AdSlot } from '@/components/ads/ad-slot';
+import { FavoriteButton } from '@/components/ui/favorite-button';
+import { ShareButton } from '@/components/ui/share-button';
+import { Sheet } from '@/components/ui/sheet';
+import { CategoryIcon } from '@/components/ui/category-icon';
+import { useAppStore, useHydrated } from '@/lib/store';
+import { useAuth } from '@/hooks';
 
 export default function BusinessDetailPage({ params }: { params: { id: string } }) {
   const { id } = params;
   const mockBiz = MOCK_BUSINESSES.find((b) => b.id === id);
   const [biz, setBiz] = useState<any>(mockBiz || null);
+  const hydrated = useHydrated();
+  const isFav = useAppStore((s) => !!s.favorites[`business:${id}`]) && hydrated;
+  const toggleFavorite = useAppStore((s) => s.toggleFavorite);
+  const notify = useAppStore((s) => s.notify);
+  const { user } = useAuth();
+  const [reviewOpen, setReviewOpen] = useState(false);
+  const [myRating, setMyRating] = useState(5);
+  const [myComment, setMyComment] = useState('');
+  const [extraReviews, setExtraReviews] = useState<any[]>([]);
 
   useEffect(() => {
     fetchApi<any>(`/businesses/${id}`).then((res) => {
-      if (res) setBiz(res);
+      if (res) setBiz({ services: [], reviews: [], ...res });
     });
   }, [id]);
+
+  function submitReview(e: React.FormEvent) {
+    e.preventDefault();
+    if (myComment.trim().length < 10) return;
+    setExtraReviews((r) => [
+      { user: { firstName: user?.firstName ?? 'Tú', lastName: user?.lastName ?? '' }, rating: myRating, comment: myComment.trim(), createdAt: new Date().toISOString(), mine: true },
+      ...r,
+    ]);
+    setReviewOpen(false);
+    setMyComment('');
+    notify('Reseña publicada. ¡Gracias por ayudar a otros dueños!', { tone: 'success' });
+  }
 
   if (!biz) {
     return (
@@ -37,7 +64,14 @@ export default function BusinessDetailPage({ params }: { params: { id: string } 
     );
   }
 
-  const days = ['Domingo', 'Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado'];
+  const days = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+  biz.services = biz.services ?? [];
+  const reviews = [...extraReviews, ...(biz.reviews ?? [])];
+  const phone = String(biz.phone ?? '').replace(/[^0-9+]/g, '');
+  const whatsapp = String(biz.whatsapp ?? '').replace(/\D/g, '');
+  const directions = biz.latitude && biz.longitude
+    ? `https://www.google.com/maps/dir/?api=1&destination=${biz.latitude},${biz.longitude}`
+    : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${biz.name} ${biz.address ?? ''} Arequipa`)}`;
 
   // Group services by category
   const servicesByCategory: Record<string, typeof biz.services> = {};
@@ -53,7 +87,7 @@ export default function BusinessDetailPage({ params }: { params: { id: string } 
   return (
     <>
       <Navbar />
-      <main className="min-h-screen bg-cream">
+      <main id="contenido" className="min-h-screen bg-cream">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <Link href="/directory" className="inline-flex items-center gap-1 text-bark hover:text-primary mb-6 text-sm font-medium">
             <ChevronLeft size={16} /> Volver al directorio
@@ -65,12 +99,15 @@ export default function BusinessDetailPage({ params }: { params: { id: string } 
               {/* Hero */}
               <ScrollReveal>
                 <div className="rounded-card overflow-hidden h-56 relative" style={{ background: `linear-gradient(135deg, ${CATEGORY_COLORS[biz.category]}25, ${CATEGORY_COLORS[biz.category]}05)` }}>
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="text-[120px] opacity-15">{CATEGORY_ICONS[biz.category]}</span>
-                  </div>
+                  <CategoryIcon category={biz.category} size={220} strokeWidth={1} className="absolute -right-6 -bottom-10 opacity-20" style={{ color: CATEGORY_COLORS[biz.category] }} />
                   <div className="absolute top-4 right-4 flex gap-2">
-                    <button className="bg-white/80 backdrop-blur-sm p-2.5 rounded-full hover:bg-white boop-btn"><Heart size={18} className="text-bark" /></button>
-                    <button className="bg-white/80 backdrop-blur-sm p-2.5 rounded-full hover:bg-white boop-btn"><ExternalLink size={18} className="text-bark" /></button>
+                    <FavoriteButton kind="business" id={String(biz.id)} label={biz.name} size={18} className="w-10 h-10" />
+                    <ShareButton title={biz.name} className="w-10 h-10" />
+                    {biz.website && (
+                      <a href={biz.website} target="_blank" rel="noopener noreferrer" aria-label={`Abrir la web de ${biz.name}`} className="w-10 h-10 bg-white/90 rounded-full shadow-card flex items-center justify-center hover:bg-white">
+                        <ExternalLink size={18} className="text-bark" />
+                      </a>
+                    )}
                   </div>
                 </div>
               </ScrollReveal>
@@ -108,7 +145,7 @@ export default function BusinessDetailPage({ params }: { params: { id: string } 
                       ))}
                     </div>
                     <span className="text-lg font-bold text-dark">{biz.avgRating}</span>
-                    <span className="text-sm text-bark">({biz._count.reviews} resenas) · {biz._count.favorites} favoritos</span>
+                    <span className="text-sm text-bark">({biz._count.reviews} reseñas) · {biz._count.favorites} favoritos</span>
                   </div>
 
                   <div className="flex items-center gap-2 text-sm text-bark mb-4">
@@ -234,16 +271,17 @@ export default function BusinessDetailPage({ params }: { params: { id: string } 
               )}
 
               {/* Reviews */}
-              {biz.reviews.length > 0 && (
+              {(
                 <ScrollReveal delay={300}>
                   <div className="bg-white rounded-card p-6 shadow-card">
                     <div className="flex items-center justify-between mb-4">
-                      <h2 className="font-heading font-bold text-dark text-lg">Resenas</h2>
-                      <button className="text-sm font-semibold text-primary hover:underline">Escribir resena</button>
+                      <h2 className="font-heading font-bold text-dark text-lg">Reseñas ({reviews.length})</h2>
+                      <button onClick={() => setReviewOpen(true)} className="text-sm font-bold text-white bg-dark px-4 py-2 rounded-full boop-btn hover:bg-primary">Escribir reseña</button>
                     </div>
                     <div className="space-y-4">
-                      {biz.reviews.map((r: any, i: number) => (
-                        <div key={i} className="border-b border-sand pb-4 last:border-0 last:pb-0">
+                      {reviews.length === 0 && <p className="text-sm text-bark">Aún no hay reseñas. Sé el primero en contar cómo te fue.</p>}
+                      {reviews.map((r: any, i: number) => (
+                        <div key={i} className={`border-b border-sand pb-4 last:border-0 last:pb-0 ${r.mine ? 'animate-slide-up' : ''}`}>
                           <div className="flex items-center gap-3 mb-2">
                             <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary to-primary-dark text-white text-sm font-bold flex items-center justify-center">
                               {r.user.firstName[0]}
@@ -272,18 +310,28 @@ export default function BusinessDetailPage({ params }: { params: { id: string } 
               <ScrollReveal delay={100}>
                 <div className="bg-white rounded-card p-6 shadow-card lg:sticky lg:top-24">
                   <div className="grid grid-cols-2 gap-3 mb-4">
-                    <button className="flex items-center justify-center gap-2 bg-primary text-white font-bold py-3.5 rounded-button boop-btn hover:bg-primary-dark transition-all shadow-button">
+                    <a href={phone ? `tel:${phone}` : undefined} aria-disabled={!phone} className="flex items-center justify-center gap-2 bg-primary text-white font-bold py-3.5 rounded-full boop-btn hover:bg-primary-dark shadow-button aria-disabled:opacity-40 aria-disabled:pointer-events-none">
                       <Phone size={16} /> Llamar
-                    </button>
-                    <button className="flex items-center justify-center gap-2 bg-success text-white font-bold py-3.5 rounded-button boop-btn hover:bg-green-700 transition-all">
+                    </a>
+                    <a
+                      href={whatsapp ? `https://wa.me/${whatsapp}?text=${encodeURIComponent(`Hola ${biz.name}, los encontré en HuellaGo y quisiera información.`)}` : undefined}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-disabled={!whatsapp}
+                      className="flex items-center justify-center gap-2 bg-secondary text-white font-bold py-3.5 rounded-full boop-btn hover:bg-secondary-dark shadow-button-secondary aria-disabled:opacity-40 aria-disabled:pointer-events-none"
+                    >
                       <MessageCircle size={16} /> WhatsApp
-                    </button>
+                    </a>
                   </div>
-                  <button className="w-full flex items-center justify-center gap-2 border-2 border-primary text-primary font-semibold py-3 rounded-button hover:bg-primary/5 transition-all mb-3">
-                    <MapPin size={16} /> Como llegar
-                  </button>
-                  <button className="w-full flex items-center justify-center gap-2 bg-cream text-bark font-medium py-3 rounded-button hover:bg-sand transition-all">
-                    <Heart size={16} /> Guardar en favoritos
+                  <a href={directions} target="_blank" rel="noopener noreferrer" className="w-full flex items-center justify-center gap-2 border-2 border-dark text-dark font-bold py-3 rounded-full hover:bg-dark hover:text-white transition-colors mb-3">
+                    <MapPin size={16} /> Cómo llegar
+                  </a>
+                  <button
+                    onClick={() => toggleFavorite('business', String(biz.id), biz.name)}
+                    aria-pressed={isFav}
+                    className={`w-full flex items-center justify-center gap-2 font-bold py-3 rounded-full transition-colors ${isFav ? 'bg-rose/10 text-rose-dark' : 'bg-cream text-dark hover:bg-sand'}`}
+                  >
+                    <Heart size={16} className={isFav ? 'fill-rose text-rose animate-heart-pop' : ''} /> {isFav ? 'Guardado en favoritos' : 'Guardar en favoritos'}
                   </button>
                 </div>
               </ScrollReveal>
@@ -298,7 +346,7 @@ export default function BusinessDetailPage({ params }: { params: { id: string } 
                       <span className="font-bold text-dark">{biz.services.length}</span>
                     </div>
                     <div className="flex items-center justify-between text-sm">
-                      <span className="text-bark">Categorias</span>
+                      <span className="text-bark">Categorías</span>
                       <span className="font-bold text-dark">{allCategories.length}</span>
                     </div>
                     <div className="flex items-center justify-between text-sm">
@@ -311,7 +359,7 @@ export default function BusinessDetailPage({ params }: { params: { id: string } 
                       </div>
                     </div>
                     <div className="flex items-center justify-between text-sm">
-                      <span className="text-bark">Resenas</span>
+                      <span className="text-bark">Reseñas</span>
                       <span className="font-bold text-dark">{biz._count.reviews}</span>
                     </div>
                     <div className="flex items-center justify-between text-sm">
@@ -351,7 +399,7 @@ export default function BusinessDetailPage({ params }: { params: { id: string } 
               {/* Location */}
               <ScrollReveal delay={300}>
                 <div className="bg-white rounded-card p-6 shadow-card">
-                  <h3 className="font-heading font-bold text-dark text-sm mb-3">Ubicacion</h3>
+                  <h3 className="font-heading font-bold text-dark text-sm mb-3">Ubicación</h3>
                   <div className="h-48 bg-sand rounded-xl flex items-center justify-center">
                     <div className="text-center">
                       <MapPin size={24} className="mx-auto mb-2 text-primary" />
@@ -370,6 +418,43 @@ export default function BusinessDetailPage({ params }: { params: { id: string } 
           </div>
         </div>
       </main>
+      <Sheet open={reviewOpen} onClose={() => setReviewOpen(false)} title={`Tu reseña de ${biz.name}`}>
+        <form onSubmit={submitReview}>
+          <fieldset>
+            <legend className="text-sm font-semibold text-dark mb-2">¿Cómo te fue?</legend>
+            <div className="flex gap-1" role="radiogroup">
+              {[1, 2, 3, 4, 5].map((n) => (
+                <button
+                  type="button"
+                  key={n}
+                  role="radio"
+                  aria-checked={myRating === n}
+                  aria-label={`${n} ${n === 1 ? 'estrella' : 'estrellas'}`}
+                  onClick={() => setMyRating(n)}
+                  className="p-1 rounded-lg hover:scale-110 transition-transform"
+                >
+                  <Star size={32} className={n <= myRating ? 'fill-accent text-accent' : 'text-sand'} />
+                </button>
+              ))}
+            </div>
+          </fieldset>
+          <label htmlFor="review" className="block text-sm font-semibold text-dark mt-5 mb-2">Cuéntale a otros dueños</label>
+          <textarea
+            id="review"
+            value={myComment}
+            onChange={(e) => setMyComment(e.target.value)}
+            rows={4}
+            placeholder="¿Cómo trataron a tu mascota? ¿Volverías?"
+            className="w-full rounded-2xl border-[1.5px] border-sand px-4 py-3 outline-none focus:border-primary focus:ring-4 focus:ring-primary/15 resize-none"
+          />
+          <p className={`text-xs mt-1 ${myComment.trim().length >= 10 ? 'text-bark' : 'text-bark/70'}`}>
+            {myComment.trim().length < 10 ? `Escribe al menos ${10 - myComment.trim().length} caracteres más` : 'Listo para publicar'}
+          </p>
+          <button disabled={myComment.trim().length < 10} className="w-full mt-5 bg-primary text-white font-bold py-3.5 rounded-full shadow-button boop-btn disabled:opacity-40 disabled:shadow-none">
+            Publicar reseña
+          </button>
+        </form>
+      </Sheet>
       <Footer />
     </>
   );

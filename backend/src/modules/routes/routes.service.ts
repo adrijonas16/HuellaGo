@@ -7,7 +7,7 @@ import { Prisma } from '@prisma/client';
 import { RoutesRepository } from './routes.repository';
 import { CreateRouteDto } from './dto/create-route.dto';
 import { UpdateRouteDto } from './dto/update-route.dto';
-import { PaginationDto, PaginatedResponse } from '@common/dto/pagination.dto';
+import { PaginationDto, PaginatedResponse } from '../../common/dto/pagination.dto';
 
 @Injectable()
 export class RoutesService {

@@ -7,16 +7,18 @@ import { Footer } from '@/components/layout/footer';
 import { LocationPicker } from '@/components/map/location-picker';
 import { ChevronLeft, Calendar, Users, Zap, Plus, Trash2 } from 'lucide-react';
 import { PhotoUpload } from '@/components/photos/photo-upload';
+import { useRouter } from 'next/navigation';
+import { useAppStore } from '@/lib/store';
 
 const ENERGY_OPTIONS = [
   { value: 'LOW', label: 'Tranquilo', icon: '🐕', desc: 'Paseo suave, ideal para mascotas calmadas' },
-  { value: 'MEDIUM', label: 'Moderado', icon: '🚶', desc: 'Ritmo normal, la mayoria de mascotas' },
-  { value: 'HIGH', label: 'Energico', icon: '🏃', desc: 'Actividad intensa, mascotas con mucha energia' },
+  { value: 'MEDIUM', label: 'Moderado', icon: '🚶', desc: 'Ritmo normal, la mayoría de mascotas' },
+  { value: 'HIGH', label: 'Enérgico', icon: '🏃', desc: 'Actividad intensa, mascotas con mucha energía' },
 ];
 
 const SIZE_OPTIONS = [
   { value: 'MINI', label: 'Mini' },
-  { value: 'SMALL', label: 'Pequeno' },
+  { value: 'SMALL', label: 'Pequeño' },
   { value: 'MEDIUM', label: 'Mediano' },
   { value: 'LARGE', label: 'Grande' },
   { value: 'GIANT', label: 'Gigante' },
@@ -39,6 +41,25 @@ export default function CreateEventPage() {
   const [newReq, setNewReq] = useState('');
   const [isPublic, setIsPublic] = useState(true);
 
+  const router = useRouter();
+  const notify = useAppStore((s) => s.notify);
+  const [tried, setTried] = useState(false);
+  const [publishing, setPublishing] = useState(false);
+  const missing = [!title.trim() && 'el nombre', !date && 'la fecha'].filter(Boolean) as string[];
+
+  async function publish() {
+    setTried(true);
+    if (missing.length) {
+      notify(`Falta completar ${missing.join(' y ')} del evento`, { tone: 'error' });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+    setPublishing(true);
+    await new Promise((r) => setTimeout(r, 700));
+    notify(`Evento "${title.trim()}" enviado. Lo revisaremos antes de publicarlo.`, { tone: 'success', action: { label: 'Ver eventos', href: '/events' } });
+    router.push('/events');
+  }
+
   function toggleSize(size: string) {
     setSelectedSizes((prev) =>
       prev.includes(size) ? prev.filter((s) => s !== size) : [...prev, size],
@@ -55,7 +76,7 @@ export default function CreateEventPage() {
   return (
     <>
       <Navbar />
-      <main className="min-h-screen bg-cream paw-bg">
+      <main id="contenido" className="min-h-screen bg-cream paw-bg">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8">
           <Link href="/events" className="inline-flex items-center gap-1 text-bark hover:text-primary mb-6 text-sm font-medium">
             <ChevronLeft size={16} /> Volver a eventos
@@ -70,29 +91,31 @@ export default function CreateEventPage() {
           <div className="space-y-6">
             {/* Basic info */}
             <div className="bg-white rounded-card p-6 shadow-card animate-slide-up">
-              <h2 className="font-heading font-bold text-dark text-lg mb-4">Informacion basica</h2>
+              <h2 className="font-heading font-bold text-dark text-lg mb-4">Información basica</h2>
               <div className="space-y-4">
                 <div>
                   <label className="text-sm font-semibold text-dark block mb-1.5">Nombre del evento *</label>
-                  <input className="w-full px-4 py-3 rounded-button border-[1.5px] border-sand focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" placeholder="Ej: Caminata canina en Yanahuara" value={title} onChange={(e) => setTitle(e.target.value)} />
+                  <input className="w-full px-4 py-3 rounded-2xl border-[1.5px] border-sand aria-[invalid=true]:border-error focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" placeholder="Ej: Caminata canina en Yanahuara" value={title} onChange={(e) => setTitle(e.target.value)} aria-invalid={tried && !title.trim()} />
+                  {tried && !title.trim() && <p className="text-sm text-error mt-1.5">Ponle un nombre a tu evento</p>}
                 </div>
                 <div>
-                  <label className="text-sm font-semibold text-dark block mb-1.5">Descripcion</label>
-                  <textarea className="w-full px-4 py-3 rounded-button border-[1.5px] border-sand focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all min-h-[100px]" placeholder="Describe tu evento, que actividades habra, que deben traer..." value={description} onChange={(e) => setDescription(e.target.value)} />
+                  <label className="text-sm font-semibold text-dark block mb-1.5">Descripción</label>
+                  <textarea className="w-full px-4 py-3 rounded-2xl border-[1.5px] border-sand aria-[invalid=true]:border-error focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all min-h-[100px]" placeholder="Describe tu evento, que actividades habra, que deben traer..." value={description} onChange={(e) => setDescription(e.target.value)} />
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="text-sm font-semibold text-dark block mb-1.5">Fecha y hora de inicio *</label>
-                    <input type="datetime-local" className="w-full px-4 py-3 rounded-button border-[1.5px] border-sand focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" value={date} onChange={(e) => setDate(e.target.value)} />
+                    <input type="datetime-local" className="w-full px-4 py-3 rounded-2xl border-[1.5px] border-sand aria-[invalid=true]:border-error focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" value={date} onChange={(e) => setDate(e.target.value)} aria-invalid={tried && !date} />
+                    {tried && !date && <p className="text-sm text-error mt-1.5">Elige la fecha y hora de inicio</p>}
                   </div>
                   <div>
                     <label className="text-sm font-semibold text-dark block mb-1.5">Fecha y hora de fin</label>
-                    <input type="datetime-local" className="w-full px-4 py-3 rounded-button border-[1.5px] border-sand focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
+                    <input type="datetime-local" className="w-full px-4 py-3 rounded-2xl border-[1.5px] border-sand aria-[invalid=true]:border-error focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
                   </div>
                 </div>
                 <div>
                   <label className="text-sm font-semibold text-dark block mb-1.5">Ciudad *</label>
-                  <select className="w-full px-4 py-3 rounded-button border-[1.5px] border-sand focus:border-primary outline-none bg-white" value={city} onChange={(e) => setCity(e.target.value)}>
+                  <select className="w-full px-4 py-3 rounded-2xl border-[1.5px] border-sand aria-[invalid=true]:border-error focus:border-primary outline-none bg-white" value={city} onChange={(e) => setCity(e.target.value)}>
                     <option>Arequipa</option><option>Lima</option><option>Cusco</option><option>Trujillo</option>
                   </select>
                 </div>
@@ -101,7 +124,7 @@ export default function CreateEventPage() {
 
             {/* Location */}
             <div className="bg-white rounded-card p-6 shadow-card animate-slide-up" style={{ animationDelay: '100ms' }}>
-              <h2 className="font-heading font-bold text-dark text-lg mb-4">Ubicacion 📍</h2>
+              <h2 className="font-heading font-bold text-dark text-lg mb-4">Ubicación 📍</h2>
               <div className="space-y-4">
                 <LocationPicker
                   label="Punto de partida *"
@@ -123,7 +146,7 @@ export default function CreateEventPage() {
               <h2 className="font-heading font-bold text-dark text-lg mb-4">Para que mascotas? 🐾</h2>
 
               <div className="mb-6">
-                <label className="text-sm font-semibold text-dark block mb-3">Nivel de energia</label>
+                <label className="text-sm font-semibold text-dark block mb-3">Nivel de energía</label>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                   {ENERGY_OPTIONS.map((opt) => (
                     <button
@@ -163,7 +186,7 @@ export default function CreateEventPage() {
               <div className="space-y-4">
                 <div>
                   <label className="text-sm font-semibold text-dark block mb-1.5">Cupos maximos (dejar vacio = ilimitados)</label>
-                  <input type="number" min="1" className="w-full px-4 py-3 rounded-button border-[1.5px] border-sand focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" placeholder="30" value={maxAttendees} onChange={(e) => setMaxAttendees(e.target.value)} />
+                  <input type="number" min="1" className="w-full px-4 py-3 rounded-2xl border-[1.5px] border-sand aria-[invalid=true]:border-error focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" placeholder="30" value={maxAttendees} onChange={(e) => setMaxAttendees(e.target.value)} />
                 </div>
                 <div className="flex items-center justify-between bg-cream rounded-card p-4">
                   <span className="text-sm font-semibold text-dark">Evento gratuito</span>
@@ -174,12 +197,12 @@ export default function CreateEventPage() {
                 {!isFree && (
                   <div>
                     <label className="text-sm font-semibold text-dark block mb-1.5">Precio (S/)</label>
-                    <input type="number" min="0" step="0.5" className="w-full px-4 py-3 rounded-button border-[1.5px] border-sand focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" placeholder="25.00" value={price} onChange={(e) => setPrice(e.target.value)} />
+                    <input type="number" min="0" step="0.5" className="w-full px-4 py-3 rounded-2xl border-[1.5px] border-sand aria-[invalid=true]:border-error focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" placeholder="25.00" value={price} onChange={(e) => setPrice(e.target.value)} />
                   </div>
                 )}
                 <div className="flex items-center justify-between bg-cream rounded-card p-4">
                   <div>
-                    <span className="text-sm font-semibold text-dark block">Evento publico</span>
+                    <span className="text-sm font-semibold text-dark block">Evento público</span>
                     <span className="text-[11px] text-bark">Visible para todos los usuarios de tu ciudad</span>
                   </div>
                   <button type="button" onClick={() => setIsPublic(!isPublic)} className={`w-12 h-6 rounded-full transition-all ${isPublic ? 'bg-primary' : 'bg-sand'}`}>
@@ -219,8 +242,8 @@ export default function CreateEventPage() {
             {/* Enviar */}
             <div className="flex justify-between items-center pt-4">
               <Link href="/events" className="text-bark font-medium text-sm hover:text-primary">Cancelar</Link>
-              <button className="bg-primary text-white font-bold px-8 py-4 rounded-button shadow-button boop-btn hover:bg-primary-dark transition-all text-lg flex items-center gap-2">
-                🎉 Publicar evento
+              <button onClick={publish} disabled={publishing} className="bg-primary text-white font-bold px-8 py-4 rounded-full shadow-button boop-btn hover:bg-primary-dark transition-all text-lg flex items-center gap-2 disabled:opacity-60">
+                {publishing ? 'Publicando…' : 'Publicar evento'}
               </button>
             </div>
           </div>

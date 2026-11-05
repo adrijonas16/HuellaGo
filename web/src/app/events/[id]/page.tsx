@@ -9,12 +9,28 @@ import { fetchApi } from '@/lib/api';
 import { formatDateFull, formatTime } from '@/lib/utils';
 import { Calendar, MapPin, Users, Clock, ChevronLeft, Share2, Heart, CheckCircle, AlertCircle, Route, Camera, Upload } from 'lucide-react';
 import { EventChat, ChatButton } from '@/components/chat/event-chat';
+import { FavoriteButton } from '@/components/ui/favorite-button';
+import { ShareButton } from '@/components/ui/share-button';
+import { RegisterBox } from '@/components/events/register-box';
+import { useAppStore, useHydrated } from '@/lib/store';
+
+function daysUntil(date: string) {
+  const days = Math.ceil((new Date(date).getTime() - Date.now()) / 86400000);
+  if (days < 0) return 'Finalizado';
+  if (days === 0) return 'Hoy';
+  if (days === 1) return 'Mañana';
+  return `En ${days} días`;
+}
+import { SafeImage } from '@/components/ui/safe-image';
 
 export default function EventDetailPage({ params }: { params: { id: string } }) {
   const { id } = params;
   const mockEvent = MOCK_EVENTS.find((e) => e.id === id);
   const [event, setEvent] = useState<any>(mockEvent || null);
   const [chatOpen, setChatOpen] = useState(false);
+  const notify = useAppStore((s) => s.notify);
+  const hydrated = useHydrated();
+  const iAmIn = useAppStore((s) => !!s.registrations[id]) && hydrated;
 
   useEffect(() => {
     fetchApi<any>(`/events/${id}`).then((res) => {
@@ -46,13 +62,13 @@ export default function EventDetailPage({ params }: { params: { id: string } }) 
     );
   }
 
-  const spotsLeft = event.maxAttendees ? event.maxAttendees - event._count.attendances : null;
+  const spotsLeft = event.maxAttendees ? event.maxAttendees - event._count.attendances - (iAmIn ? 1 : 0) : null;
   const spotsPercent = event.maxAttendees ? (event._count.attendances / event.maxAttendees) * 100 : 0;
 
   return (
     <>
       <Navbar />
-      <main className="min-h-screen bg-cream">
+      <main id="contenido" className="min-h-screen bg-cream">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Back */}
           <Link href="/events" className="inline-flex items-center gap-1 text-gray-500 hover:text-primary mb-6 text-sm font-medium">
@@ -65,22 +81,18 @@ export default function EventDetailPage({ params }: { params: { id: string } }) 
               {/* Hero */}
               <div className="rounded-card overflow-hidden h-56 md:h-72 relative flex items-end">
                 {event.photos?.[0]?.url ? (
-                  <img src={event.photos[0].url} alt={event.title} className="absolute inset-0 w-full h-full object-cover" />
+                  <SafeImage src={event.photos[0].url} alt={event.title} className="absolute inset-0 w-full h-full object-cover" />
                 ) : (
                   <div className="absolute inset-0" style={{ background: `linear-gradient(135deg, ${ENERGY_COLORS[event.energyLevel || 'MEDIUM']}30, ${ENERGY_COLORS[event.energyLevel || 'MEDIUM']}08)` }} />
                 )}
                 <div className="absolute inset-0 bg-gradient-to-t from-dark/60 to-transparent" />
                 <div className="absolute top-4 right-4 flex gap-2">
-                  <button className="bg-white/80 backdrop-blur-sm p-2.5 rounded-full hover:bg-white transition-all">
-                    <Heart size={18} className="text-gray-600" />
-                  </button>
-                  <button className="bg-white/80 backdrop-blur-sm p-2.5 rounded-full hover:bg-white transition-all">
-                    <Share2 size={18} className="text-gray-600" />
-                  </button>
+                  <FavoriteButton kind="event" id={event.id} label={event.title} size={18} className="w-10 h-10" />
+                  <ShareButton title={event.title} className="w-10 h-10" />
                 </div>
                 <div className="absolute top-4 left-4">
-                  <span className="bg-accent/20 text-amber-700 text-sm font-bold px-4 py-2 rounded-full backdrop-blur-sm">
-                    Proximo
+                  <span className="bg-white text-dark text-sm font-bold px-4 py-2 rounded-full">
+                    {daysUntil(event.date)}
                   </span>
                 </div>
                 <div className="absolute right-8 bottom-4 text-[100px] opacity-10">
@@ -161,7 +173,7 @@ export default function EventDetailPage({ params }: { params: { id: string } }) 
               <div className="bg-white rounded-card p-6 shadow-card">
                 <h2 className="font-heading font-bold text-dark text-lg mb-3">Requisitos</h2>
                 <div className="space-y-2">
-                  {event.requirements.map((req, i) => (
+                  {event.requirements.map((req: string, i: number) => (
                     <div key={i} className="flex items-center gap-2">
                       <CheckCircle size={16} className="text-success shrink-0" />
                       <span className="text-sm text-gray-600">{req}</span>
@@ -174,7 +186,7 @@ export default function EventDetailPage({ params }: { params: { id: string } }) 
               <div className="bg-white rounded-card p-6 shadow-card">
                 <h2 className="font-heading font-bold text-dark text-lg mb-3">Recomendado para</h2>
                 <div className="flex flex-wrap gap-2">
-                  {event.recommendedSize.map((size) => (
+                  {event.recommendedSize.map((size: string) => (
                     <span key={size} className="bg-cream text-dark text-sm font-medium px-4 py-2 rounded-full border border-gray-200">
                       🐕 Perros {SIZE_LABELS[size].toLowerCase()}s
                     </span>
@@ -218,7 +230,7 @@ export default function EventDetailPage({ params }: { params: { id: string } }) 
                         <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-sm font-bold text-gray-500">
                           +{event._count.attendances - (event.attendees || []).length}
                         </div>
-                        <div className="text-sm text-gray-400">mas perritos inscritos</div>
+                        <div className="text-sm text-gray-400">más perritos inscritos</div>
                       </div>
                     )}
                   </div>
@@ -229,9 +241,20 @@ export default function EventDetailPage({ params }: { params: { id: string } }) 
               <div className="bg-white rounded-card p-6 shadow-card">
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="font-heading font-bold text-dark text-lg">Fotos del evento 📸</h2>
-                  <button className="text-xs font-bold text-primary bg-primary/10 px-3 py-1.5 rounded-full boop-btn flex items-center gap-1">
+                  <label className="cursor-pointer text-xs font-bold text-primary bg-primary/10 px-3 py-1.5 rounded-full boop-btn flex items-center gap-1 focus-within:ring-2 focus-within:ring-primary">
                     <Upload size={12} /> Subir fotos
-                  </button>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      className="sr-only"
+                      onChange={(e) => {
+                        const n = e.target.files?.length ?? 0;
+                        if (n) notify(`${n} ${n === 1 ? 'foto lista' : 'fotos listas'}. Se publicarán cuando empiece el evento.`, { tone: 'success' });
+                        e.target.value = '';
+                      }}
+                    />
+                  </label>
                 </div>
                 <div className="grid grid-cols-3 md:grid-cols-4 gap-2">
                   {Array.from({ length: 8 }, (_, i) => (
@@ -240,7 +263,7 @@ export default function EventDetailPage({ params }: { params: { id: string } }) 
                     </div>
                   ))}
                 </div>
-                <p className="text-[11px] text-bark/50 mt-3 text-center">Las fotos se habilitaran durante y despues del evento</p>
+                <p className="text-[11px] text-bark/50 mt-3 text-center">Las fotos se habilitaran durante y después del evento</p>
               </div>
 
               {/* Event chat preview */}
@@ -306,10 +329,10 @@ export default function EventDetailPage({ params }: { params: { id: string } }) 
                     </div>
                     <div>
                       <div className="text-sm font-semibold text-dark">
-                        {event._count.attendances} inscritos
+                        {event._count.attendances + (iAmIn ? 1 : 0)} inscritos{iAmIn ? ' (tú incluido)' : ''}
                       </div>
                       <div className="text-sm text-gray-400">
-                        {event.maxAttendees ? `${event.maxAttendees - event._count.attendances} cupos restantes` : 'Cupos ilimitados'}
+                        {spotsLeft !== null ? `${spotsLeft} cupos restantes` : 'Cupos ilimitados'}
                       </div>
                     </div>
                   </div>
@@ -325,13 +348,7 @@ export default function EventDetailPage({ params }: { params: { id: string } }) 
                   )}
                 </div>
 
-                <button className="w-full bg-primary text-white font-semibold py-4 rounded-button shadow-button hover:bg-primary-dark transition-all hover:scale-[1.01] active:scale-[0.99] text-lg">
-                  Inscribirme 🐾
-                </button>
-
-                <p className="text-center text-xs text-gray-400 mt-3">
-                  Seleccionaras tu perrito en el siguiente paso
-                </p>
+                <RegisterBox eventId={event.id} eventTitle={event.title} spotsLeft={spotsLeft} />
               </div>
 
               {/* Organizer */}

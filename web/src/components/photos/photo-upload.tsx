@@ -2,6 +2,7 @@
 
 import { useState, useRef } from 'react';
 import { Camera, X, Plus, Image } from 'lucide-react';
+import { SafeImage } from '@/components/ui/safe-image';
 
 interface PhotoUploadProps {
   maxPhotos?: number;
@@ -48,11 +49,13 @@ export function PhotoUpload({ maxPhotos = 6, label = 'Subir fotos', onPhotosChan
       <div className="grid grid-cols-3 md:grid-cols-4 gap-2">
         {photos.map((photo, i) => (
           <div key={i} className="relative aspect-square rounded-xl overflow-hidden group">
-            <img src={photo} alt={`Foto ${i + 1}`} className="w-full h-full object-cover" />
+            <SafeImage src={photo} alt={`Foto ${i + 1}`} className="w-full h-full object-cover" />
             <div className="absolute inset-0 bg-dark/0 group-hover:bg-dark/30 transition-colors flex items-center justify-center">
               <button
+                type="button"
                 onClick={() => removePhoto(i)}
-                className="w-7 h-7 bg-white/90 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity boop-btn"
+                aria-label={`Quitar foto ${i + 1}`}
+                className="w-7 h-7 bg-white/90 rounded-full flex items-center justify-center opacity-100 sm:opacity-0 sm:group-hover:opacity-100 focus:opacity-100 transition-opacity boop-btn"
               >
                 <X size={14} className="text-error" />
               </button>
@@ -62,6 +65,7 @@ export function PhotoUpload({ maxPhotos = 6, label = 'Subir fotos', onPhotosChan
 
         {photos.length < maxPhotos && (
           <button
+            type="button"
             onClick={() => inputRef.current?.click()}
             className="aspect-square rounded-xl border-2 border-dashed border-bark/20 bg-cream hover:border-primary/40 hover:bg-primary/5 transition-all flex flex-col items-center justify-center gap-1 cursor-pointer boop-btn"
           >
@@ -83,7 +87,7 @@ export function PhotoUpload({ maxPhotos = 6, label = 'Subir fotos', onPhotosChan
       />
 
       {photos.length === 0 && (
-        <p className="text-[11px] text-bark/40 mt-2">Formatos: JPG, PNG. Maximo 5MB por foto.</p>
+        <p className="text-[11px] text-bark/40 mt-2">Formatos: JPG, PNG. Máximo 5MB por foto.</p>
       )}
     </div>
   );

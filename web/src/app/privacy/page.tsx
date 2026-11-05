@@ -5,26 +5,26 @@ export default function PrivacyPage() {
   return (
     <>
       <Navbar />
-      <main className="min-h-screen bg-cream">
+      <main id="contenido" className="min-h-screen bg-cream">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <h1 className="font-heading font-extrabold text-4xl text-dark mb-2">Politica de Privacidad</h1>
+          <h1 className="font-heading font-extrabold text-4xl text-dark mb-2">Política de Privacidad</h1>
           <p className="text-bark mb-8">Ultima actualizacion: 1 de julio de 2026</p>
 
           <div className="bg-white rounded-card shadow-card p-6 md:p-8 space-y-6 text-sm text-bark leading-relaxed">
             <section>
-              <h2 className="font-heading font-bold text-dark text-lg mb-2">1. Informacion que recopilamos</h2>
-              <p className="mb-2">Recopilamos la siguiente informacion:</p>
+              <h2 className="font-heading font-bold text-dark text-lg mb-2">1. Información que recopilamos</h2>
+              <p className="mb-2">Recopilamos la siguiente información:</p>
               <ul className="list-disc pl-5 space-y-1">
-                <li>Datos de registro: nombre, email, ciudad, telefono</li>
+                <li>Datos de registro: nombre, email, ciudad, teléfono</li>
                 <li>Datos de mascotas: nombre, tipo, raza, edad, fotos</li>
-                <li>Ubicacion: para mostrar servicios y eventos cercanos</li>
+                <li>Ubicación: para mostrar servicios y eventos cercanos</li>
                 <li>Actividad: paseos, eventos asistidos, rutas creadas</li>
                 <li>Fotos: imagenes que subes a la plataforma</li>
               </ul>
             </section>
 
             <section>
-              <h2 className="font-heading font-bold text-dark text-lg mb-2">2. Como usamos tu informacion</h2>
+              <h2 className="font-heading font-bold text-dark text-lg mb-2">2. Como usamos tu información</h2>
               <ul className="list-disc pl-5 space-y-1">
                 <li>Personalizar tu experiencia y recomendaciones</li>
                 <li>Mostrar servicios y eventos relevantes en tu ciudad</li>
@@ -35,23 +35,23 @@ export default function PrivacyPage() {
             </section>
 
             <section>
-              <h2 className="font-heading font-bold text-dark text-lg mb-2">3. Ubicacion</h2>
-              <p>Usamos tu ubicacion para mostrarte servicios cercanos, marcar tu posicion en rutas y eventos, y personalizar el contenido. Puedes desactivar el acceso a ubicacion en cualquier momento desde la configuracion de tu dispositivo.</p>
+              <h2 className="font-heading font-bold text-dark text-lg mb-2">3. Ubicación</h2>
+              <p>Usamos tu ubicación para mostrarte servicios cercanos, marcar tu posición en rutas y eventos, y personalizar el contenido. Puedes desactivar el acceso a ubicación en cualquier momento desde la configuracion de tu dispositivo.</p>
             </section>
 
             <section>
-              <h2 className="font-heading font-bold text-dark text-lg mb-2">4. Compartir informacion</h2>
-              <p>No vendemos tu informacion personal. Compartimos datos solo con:</p>
+              <h2 className="font-heading font-bold text-dark text-lg mb-2">4. Compartir información</h2>
+              <p>No vendemos tu información personal. Compartimos datos solo con:</p>
               <ul className="list-disc pl-5 space-y-1">
                 <li>Negocios con los que interactuas (al reservar o contactar)</li>
-                <li>Otros usuarios (tu perfil publico y publicaciones)</li>
+                <li>Otros usuarios (tu perfil público y publicaciones)</li>
                 <li>Proveedores de servicio (hosting, mapas, notificaciones)</li>
               </ul>
             </section>
 
             <section>
               <h2 className="font-heading font-bold text-dark text-lg mb-2">5. Seguridad</h2>
-              <p>Protegemos tu informacion con encriptacion, autenticacion segura y acceso restringido. Sin embargo, ninguna transmision por internet es 100% segura.</p>
+              <p>Protegemos tu información con encriptacion, autenticacion segura y acceso restringido. Sin embargo, ninguna transmision por internet es 100% segura.</p>
             </section>
 
             <section>

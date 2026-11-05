@@ -14,12 +14,12 @@ const PENDING_BUSINESSES = [
 ];
 
 const STATS = [
-  { label: 'Usuarios', value: '2,847', change: '+12%', icon: Users, color: '#E8825A' },
-  { label: 'Negocios', value: '48', change: '+5', icon: Building2, color: '#7C5CBF' },
-  { label: 'Eventos activos', value: '6', change: '+2', icon: CalendarDays, color: '#FFB627' },
-  { label: 'Rutas creadas', value: '23', change: '+8', icon: Route, color: '#2EC4B6' },
-  { label: 'Reportes pendientes', value: '3', change: '', icon: AlertTriangle, color: '#E53E3E' },
-  { label: 'Fotos subidas', value: '1,204', change: '+156', icon: Image, color: '#E85D75' },
+  { label: 'Usuarios', value: '2,847', change: '+12%', icon: Users, color: '#3352F5' },
+  { label: 'Negocios', value: '48', change: '+5', icon: Building2, color: '#7B5CE0' },
+  { label: 'Eventos activos', value: '6', change: '+2', icon: CalendarDays, color: '#FFC531' },
+  { label: 'Rutas creadas', value: '23', change: '+8', icon: Route, color: '#12A594' },
+  { label: 'Reportes pendientes', value: '3', change: '', icon: AlertTriangle, color: '#D93636' },
+  { label: 'Fotos subidas', value: '1,204', change: '+156', icon: Image, color: '#F0506E' },
 ];
 
 export default function AdminPage() {
@@ -53,7 +53,7 @@ export default function AdminPage() {
         </aside>
 
         {/* Main */}
-        <main className="flex-1 bg-cream p-6 lg:p-8 overflow-y-auto">
+        <main id="contenido" className="flex-1 bg-cream p-6 lg:p-8 overflow-y-auto">
           {/* Mobile tabs */}
           <div className="flex gap-2 overflow-x-auto mb-6 lg:hidden pb-2">
             {TABS.map((tab) => (
@@ -106,8 +106,8 @@ export default function AdminPage() {
                       <thead>
                         <tr className="border-b border-sand">
                           <th className="text-left py-3 text-bark font-semibold">Negocio</th>
-                          <th className="text-left py-3 text-bark font-semibold hidden md:table-cell">Categoria</th>
-                          <th className="text-left py-3 text-bark font-semibold hidden md:table-cell">Ubicacion</th>
+                          <th className="text-left py-3 text-bark font-semibold hidden md:table-cell">Categoría</th>
+                          <th className="text-left py-3 text-bark font-semibold hidden md:table-cell">Ubicación</th>
                           <th className="text-left py-3 text-bark font-semibold">Propietario</th>
                           <th className="text-right py-3 text-bark font-semibold">Acciones</th>
                         </tr>
@@ -141,11 +141,11 @@ export default function AdminPage() {
                     <h3 className="font-heading font-bold text-dark mb-4">Actividad reciente</h3>
                     <div className="space-y-3">
                       {[
-                        { text: 'Maria Garcia registro a su perro Toby', time: 'Hace 5 min', icon: '🐕' },
+                        { text: 'María García registro a su perro Toby', time: 'Hace 5 min', icon: '🐕' },
                         { text: 'Veterinaria Patitas actualizo su perfil', time: 'Hace 15 min', icon: '🏥' },
-                        { text: 'Nuevo evento: Mascotatone Arequipa', time: 'Hace 1h', icon: '🎉' },
+                        { text: 'Nuevo evento: Mascotatón Arequipa', time: 'Hace 1h', icon: '🎉' },
                         { text: 'Carlos Q. completo la ruta del centro', time: 'Hace 2h', icon: '🗺️' },
-                        { text: '3 nuevas resenas en PetCare 24h', time: 'Hace 3h', icon: '⭐' },
+                        { text: '3 nuevas reseñas en PetCare 24h', time: 'Hace 3h', icon: '⭐' },
                       ].map((item, i) => (
                         <div key={i} className="flex items-center gap-3 py-2">
                           <span className="text-lg">{item.icon}</span>
@@ -188,7 +188,7 @@ export default function AdminPage() {
           {activeTab === 'Negocios' && (
             <div>
               <h1 className="font-heading font-extrabold text-2xl text-dark mb-6">Gestion de Negocios</h1>
-              <p className="text-bark">Aqui se gestionan aprobaciones, verificaciones y suspensiones de negocios.</p>
+              <p className="text-bark">Aquí se gestionan aprobaciones, verificaciones y suspensiones de negocios.</p>
             </div>
           )}
 

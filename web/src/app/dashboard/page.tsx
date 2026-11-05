@@ -5,13 +5,16 @@ import Link from 'next/link';
 import { Navbar } from '@/components/layout/navbar';
 import { Footer } from '@/components/layout/footer';
 import { ScrollReveal } from '@/components/effects/scroll-reveal';
+import { useAuth } from '@/hooks';
+import { useAppStore, useHydrated } from '@/lib/store';
 import { MOCK_EVENTS, MOCK_ROUTES } from '@/lib/mock-data';
 import { formatDateShort } from '@/lib/utils';
 import { MapPin, Calendar, Route, Star, Heart, Footprints, Camera, Settings, ChevronRight, Plus, Clock, Edit3, LogOut } from 'lucide-react';
+import { SafeImage } from '@/components/ui/safe-image';
 
-const USER = {
-  firstName: 'Maria',
-  lastName: 'Garcia',
+const DEMO_USER = {
+  firstName: 'María',
+  lastName: 'García',
   email: 'maria@email.com',
   city: 'Arequipa',
   district: 'Cayma',
@@ -19,18 +22,18 @@ const USER = {
 };
 
 const MY_PETS = [
-  { id: 'pet1', name: 'Firulais', type: 'DOG', icon: '🐕', breed: 'Golden Retriever', age: '3 anos', weight: 32, energy: 'HIGH', walks: 47, events: 5, photos: 34, photo: 'https://picsum.photos/seed/golden-face/100/100' },
-  { id: 'pet2', name: 'Michi', type: 'CAT', icon: '🐱', breed: 'Persa', age: '2 anos', weight: 4.5, energy: 'LOW', walks: 0, events: 1, photos: 12, photo: 'https://picsum.photos/seed/persian-cat-face/100/100' },
+  { id: 'pet1', name: 'Firulais', type: 'DOG', icon: '🐕', breed: 'Golden Retriever', age: '3 años', weight: 32, energy: 'HIGH', walks: 47, events: 5, photos: 34, photo: 'https://picsum.photos/seed/golden-face/100/100' },
+  { id: 'pet2', name: 'Michi', type: 'CAT', icon: '🐱', breed: 'Persa', age: '2 años', weight: 4.5, energy: 'LOW', walks: 0, events: 1, photos: 12, photo: 'https://picsum.photos/seed/persian-cat-face/100/100' },
 ];
 
 const MY_WALKS = [
   { id: 'w1', pet: 'Firulais', petIcon: '🐕', route: 'Parque Selva Alegre', distance: 2.1, duration: 35, date: '2026-07-05', rating: 5 },
   { id: 'w2', pet: 'Firulais', petIcon: '🐕', route: 'Mirador de Yanahuara', distance: 3.8, duration: 55, date: '2026-07-03', rating: 4 },
   { id: 'w3', pet: 'Firulais', petIcon: '🐕', route: 'Circuito El Lago', distance: 5.2, duration: 70, date: '2026-06-28', rating: 4 },
-  { id: 'w4', pet: 'Firulais', petIcon: '🐕', route: 'Centro Historico', distance: 2.1, duration: 35, date: '2026-06-20', rating: 5 },
+  { id: 'w4', pet: 'Firulais', petIcon: '🐕', route: 'Centro Histórico', distance: 2.1, duration: 35, date: '2026-06-20', rating: 5 },
 ];
 
-const MY_EVENTS = [
+const DEMO_EVENTS = [
   { ...MOCK_EVENTS[0], myStatus: 'inscrito' },
   { ...MOCK_EVENTS[1], myStatus: 'inscrito' },
 ];
@@ -38,20 +41,38 @@ const MY_EVENTS = [
 const MY_FAVORITES = [
   { type: 'business', id: '1', name: 'Veterinaria Patitas Felices', icon: '🏥', subtitle: 'Cayma · 4.8 ★' },
   { type: 'business', id: '3', name: 'Happy Paws Grooming', icon: '✂️', subtitle: 'JLByR · 4.9 ★' },
-  { type: 'route', id: 'r2', name: 'Circuito Parque Selva Alegre', icon: '🗺️', subtitle: '1.4 km · Facil' },
+  { type: 'route', id: 'r2', name: 'Circuito Parque Selva Alegre', icon: '🗺️', subtitle: '1.4 km · Fácil' },
   { type: 'event', id: 'e4', name: 'Feria Pet Friendly Mall Aventura', icon: '🎉', subtitle: '27 jul · Gratis' },
 ];
 
 const STATS = { totalWalks: 47, totalDistance: 89.5, totalEvents: 5, totalPhotos: 46 };
 
 export default function DashboardPage() {
+  const hydrated = useHydrated();
+  const { user: authUser, isDemo } = useAuth();
+  const registrations = useAppStore((s) => s.registrations);
+  const favCount = useAppStore((s) => Object.keys(s.favorites).length);
+  const USER = hydrated && authUser
+    ? { ...DEMO_USER, firstName: authUser.firstName, lastName: authUser.lastName, email: authUser.email, city: authUser.city ?? 'Arequipa', district: authUser.district ?? '' }
+    : DEMO_USER;
+  const myEvents = hydrated ? MOCK_EVENTS.filter((e) => registrations[e.id]).map((e) => ({ ...e, myStatus: 'inscrito' })) : [];
+  const MY_EVENTS = myEvents.length ? myEvents : DEMO_EVENTS;
   const [activeTab, setActiveTab] = useState<'overview' | 'pets' | 'walks' | 'events' | 'favorites'>('overview');
 
   return (
     <>
       <Navbar />
-      <main className="min-h-screen bg-cream">
+      <main id="contenido" className="min-h-screen bg-cream">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {hydrated && !authUser && (
+            <div className="mb-6 rounded-card bg-accent-soft border border-accent/40 px-5 py-4 flex flex-col sm:flex-row sm:items-center gap-3 justify-between animate-fade-in">
+              <p className="text-sm text-dark"><strong>Estás viendo un panel de ejemplo.</strong> Ingresa para ver tus propias mascotas, eventos y favoritos.</p>
+              <Link href="/login" className="shrink-0 bg-dark text-white text-sm font-bold rounded-full px-4 py-2 text-center">Ingresar</Link>
+            </div>
+          )}
+          {hydrated && isDemo && (
+            <p className="mb-4 text-xs text-bark">Modo demo: el servidor no está disponible, tus datos se guardan solo en este dispositivo.</p>
+          )}
           {/* Profile header */}
           <ScrollReveal>
             <div className="bg-white rounded-card shadow-card p-6 mb-6">
@@ -68,7 +89,7 @@ export default function DashboardPage() {
                   <Link href="/profile/edit" className="flex items-center gap-1.5 px-4 py-2 rounded-button border border-sand text-bark text-sm font-semibold hover:bg-sand/50 transition-all boop-btn">
                     <Edit3 size={14} /> Editar perfil
                   </Link>
-                  <Link href="/settings" className="p-2 rounded-button border border-sand text-bark hover:bg-sand/50 transition-all">
+                  <Link href="/profile/edit" aria-label="Configuración" className="p-2 rounded-full border border-sand text-bark hover:bg-sand/50 transition-all">
                     <Settings size={18} />
                   </Link>
                 </div>
@@ -77,13 +98,13 @@ export default function DashboardPage() {
               {/* Quick stats */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-6">
                 {[
-                  { icon: <Footprints size={18} />, val: STATS.totalWalks, label: 'Paseos', color: 'primary' },
-                  { icon: <MapPin size={18} />, val: `${STATS.totalDistance} km`, label: 'Recorrido', color: 'secondary' },
-                  { icon: <Calendar size={18} />, val: STATS.totalEvents, label: 'Eventos', color: 'accent' },
-                  { icon: <Camera size={18} />, val: STATS.totalPhotos, label: 'Fotos', color: 'rose' },
+                  { icon: <Footprints size={18} />, val: STATS.totalWalks, label: 'Paseos', color: 'text-primary' },
+                  { icon: <MapPin size={18} />, val: `${STATS.totalDistance} km`, label: 'Recorrido', color: 'text-secondary' },
+                  { icon: <Calendar size={18} />, val: STATS.totalEvents, label: 'Eventos', color: 'text-[#B88700]' },
+                  { icon: <Camera size={18} />, val: STATS.totalPhotos, label: 'Fotos', color: 'text-rose' },
                 ].map((s, i) => (
                   <div key={i} className="text-center p-3 bg-cream rounded-xl">
-                    <div className={`text-${s.color} mx-auto mb-1 flex justify-center`}>{s.icon}</div>
+                    <div className={`${s.color} mx-auto mb-1 flex justify-center`}>{s.icon}</div>
                     <div className="text-xl font-extrabold text-dark">{s.val}</div>
                     <div className="text-[10px] text-bark">{s.label}</div>
                   </div>
@@ -99,7 +120,7 @@ export default function DashboardPage() {
               { key: 'pets', label: `Mis mascotas (${MY_PETS.length})` },
               { key: 'walks', label: `Paseos (${MY_WALKS.length})` },
               { key: 'events', label: `Eventos (${MY_EVENTS.length})` },
-              { key: 'favorites', label: `Favoritos (${MY_FAVORITES.length})` },
+              { key: 'favorites', label: `Favoritos (${hydrated && favCount ? favCount : MY_FAVORITES.length})` },
             ].map((tab) => (
               <button
                 key={tab.key}
@@ -119,13 +140,13 @@ export default function DashboardPage() {
                 <div className="bg-white rounded-card shadow-card p-6">
                   <div className="flex items-center justify-between mb-4">
                     <h2 className="font-heading font-bold text-dark">Mis mascotas</h2>
-                    <button className="text-xs font-bold text-primary flex items-center gap-1 hover:underline"><Plus size={12} /> Agregar</button>
+                    <Link href="/pets?nueva=1" className="text-xs font-bold text-primary flex items-center gap-1 hover:underline"><Plus size={12} /> Agregar</Link>
                   </div>
                   <div className="space-y-3">
                     {MY_PETS.map((pet) => (
                       <Link key={pet.id} href={`/pets/${pet.id}`}>
                         <div className="flex items-center gap-3 p-3 rounded-xl bg-cream/50 card-hover cursor-pointer">
-                          <img src={pet.photo} alt={pet.name} className="w-12 h-12 rounded-2xl object-cover" />
+                          <SafeImage src={pet.photo} alt={pet.name} className="w-12 h-12 rounded-2xl object-cover" />
                           <div className="flex-1 min-w-0">
                             <div className="font-semibold text-dark text-sm">{pet.name}</div>
                             <div className="text-[11px] text-bark">{pet.breed} · {pet.age} · {pet.weight} kg</div>
@@ -146,7 +167,7 @@ export default function DashboardPage() {
               <ScrollReveal delay={80}>
                 <div className="bg-white rounded-card shadow-card p-6">
                   <div className="flex items-center justify-between mb-4">
-                    <h2 className="font-heading font-bold text-dark">Ultimos paseos</h2>
+                    <h2 className="font-heading font-bold text-dark">Últimos paseos</h2>
                     <button onClick={() => setActiveTab('walks')} className="text-xs font-bold text-primary hover:underline">Ver todos</button>
                   </div>
                   <div className="space-y-3">
@@ -170,7 +191,7 @@ export default function DashboardPage() {
               <ScrollReveal delay={160}>
                 <div className="bg-white rounded-card shadow-card p-6">
                   <div className="flex items-center justify-between mb-4">
-                    <h2 className="font-heading font-bold text-dark">Mis proximos eventos</h2>
+                    <h2 className="font-heading font-bold text-dark">Mis próximos eventos</h2>
                     <button onClick={() => setActiveTab('events')} className="text-xs font-bold text-primary hover:underline">Ver todos</button>
                   </div>
                   <div className="space-y-3">
@@ -223,7 +244,7 @@ export default function DashboardPage() {
             <div className="space-y-4">
               <div className="flex justify-between items-center">
                 <h2 className="font-heading font-bold text-dark text-lg">Mis mascotas</h2>
-                <button className="boop-btn flex items-center gap-1.5 bg-primary text-white font-bold px-4 py-2.5 rounded-button shadow-button text-sm"><Plus size={14} /> Agregar mascota</button>
+                <Link href="/pets?nueva=1" className="boop-btn flex items-center gap-1.5 bg-primary text-white font-bold px-4 py-2.5 rounded-full shadow-button text-sm"><Plus size={14} /> Agregar mascota</Link>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {MY_PETS.map((pet) => (
@@ -231,7 +252,7 @@ export default function DashboardPage() {
                     <Link href={`/pets/${pet.id}`}>
                       <div className="bg-white rounded-card shadow-card p-5 card-hover cursor-pointer">
                         <div className="flex items-center gap-4 mb-4">
-                          <img src={pet.photo} alt={pet.name} className="w-16 h-16 rounded-2xl object-cover" />
+                          <SafeImage src={pet.photo} alt={pet.name} className="w-16 h-16 rounded-2xl object-cover" />
                           <div>
                             <h3 className="font-heading font-bold text-dark text-lg">{pet.name}</h3>
                             <p className="text-sm text-bark">{pet.breed} · {pet.age}</p>
@@ -312,7 +333,10 @@ export default function DashboardPage() {
           {activeTab === 'favorites' && (
             <ScrollReveal>
               <div className="bg-white rounded-card shadow-card p-6">
-                <h2 className="font-heading font-bold text-dark text-lg mb-4">Mis favoritos ({MY_FAVORITES.length})</h2>
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="font-heading font-bold text-dark text-lg">Favoritos de ejemplo</h2>
+                  <Link href="/favorites" className="text-sm font-bold text-primary link-route">Ver mis favoritos guardados</Link>
+                </div>
                 <div className="space-y-2">
                   {MY_FAVORITES.map((f) => (
                     <Link key={`${f.type}-${f.id}`} href={f.type === 'business' ? `/directory/${f.id}` : f.type === 'route' ? `/routes/${f.id}` : `/events/${f.id}`}>
@@ -322,7 +346,7 @@ export default function DashboardPage() {
                           <div className="text-sm font-semibold text-dark">{f.name}</div>
                           <div className="text-[11px] text-bark">{f.subtitle}</div>
                         </div>
-                        <button className="p-1.5 hover:bg-rose/10 rounded-lg transition-all" onClick={(e) => e.preventDefault()}>
+                        <button aria-label="Ir a favoritos" className="p-1.5 hover:bg-rose/10 rounded-lg transition-all" onClick={(e) => { e.preventDefault(); window.location.href = '/favorites'; }}>
                           <Heart size={16} className="fill-rose text-rose" />
                         </button>
                       </div>

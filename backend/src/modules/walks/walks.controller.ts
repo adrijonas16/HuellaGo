@@ -13,7 +13,7 @@ import { WalksService } from './walks.service';
 import { StartWalkDto } from './dto/start-walk.dto';
 import { FinishWalkDto } from './dto/finish-walk.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { CurrentUser } from '@common/decorators';
+import { CurrentUser } from '../../common/decorators';
 
 @ApiTags('Walks')
 @Controller('walks')

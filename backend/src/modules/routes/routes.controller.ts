@@ -16,8 +16,8 @@ import { RoutesService } from './routes.service';
 import { CreateRouteDto } from './dto/create-route.dto';
 import { UpdateRouteDto } from './dto/update-route.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { CurrentUser } from '@common/decorators';
-import { PaginationDto } from '@common/dto/pagination.dto';
+import { CurrentUser } from '../../common/decorators';
+import { PaginationDto } from '../../common/dto/pagination.dto';
 
 @ApiTags('Routes')
 @Controller('routes')

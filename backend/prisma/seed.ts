@@ -1,5 +1,14 @@
 import { PrismaClient, UserRole, PetType, PetSize, EnergyLevel, BusinessCategory, BusinessStatus, EventStatus, RouteDifficulty, PromotionType } from '@prisma/client';
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
+
+/** Fechas relativas a hoy: así los eventos sembrados siempre son futuros */
+function daysFromNow(days: number, time = '10:00'): Date {
+  const d = new Date();
+  d.setDate(d.getDate() + days);
+  const [h, m] = time.split(':').map(Number);
+  d.setHours(h, m, 0, 0);
+  return d;
+}
 
 const prisma = new PrismaClient();
 
@@ -586,10 +595,10 @@ async function main() {
 
   await prisma.promotion.createMany({
     data: [
-      { businessId: vetCerroColorado.id, type: PromotionType.DISCOUNT_PERCENT, title: '20% OFF en vacunacion', description: 'Valido todo julio 2026. Aplica para perros y gatos.', discount: 20, startDate: new Date('2026-07-01'), endDate: new Date('2026-07-31') },
-      { businessId: groomingPaws.id, type: PromotionType.BUNDLE, title: 'Bano + corte de unas GRATIS', description: 'Lleva a tu mascota al bano y el corte de unas es gratis.', startDate: new Date('2026-07-01'), endDate: new Date('2026-08-15') },
-      { businessId: hotelPet.id, type: PromotionType.DISCOUNT_PERCENT, title: '15% OFF primera noche', description: 'Para clientes nuevos', discount: 15, startDate: new Date('2026-07-01'), endDate: new Date('2026-09-30') },
-      { businessId: storePetShop.id, type: PromotionType.DISCOUNT_PERCENT, title: '10% en alimento Royal Canin', description: 'Todas las presentaciones', discount: 10, startDate: new Date('2026-07-01'), endDate: new Date('2026-07-31') },
+      { businessId: vetCerroColorado.id, type: PromotionType.DISCOUNT_PERCENT, title: '20% OFF en vacunacion', description: 'Válido por tiempo limitado. Aplica para perros y gatos.', discount: 20, startDate: daysFromNow(-5), endDate: daysFromNow(25) },
+      { businessId: groomingPaws.id, type: PromotionType.BUNDLE, title: 'Bano + corte de unas GRATIS', description: 'Lleva a tu mascota al bano y el corte de unas es gratis.', startDate: daysFromNow(-5), endDate: daysFromNow(40) },
+      { businessId: hotelPet.id, type: PromotionType.DISCOUNT_PERCENT, title: '15% OFF primera noche', description: 'Para clientes nuevos', discount: 15, startDate: daysFromNow(-5), endDate: daysFromNow(60) },
+      { businessId: storePetShop.id, type: PromotionType.DISCOUNT_PERCENT, title: '10% en alimento Royal Canin', description: 'Todas las presentaciones', discount: 10, startDate: daysFromNow(-5), endDate: daysFromNow(25) },
     ],
   });
 
@@ -668,8 +677,8 @@ async function main() {
         organizerId: camila.id,
         title: 'Caminata Canina por el Centro Historico',
         description: 'Caminata grupal con nuestras mascotas por las calles del centro historico de Arequipa. Recorreremos la Plaza de Armas, la Catedral y el Barrio de San Lazaro. Fotos grupales al final.',
-        date: new Date('2026-07-20T08:00:00'),
-        endDate: new Date('2026-07-20T10:30:00'),
+        date: daysFromNow(12, '08:00'),
+        endDate: daysFromNow(12, '10:30'),
         meetingPoint: 'Plaza de Armas, frente a la Catedral', meetingLat: -16.3988, meetingLng: -71.5370,
         city: 'Arequipa', district: 'Cercado',
         maxAttendees: 30, price: 0, isFree: true,
@@ -685,8 +694,8 @@ async function main() {
         organizerId: camila.id,
         title: 'Mascotatron Arequipa 2026',
         description: 'La carrera de mascotas mas divertida de Arequipa. Categorias por tamano. Premios para los 3 primeros de cada categoria. Hidratacion, snacks y certificado para todos los participantes.',
-        date: new Date('2026-08-10T09:00:00'),
-        endDate: new Date('2026-08-10T13:00:00'),
+        date: daysFromNow(27, '09:00'),
+        endDate: daysFromNow(27, '13:00'),
         meetingPoint: 'Parque Selva Alegre, entrada principal', meetingLat: -16.3950, meetingLng: -71.5345,
         city: 'Arequipa', district: 'Cercado',
         maxAttendees: 80, price: 15, isFree: false,
@@ -702,8 +711,8 @@ async function main() {
         businessId: vetCerroColorado.id,
         title: 'Campana de Vacunacion Gratuita',
         description: 'Campana de vacunacion antirrabica gratuita para perros y gatos. Organizada por Veterinaria El Arca de Noe en coordinacion con la Municipalidad de Cerro Colorado.',
-        date: new Date('2026-07-27T09:00:00'),
-        endDate: new Date('2026-07-27T15:00:00'),
+        date: daysFromNow(16, '09:00'),
+        endDate: daysFromNow(16, '15:00'),
         meetingPoint: 'Veterinaria El Arca de Noe, Av. Ejercito 1205', meetingLat: -16.3876, meetingLng: -71.5707,
         city: 'Arequipa', district: 'Cerro Colorado',
         maxAttendees: 100, price: 0, isFree: true,
@@ -718,8 +727,8 @@ async function main() {
         organizerId: pedro.id,
         title: 'Paseo Amanecer en el Misti',
         description: 'Paseo grupal al amanecer por la ruta del mirador de Yanahuara con vista al Misti. Nivel moderado. Llevar agua para ti y tu mascota. Fotos panoramicas increibles.',
-        date: new Date('2026-08-03T05:30:00'),
-        endDate: new Date('2026-08-03T08:00:00'),
+        date: daysFromNow(20, '05:30'),
+        endDate: daysFromNow(20, '08:00'),
         meetingPoint: 'Mirador de Yanahuara', meetingLat: -16.3920, meetingLng: -71.5500,
         city: 'Arequipa', district: 'Yanahuara',
         maxAttendees: 20, price: 5, isFree: false,
@@ -736,8 +745,8 @@ async function main() {
         businessId: shelter1.id,
         title: 'Feria de Adopcion - Patitas Sin Hogar',
         description: 'Feria de adopcion responsable. Conoce a los perritos y gatitos que buscan hogar. Todos esterilizados, vacunados y desparasitados. Trae tu DNI y mucho amor.',
-        date: new Date('2026-07-26T10:00:00'),
-        endDate: new Date('2026-07-26T16:00:00'),
+        date: daysFromNow(9, '10:00'),
+        endDate: daysFromNow(9, '16:00'),
         meetingPoint: 'Mall Aventura Arequipa, explanada', meetingLat: -16.4320, meetingLng: -71.5090,
         city: 'Arequipa', district: 'Paucarpata',
         maxAttendees: 200, price: 0, isFree: true,
@@ -753,8 +762,8 @@ async function main() {
         businessId: trainer.id,
         title: 'Taller de Socializacion Canina',
         description: 'Taller grupal de socializacion para cachorros y perros adultos. Aprende como tu perro puede interactuar de forma segura con otros perros. Dirigido por entrenador certificado.',
-        date: new Date('2026-08-17T16:00:00'),
-        endDate: new Date('2026-08-17T18:00:00'),
+        date: daysFromNow(33, '16:00'),
+        endDate: daysFromNow(33, '18:00'),
         meetingPoint: 'Parque Selva Alegre, area de grass', meetingLat: -16.3950, meetingLng: -71.5345,
         city: 'Arequipa', district: 'Cercado',
         maxAttendees: 15, price: 25, isFree: false,

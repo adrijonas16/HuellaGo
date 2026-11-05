@@ -30,8 +30,8 @@ function createIcon(color: string, label: string) {
   });
 }
 
-const startIcon = createIcon('#38A169', 'A');
-const endIcon = createIcon('#E53E3E', 'B');
+const startIcon = createIcon('#0F8A5F', 'A');
+const endIcon = createIcon('#D93636', 'B');
 
 export default function RouteMap({ route }: { route: RouteData }) {
   // Build the full path: start -> waypoints -> end
@@ -61,7 +61,7 @@ export default function RouteMap({ route }: { route: RouteData }) {
       <Polyline
         positions={points}
         pathOptions={{
-          color: '#E8825A',
+          color: '#3352F5',
           weight: 5,
           opacity: 0.85,
           lineCap: 'round',

@@ -19,13 +19,13 @@ const CATEGORIES = [
 ];
 
 const FAQS = [
-  { q: 'Como registro a mi mascota?', a: 'Despues de crear tu cuenta, ve a tu perfil y toca "Agregar mascota". Puedes registrar perros, gatos, conejos, aves y cualquier tipo de mascota con foto, raza, edad y nivel de energia.', cat: 'Mis mascotas' },
-  { q: 'Como encuentro veterinarias cercanas?', a: 'Abre el Mapa desde el menu principal. Usa los filtros para seleccionar "Veterinarias" y veras todas las que estan cerca de tu ubicacion, con calificaciones y horarios.', cat: 'Mapa y servicios' },
+  { q: 'Como registro a mi mascota?', a: 'Despues de crear tu cuenta, ve a tu perfil y toca "Agregar mascota". Puedes registrar perros, gatos, conejos, aves y cualquier tipo de mascota con foto, raza, edad y nivel de energía.', cat: 'Mis mascotas' },
+  { q: 'Como encuentro veterinarias cercanas?', a: 'Abre el Mapa desde el menu principal. Usa los filtros para seleccionar "Veterinarias" y veras todas las que estan cerca de tu ubicación, con calificaciones y horarios.', cat: 'Mapa y servicios' },
   { q: 'Como me inscribo a un evento?', a: 'Ve a la seccion Eventos, selecciona uno que te interese y toca "Inscribirme". Selecciona la mascota que llevaras y confirma. Recibiras una notificacion antes del evento.', cat: 'Eventos' },
   { q: 'Puedo crear eventos yo mismo?', a: 'Si! Cualquier usuario puede crear eventos. Ve a Eventos y toca "Crear evento". Define el punto de partida, fecha, requisitos y publica. Los usuarios de tu ciudad seran notificados.', cat: 'Eventos' },
-  { q: 'Como registro mi negocio?', a: 'Ve a "Registrar negocio" desde el menu o desde la pagina de Planes. Completa los 6 pasos del formulario con los datos de tu negocio. Lo revisaremos en 24-48 horas.', cat: 'Para negocios' },
+  { q: 'Como registro mi negocio?', a: 'Ve a "Registrar negocio" desde el menu o desde la página de Planes. Completa los 6 pasos del formulario con los datos de tu negocio. Lo revisaremos en 24-48 horas.', cat: 'Para negocios' },
   { q: 'Las rutas se crean en la web?', a: 'No, las rutas se crean unicamente desde la app movil porque necesitan GPS en tiempo real para grabar el recorrido. En la web puedes ver y explorar las rutas existentes.', cat: 'Rutas y paseos' },
-  { q: 'Cuanto cuesta usar HuellaGo?', a: 'HuellaGo es gratuito para usuarios. Los negocios pueden registrarse gratis con funciones basicas, o elegir un plan Pro (S/49/mes) o Premium (S/99/mes) para mas funciones.', cat: 'Pagos y planes' },
+  { q: 'Cuánto cuesta usar HuellaGo?', a: 'HuellaGo es gratuito para usuarios. Los negocios pueden registrarse gratis con funciones básicas, o elegir un plan Pro (S/49/mes) o Premium (S/99/mes) para más funciones.', cat: 'Pagos y planes' },
   { q: 'Como cambio mi ciudad?', a: 'Ve a tu perfil, toca "Editar perfil" y cambia tu ciudad. Esto actualizara los eventos y servicios que ves en tu feed y mapa.', cat: 'Cuenta y perfil' },
 ];
 
@@ -40,7 +40,7 @@ export default function HelpPage() {
   return (
     <>
       <Navbar />
-      <main className="min-h-screen bg-cream paw-bg">
+      <main id="contenido" className="min-h-screen bg-cream paw-bg">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <ScrollReveal>
             <div className="text-center mb-10">

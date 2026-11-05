@@ -5,9 +5,9 @@ export default function TermsPage() {
   return (
     <>
       <Navbar />
-      <main className="min-h-screen bg-cream">
+      <main id="contenido" className="min-h-screen bg-cream">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <h1 className="font-heading font-extrabold text-4xl text-dark mb-2">Terminos y Condiciones</h1>
+          <h1 className="font-heading font-extrabold text-4xl text-dark mb-2">Términos y Condiciones</h1>
           <p className="text-bark mb-8">Ultima actualizacion: 1 de julio de 2026</p>
 
           <div className="bg-white rounded-card shadow-card p-6 md:p-8 space-y-6 text-sm text-bark leading-relaxed">
@@ -17,13 +17,13 @@ export default function TermsPage() {
             </section>
 
             <section>
-              <h2 className="font-heading font-bold text-dark text-lg mb-2">2. Descripcion del servicio</h2>
-              <p>HuellaGo es una plataforma digital que centraliza servicios, eventos, rutas y comunidad para duenos de mascotas en Peru. Conectamos a duenos de mascotas con veterinarias, paseadores, hoteles, groomers y otros servicios relacionados.</p>
+              <h2 className="font-heading font-bold text-dark text-lg mb-2">2. Descripción del servicio</h2>
+              <p>HuellaGo es una plataforma digital que centraliza servicios, eventos, rutas y comunidad para dueños de mascotas en Perú. Conectamos a dueños de mascotas con veterinarias, paseadores, hoteles, groomers y otros servicios relacionados.</p>
             </section>
 
             <section>
               <h2 className="font-heading font-bold text-dark text-lg mb-2">3. Registro y cuenta</h2>
-              <p>Para usar ciertas funciones debes crear una cuenta proporcionando informacion veraz y actualizada. Eres responsable de mantener la confidencialidad de tu contrasena y de todas las actividades que ocurran bajo tu cuenta.</p>
+              <p>Para usar ciertas funciones debes crear una cuenta proporcionando información veraz y actualizada. Eres responsable de mantener la confidencialidad de tu contraseña y de todas las actividades que ocurran bajo tu cuenta.</p>
             </section>
 
             <section>
@@ -33,7 +33,7 @@ export default function TermsPage() {
 
             <section>
               <h2 className="font-heading font-bold text-dark text-lg mb-2">5. Negocios registrados</h2>
-              <p>Los negocios que se registran en HuellaGo son responsables de la veracidad de su informacion, servicios y precios. HuellaGo no garantiza la calidad de los servicios ofrecidos por terceros.</p>
+              <p>Los negocios que se registran en HuellaGo son responsables de la veracidad de su información, servicios y precios. HuellaGo no garantiza la calidad de los servicios ofrecidos por terceros.</p>
             </section>
 
             <section>

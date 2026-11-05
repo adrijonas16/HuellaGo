@@ -12,21 +12,21 @@ const PLANS = [
     price: 0,
     period: '',
     icon: '🐾',
-    color: '#38A169',
+    color: '#0F8A5F',
     description: 'Ideal para empezar. Registra tu negocio y aparece en el mapa.',
     popular: false,
     cta: 'Empezar gratis',
     features: [
-      { text: 'Perfil de negocio basico', included: true },
-      { text: 'Ubicacion en el mapa', included: true },
+      { text: 'Perfil de negocio básico', included: true },
+      { text: 'Ubicación en el mapa', included: true },
       { text: 'Hasta 5 fotos', included: true },
-      { text: 'Recibir resenas', included: true },
-      { text: 'Informacion de contacto', included: true },
-      { text: 'Horarios de atencion', included: true },
+      { text: 'Recibir reseñas', included: true },
+      { text: 'Información de contacto', included: true },
+      { text: 'Horarios de atención', included: true },
       { text: 'Estadisticas de visitas', included: false },
       { text: 'Badge de verificado', included: false },
       { text: 'Promociones', included: false },
-      { text: 'Prioridad en busqueda', included: false },
+      { text: 'Prioridad en búsqueda', included: false },
       { text: 'Reservas online', included: false },
       { text: 'Soporte prioritario', included: false },
     ],
@@ -36,8 +36,8 @@ const PLANS = [
     price: 49,
     period: '/mes',
     icon: '⭐',
-    color: '#E8825A',
-    description: 'Para negocios que quieren crecer. Destaca y atrae mas clientes.',
+    color: '#3352F5',
+    description: 'Para negocios que quieren crecer. Destaca y atrae más clientes.',
     popular: true,
     cta: 'Comenzar prueba gratis',
     features: [
@@ -46,8 +46,8 @@ const PLANS = [
       { text: 'Estadisticas de visitas', included: true },
       { text: 'Badge de verificado', included: true },
       { text: 'Publicar promociones', included: true },
-      { text: 'Prioridad en busqueda', included: true },
-      { text: 'Responder resenas', included: true },
+      { text: 'Prioridad en búsqueda', included: true },
+      { text: 'Responder reseñas', included: true },
       { text: 'Lista de servicios con precios', included: true },
       { text: 'Reservas online', included: false },
       { text: 'Multiples sucursales', included: false },
@@ -60,7 +60,7 @@ const PLANS = [
     price: 99,
     period: '/mes',
     icon: '👑',
-    color: '#7C5CBF',
+    color: '#7B5CE0',
     description: 'Para negocios que quieren la experiencia completa.',
     popular: false,
     cta: 'Contactar ventas',
@@ -92,7 +92,7 @@ const FAQS = [
   },
   {
     q: 'Hay periodo de prueba?',
-    a: 'Si, el plan Pro incluye 14 dias de prueba gratuita. No necesitas tarjeta de credito para empezar.',
+    a: 'Si, el plan Pro incluye 14 días de prueba gratuita. No necesitas tarjeta de crédito para empezar.',
   },
   {
     q: 'Como funcionan las reservas online?',
@@ -112,9 +112,9 @@ export default function PricingPage() {
   return (
     <>
       <Navbar />
-      <main className="min-h-screen bg-cream">
+      <main id="contenido" className="min-h-screen bg-cream">
         {/* Hero */}
-        <section className="py-16 text-center paw-bg" style={{ background: 'linear-gradient(135deg, #FFF9F2, #FFF0E0)' }}>
+        <section className="py-16 text-center paw-bg" style={{ background: 'linear-gradient(135deg, #F5F6F1, #EEF1FF)' }}>
           <div className="max-w-4xl mx-auto px-4">
             <ScrollReveal>
               <div className="text-5xl mb-4">💼</div>
@@ -138,7 +138,7 @@ export default function PricingPage() {
                     {plan.popular && (
                       <div className="absolute -top-3 left-1/2 -translate-x-1/2">
                         <span className="bg-primary text-white text-xs font-bold px-4 py-1.5 rounded-full shadow-button">
-                          Mas popular
+                          Más popular
                         </span>
                       </div>
                     )}
@@ -160,8 +160,7 @@ export default function PricingPage() {
                       </div>
                     </div>
 
-                    <Link href="/business/register">
-                      <button className={`w-full font-bold py-3.5 rounded-button boop-btn transition-all text-sm ${
+                    <Link href="/business/register" className={`block text-center w-full font-bold py-3.5 rounded-full boop-btn transition-all text-sm ${
                         plan.popular
                           ? 'bg-primary text-white shadow-button hover:bg-primary-dark'
                           : plan.price === 0
@@ -169,7 +168,6 @@ export default function PricingPage() {
                             : 'bg-secondary/10 text-secondary hover:bg-secondary hover:text-white'
                       }`}>
                         {plan.cta}
-                      </button>
                     </Link>
 
                     <div className="mt-6 pt-6 border-t border-sand space-y-3">
@@ -224,7 +222,7 @@ export default function PricingPage() {
         </section>
 
         {/* FAQ */}
-        <section className="py-16" style={{ background: 'linear-gradient(180deg, #FFF9F2, #FFF4EB)' }}>
+        <section className="py-16" style={{ background: 'linear-gradient(180deg, #F5F6F1, #F0F2FA)' }}>
           <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
             <ScrollReveal>
               <h2 className="font-heading font-extrabold text-3xl text-dark text-center mb-10">

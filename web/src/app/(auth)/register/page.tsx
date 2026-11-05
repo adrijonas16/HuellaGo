@@ -3,105 +3,157 @@
 import { useState, FormEvent } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Button, Input } from '@/components/ui';
+import { Check, Loader2 } from 'lucide-react';
+import { Input } from '@/components/ui';
+import { PasswordInput } from '@/components/ui/password-input';
+import { AuthShell } from '@/components/layout/auth-shell';
 import { useAuth } from '@/hooks';
+import { useAppStore } from '@/lib/store';
 import { PET_TYPES } from '@/lib/mock-data';
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+function strength(pw: string) {
+  let s = 0;
+  if (pw.length >= 8) s++;
+  if (/[A-Z]/.test(pw) && /[a-z]/.test(pw)) s++;
+  if (/\d/.test(pw)) s++;
+  if (/[^A-Za-z0-9]/.test(pw)) s++;
+  return s;
+}
 
 export default function RegisterPage() {
   const router = useRouter();
   const { register, isLoading } = useAuth();
+  const notify = useAppStore((s) => s.notify);
   const [step, setStep] = useState(0);
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [city, setCity] = useState('Arequipa');
+  const [petType, setPetType] = useState<string | null>(null);
+  const [petName, setPetName] = useState('');
+  const [touched, setTouched] = useState(false);
   const [error, setError] = useState('');
+
+  const errors = {
+    firstName: touched && !firstName.trim() ? 'Escribe tu nombre' : '',
+    email: touched && !EMAIL_RE.test(email) ? 'Escribe un email válido' : '',
+    password: touched && password.length < 8 ? 'Usa al menos 8 caracteres' : '',
+  };
+  const st = strength(password);
+
+  function next() {
+    setTouched(true);
+    if (!firstName.trim() || !EMAIL_RE.test(email) || password.length < 8) return;
+    setStep(1);
+  }
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setError('');
     try {
-      await register(email, password, firstName, lastName);
-      router.push('/');
-    } catch {
-      setError('Error al crear la cuenta');
+      await register(email, password, firstName.trim(), lastName.trim());
+      notify(`¡Bienvenido a la manada, ${firstName.trim()}!${petName ? ` Saluda a ${petName} de nuestra parte.` : ''}`, { tone: 'success' });
+      router.push('/dashboard');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'No pudimos crear tu cuenta. Inténtalo otra vez.');
     }
   }
 
   return (
-    <div className="min-h-screen bg-cream paw-bg flex items-center justify-center px-4 py-8">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <Link href="/" className="inline-block">
-            <div className="w-14 h-14 bg-gradient-to-br from-primary to-primary-dark rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-button">
-              <span className="text-white text-2xl">🐾</span>
-            </div>
-          </Link>
-          <h1 className="font-heading font-extrabold text-2xl text-dark">Crear cuenta en HuellaGo</h1>
-          <p className="text-bark mt-2">Registrate para encontrar todo para tu mascota</p>
-        </div>
+    <AuthShell title="Crea tu cuenta" subtitle="Es gratis y te toma menos de un minuto.">
+      {/* Progreso */}
+      <ol className="flex items-center gap-3 mb-8" aria-label="Progreso del registro">
+        {['Tus datos', 'Tu mascota'].map((label, i) => (
+          <li key={label} className="flex items-center gap-2 flex-1">
+            <span
+              className={`w-7 h-7 rounded-full text-xs font-bold flex items-center justify-center transition-colors ${
+                i < step ? 'bg-secondary text-white' : i === step ? 'bg-dark text-white' : 'bg-sand text-bark'
+              }`}
+              aria-current={i === step ? 'step' : undefined}
+            >
+              {i < step ? <Check size={14} strokeWidth={3} /> : i + 1}
+            </span>
+            <span className={`text-sm font-semibold ${i === step ? 'text-dark' : 'text-bark'}`}>{label}</span>
+            {i === 0 && <span className="flex-1 h-0.5 rounded-full bg-sand overflow-hidden"><span className="block h-full bg-secondary transition-all duration-500" style={{ width: step > 0 ? '100%' : '0%' }} /></span>}
+          </li>
+        ))}
+      </ol>
 
-        <div className="bg-white rounded-card shadow-card p-6">
-          {step === 0 && (
-            <div className="space-y-4">
-              <h2 className="font-heading font-bold text-dark text-lg mb-1">Tus datos</h2>
-              <div className="grid grid-cols-2 gap-3">
-                <Input id="firstName" label="Nombre" placeholder="Maria" value={firstName} onChange={(e) => setFirstName(e.target.value)} required />
-                <Input id="lastName" label="Apellido" placeholder="Garcia" value={lastName} onChange={(e) => setLastName(e.target.value)} required />
-              </div>
-              <Input id="email" label="Email" type="email" placeholder="tu@email.com" value={email} onChange={(e) => setEmail(e.target.value)} required />
-              <Input id="password" label="Contrasena" type="password" placeholder="Minimo 8 caracteres" value={password} onChange={(e) => setPassword(e.target.value)} required />
-              <div>
-                <label className="text-sm font-medium text-bark block mb-1.5">Ciudad</label>
-                <select className="w-full px-4 py-3.5 rounded-button border-[1.5px] border-sand focus:border-primary outline-none bg-white text-dark" value={city} onChange={(e) => setCity(e.target.value)}>
-                  <option>Arequipa</option><option>Lima</option><option>Cusco</option><option>Trujillo</option><option>Chiclayo</option><option>Piura</option><option>Tacna</option>
-                </select>
-              </div>
-              <Button onClick={() => setStep(1)} className="w-full" disabled={!firstName || !email || !password}>
-                Siguiente: tu mascota 🐾
-              </Button>
-            </div>
-          )}
-
-          {step === 1 && (
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <h2 className="font-heading font-bold text-dark text-lg mb-1">Tu mascota (opcional)</h2>
-              <p className="text-xs text-bark mb-3">Puedes agregar esto despues si prefieres</p>
-
-              <div className="grid grid-cols-4 gap-2 mb-4">
-                {PET_TYPES.slice(0, 8).map((pt) => (
-                  <button key={pt.id} type="button" className="p-3 rounded-card border-2 border-sand hover:border-primary/30 text-center transition-all boop-btn">
-                    <div className="text-2xl">{pt.icon}</div>
-                    <div className="text-[10px] font-semibold text-bark mt-1">{pt.name}</div>
-                  </button>
-                ))}
-              </div>
-
-              <Input id="petName" label="Nombre de tu mascota" placeholder="Firulais, Luna, Michi..." />
-              <Input id="petBreed" label="Raza (opcional)" placeholder="Labrador, Mestizo, Persa..." />
-
-              {error && <p className="text-sm text-error text-center">{error}</p>}
-
-              <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? 'Creando cuenta...' : 'Crear cuenta'}
-              </Button>
-              <button type="button" onClick={() => setStep(0)} className="w-full text-sm text-bark font-medium py-2 hover:text-primary">
-                Volver
-              </button>
-            </form>
-          )}
-
-          <div className="mt-4 text-center text-sm text-bark">
-            Ya tienes cuenta?{' '}
-            <Link href="/login" className="text-primary font-semibold">Inicia sesion</Link>
+      {step === 0 && (
+        <form onSubmit={(e) => { e.preventDefault(); next(); }} noValidate className="space-y-5 animate-fade-in">
+          <div className="grid grid-cols-2 gap-3">
+            <Input id="firstName" label="Nombre" autoComplete="given-name" placeholder="María" value={firstName} onChange={(e) => setFirstName(e.target.value)} error={errors.firstName} />
+            <Input id="lastName" label="Apellido" autoComplete="family-name" placeholder="García" value={lastName} onChange={(e) => setLastName(e.target.value)} />
           </div>
-        </div>
+          <Input id="email" label="Email" type="email" autoComplete="email" placeholder="tu@email.com" value={email} onChange={(e) => setEmail(e.target.value)} error={errors.email} />
+          <div>
+            <PasswordInput id="password" label="Contraseña" autoComplete="new-password" placeholder="Mínimo 8 caracteres" value={password} onChange={(e) => setPassword(e.target.value)} error={errors.password} />
+            {password && (
+              <div className="flex items-center gap-2 mt-2" aria-live="polite">
+                <div className="flex gap-1 flex-1">
+                  {[0, 1, 2, 3].map((i) => (
+                    <span key={i} className={`h-1.5 flex-1 rounded-full transition-colors ${i < st ? (st <= 1 ? 'bg-rose' : st === 2 ? 'bg-accent' : 'bg-secondary') : 'bg-sand'}`} />
+                  ))}
+                </div>
+                <span className="text-xs font-semibold text-bark w-16 text-right">{['Muy débil', 'Débil', 'Aceptable', 'Buena', 'Excelente'][st]}</span>
+              </div>
+            )}
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="city" className="text-sm font-semibold text-dark">Ciudad</label>
+            <select id="city" className="w-full px-4 py-3.5 rounded-2xl border-[1.5px] border-sand focus:border-primary focus:ring-4 focus:ring-primary/15 outline-none bg-white text-dark" value={city} onChange={(e) => setCity(e.target.value)}>
+              {['Arequipa', 'Lima', 'Cusco', 'Trujillo', 'Chiclayo', 'Piura', 'Tacna'].map((c) => <option key={c}>{c}</option>)}
+            </select>
+          </div>
+          <button type="submit" className="w-full bg-dark text-white font-bold text-lg py-4 rounded-full boop-btn hover:bg-primary transition-colors">
+            Continuar
+          </button>
+        </form>
+      )}
 
-        <p className="text-[11px] text-bark/50 text-center mt-4">
-          Al registrarte aceptas los <Link href="/terms" className="underline">Terminos</Link> y la <Link href="/privacy" className="underline">Politica de Privacidad</Link>
-        </p>
-      </div>
-    </div>
+      {step === 1 && (
+        <form onSubmit={handleSubmit} className="space-y-5 animate-slide-in-right">
+          <fieldset>
+            <legend className="text-sm font-semibold text-dark mb-2">¿Qué mascota tienes? <span className="font-normal text-bark">(opcional)</span></legend>
+            <div className="grid grid-cols-4 gap-2">
+              {PET_TYPES.slice(0, 8).map((pt) => (
+                <button
+                  key={pt.id}
+                  type="button"
+                  onClick={() => setPetType(petType === pt.id ? null : pt.id)}
+                  aria-pressed={petType === pt.id}
+                  className={`p-3 rounded-2xl border-2 text-center transition-all ${petType === pt.id ? 'border-primary bg-primary-soft scale-[1.03]' : 'border-sand bg-white hover:border-bark-light'}`}
+                >
+                  <span className="block text-2xl" aria-hidden>{pt.icon}</span>
+                  <span className="block text-[12px] font-semibold text-dark mt-1">{pt.name}</span>
+                </button>
+              ))}
+            </div>
+          </fieldset>
+
+          <Input id="petName" label="¿Cómo se llama?" placeholder="Firulais, Luna, Michi…" value={petName} onChange={(e) => setPetName(e.target.value)} />
+
+          {error && <p role="alert" className="text-sm text-error bg-error/5 rounded-xl px-4 py-3">{error}</p>}
+
+          <button type="submit" disabled={isLoading} className="w-full inline-flex items-center justify-center gap-2 bg-primary text-white font-bold text-lg py-4 rounded-full shadow-button boop-btn hover:bg-primary-dark disabled:opacity-60">
+            {isLoading && <Loader2 size={18} className="animate-spin" />}
+            {isLoading ? 'Creando cuenta…' : 'Crear cuenta'}
+          </button>
+          <button type="button" onClick={() => setStep(0)} className="w-full text-sm text-bark font-semibold py-2 hover:text-dark">
+            Volver a tus datos
+          </button>
+        </form>
+      )}
+
+      <p className="mt-8 text-center text-bark">
+        ¿Ya tienes cuenta? <Link href="/login" className="text-primary font-bold link-route">Ingresar</Link>
+      </p>
+      <p className="text-xs text-bark/80 text-center mt-4">
+        Al crear tu cuenta aceptas los <Link href="/terms" className="underline">Términos</Link> y la <Link href="/privacy" className="underline">Política de privacidad</Link>.
+      </p>
+    </AuthShell>
   );
 }

@@ -1,4 +1,5 @@
 import { cn } from '@/lib/utils';
+import { SafeImage } from '@/components/ui/safe-image';
 
 interface CardProps {
   children: React.ReactNode;
@@ -31,7 +32,7 @@ export function CardImage({
 }) {
   return (
     <div className={cn('overflow-hidden rounded-t-card', className)}>
-      <img
+      <SafeImage
         src={src}
         alt={alt}
         className="w-full h-full object-cover"
