@@ -91,7 +91,7 @@ export default function CreateEventPage() {
           <div className="space-y-6">
             {/* Basic info */}
             <div className="bg-white rounded-card p-6 shadow-card animate-slide-up">
-              <h2 className="font-heading font-bold text-dark text-lg mb-4">Información basica</h2>
+              <h2 className="font-heading font-bold text-dark text-lg mb-4">Información básica</h2>
               <div className="space-y-4">
                 <div>
                   <label className="text-sm font-semibold text-dark block mb-1.5">Nombre del evento *</label>
@@ -130,20 +130,20 @@ export default function CreateEventPage() {
                   label="Punto de partida *"
                   value={meetingLocation}
                   onChange={setMeetingLocation}
-                  placeholder="Donde se reunen los asistentes"
+                  placeholder="Dónde se reúnen los asistentes"
                 />
                 <LocationPicker
                   label="Punto de llegada (opcional)"
                   value={endLocation}
                   onChange={setEndLocation}
-                  placeholder="Donde termina el evento"
+                  placeholder="Dónde termina el evento"
                 />
               </div>
             </div>
 
             {/* Energy & sizes */}
             <div className="bg-white rounded-card p-6 shadow-card animate-slide-up" style={{ animationDelay: '200ms' }}>
-              <h2 className="font-heading font-bold text-dark text-lg mb-4">Para que mascotas? 🐾</h2>
+              <h2 className="font-heading font-bold text-dark text-lg mb-4">¿Para qué mascotas? 🐾</h2>
 
               <div className="mb-6">
                 <label className="text-sm font-semibold text-dark block mb-3">Nivel de energía</label>

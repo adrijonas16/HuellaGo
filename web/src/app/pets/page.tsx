@@ -17,6 +17,8 @@ function AutoOpen({ onOpen }: { onOpen: () => void }) {
     if (!fired.current && params.get('nueva')) {
       fired.current = true;
       onOpen();
+      // quitar el parámetro para que recargar no vuelva a abrir el formulario
+      window.history.replaceState(null, '', '/pets');
     }
   }, [params, onOpen]);
   return null;

@@ -114,7 +114,7 @@ export default function BusinessRegisterPage() {
             {/* Step 0: Tipo de negocio */}
             {step === 0 && (
               <div>
-                <h2 className="font-heading font-bold text-xl text-dark mb-2">Que tipo de negocio tienes?</h2>
+                <h2 className="font-heading font-bold text-xl text-dark mb-2">¿Qué tipo de negocio tienes?</h2>
                 <p className="text-sm text-bark mb-6">Selecciona la categoría que mejor describe tu negocio</p>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                   {Object.entries(CATEGORY_ICONS).map(([key, icon]) => (
@@ -206,7 +206,7 @@ export default function BusinessRegisterPage() {
             {step === 3 && (
               <div>
                 <h2 className="font-heading font-bold text-xl text-dark mb-2">Servicios y horarios</h2>
-                <p className="text-sm text-bark mb-6">Que ofreces y cuando atiendes</p>
+                <p className="text-sm text-bark mb-6">Qué ofreces y cuándo atiendes</p>
 
                 {/* 24h toggle */}
                 <div className="flex items-center justify-between bg-cream rounded-card p-4 mb-6">

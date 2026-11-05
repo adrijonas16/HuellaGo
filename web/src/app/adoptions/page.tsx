@@ -190,7 +190,7 @@ export default function AdoptionsPage() {
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <label className="text-sm font-semibold text-dark block mb-1.5">Nombre (o apodo)</label>
-                        <input className="w-full px-4 py-3 rounded-button border-[1.5px] border-sand focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none" placeholder="Como le dices?" />
+                        <input className="w-full px-4 py-3 rounded-button border-[1.5px] border-sand focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none" placeholder="¿Cómo le dices?" />
                       </div>
                       <div>
                         <label className="text-sm font-semibold text-dark block mb-1.5">Tipo de mascota</label>

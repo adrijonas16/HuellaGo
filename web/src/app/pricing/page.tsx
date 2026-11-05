@@ -83,11 +83,11 @@ const PLANS = [
 
 const FAQS = [
   {
-    q: 'Puedo empezar gratis?',
+    q: '¿Puedo empezar gratis?',
     a: 'Si, el plan Gratis incluye todo lo necesario para que tu negocio aparezca en HuellaGo. Puedes mejorar tu plan cuando quieras.',
   },
   {
-    q: 'Puedo cambiar de plan en cualquier momento?',
+    q: '¿Puedo cambiar de plan en cualquier momento?',
     a: 'Si, puedes subir o bajar de plan cuando lo necesites. Los cambios se aplican al siguiente periodo de facturacion.',
   },
   {
@@ -95,15 +95,15 @@ const FAQS = [
     a: 'Si, el plan Pro incluye 14 días de prueba gratuita. No necesitas tarjeta de crédito para empezar.',
   },
   {
-    q: 'Como funcionan las reservas online?',
-    a: 'Tus clientes pueden reservar citas directamente desde tu perfil en HuellaGo. Tu recibes una notificacion y puedes confirmar o rechazar.',
+    q: '¿Cómo funcionan las reservas online?',
+    a: 'Tus clientes pueden reservar citas directamente desde tu perfil en HuellaGo. Tu recibes una notificación y puedes confirmar o rechazar.',
   },
   {
-    q: 'Que metodos de pago aceptan?',
+    q: '¿Qué métodos de pago aceptan?',
     a: 'Aceptamos Yape, Plin, transferencia bancaria y tarjetas de credito/debito.',
   },
   {
-    q: 'Quien puede registrar un negocio?',
+    q: '¿Quién puede registrar un negocio?',
     a: 'Veterinarias, paseadores, hoteles, guarderias, groomers, tiendas de mascotas, entrenadores y cualquier negocio relacionado con mascotas.',
   },
 ];

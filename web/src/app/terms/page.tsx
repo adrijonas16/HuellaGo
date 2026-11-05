@@ -12,8 +12,8 @@ export default function TermsPage() {
 
           <div className="bg-white rounded-card shadow-card p-6 md:p-8 space-y-6 text-sm text-bark leading-relaxed">
             <section>
-              <h2 className="font-heading font-bold text-dark text-lg mb-2">1. Aceptacion de los terminos</h2>
-              <p>Al acceder y utilizar HuellaGo, aceptas estar sujeto a estos terminos y condiciones de uso. Si no estas de acuerdo con alguna parte, no utilices la plataforma.</p>
+              <h2 className="font-heading font-bold text-dark text-lg mb-2">1. Aceptacion de los términos</h2>
+              <p>Al acceder y utilizar HuellaGo, aceptas estar sujeto a estos términos y condiciones de uso. Si no estas de acuerdo con alguna parte, no utilices la plataforma.</p>
             </section>
 
             <section>
@@ -58,12 +58,12 @@ export default function TermsPage() {
 
             <section>
               <h2 className="font-heading font-bold text-dark text-lg mb-2">10. Modificaciones</h2>
-              <p>Nos reservamos el derecho de modificar estos terminos en cualquier momento. Los cambios seran notificados a traves de la plataforma.</p>
+              <p>Nos reservamos el derecho de modificar estos términos en cualquier momento. Los cambios serán notificados a través de la plataforma.</p>
             </section>
 
             <section>
               <h2 className="font-heading font-bold text-dark text-lg mb-2">11. Contacto</h2>
-              <p>Para consultas sobre estos terminos, contactanos en <span className="text-primary font-semibold">legal@huellago.pe</span></p>
+              <p>Para consultas sobre estos términos, contactanos en <span className="text-primary font-semibold">legal@huellago.pe</span></p>
             </section>
           </div>
         </div>

@@ -230,7 +230,7 @@ export default function EventDetailPage({ params }: { params: { id: string } }) 
                 )}
 
                 <div className="space-y-3">
-                  <h3 className="text-sm font-semibold text-gray-500">Perritos que asistiran 🐶</h3>
+                  <h3 className="text-sm font-semibold text-gray-500">Perritos que asistirán 🐶</h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {(event.attendees || []).map((att: any, i: number) => (
                       <div key={i} className="flex items-center gap-3 bg-cream rounded-xl p-3">
@@ -281,7 +281,7 @@ export default function EventDetailPage({ params }: { params: { id: string } }) 
                     </div>
                   ))}
                 </div>
-                <p className="text-[11px] text-bark/50 mt-3 text-center">Las fotos se habilitaran durante y después del evento</p>
+                <p className="text-[11px] text-bark/50 mt-3 text-center">Las fotos se habilitarán durante y después del evento</p>
               </div>
 
               {/* Event chat preview */}

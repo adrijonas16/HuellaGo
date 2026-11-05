@@ -24,11 +24,11 @@ export default function PrivacyPage() {
             </section>
 
             <section>
-              <h2 className="font-heading font-bold text-dark text-lg mb-2">2. Como usamos tu información</h2>
+              <h2 className="font-heading font-bold text-dark text-lg mb-2">2. Cómo usamos tu información</h2>
               <ul className="list-disc pl-5 space-y-1">
                 <li>Personalizar tu experiencia y recomendaciones</li>
                 <li>Mostrar servicios y eventos relevantes en tu ciudad</li>
-                <li>Enviar notificaciones sobre eventos y recordatorios</li>
+                <li>Enviar notificaciónes sobre eventos y recordatorios</li>
                 <li>Mejorar la plataforma y sus funcionalidades</li>
                 <li>Comunicarnos contigo sobre tu cuenta</li>
               </ul>
@@ -45,7 +45,7 @@ export default function PrivacyPage() {
               <ul className="list-disc pl-5 space-y-1">
                 <li>Negocios con los que interactuas (al reservar o contactar)</li>
                 <li>Otros usuarios (tu perfil público y publicaciones)</li>
-                <li>Proveedores de servicio (hosting, mapas, notificaciones)</li>
+                <li>Proveedores de servicio (hosting, mapas, notificaciónes)</li>
               </ul>
             </section>
 
