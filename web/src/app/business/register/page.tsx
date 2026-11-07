@@ -1,6 +1,8 @@
 'use client';
 
 import { useState } from 'react';
+import { validators, firstError } from '@/lib/validation';
+import { track } from '@/lib/analytics';
 import Link from 'next/link';
 import { Navbar } from '@/components/layout/navbar';
 import { ChevronLeft, ChevronRight, Check, Upload, Clock } from 'lucide-react';
@@ -37,7 +39,24 @@ export default function BusinessRegisterPage() {
   });
 
   const [submitted, setSubmitted] = useState(false);
-  const canNext = step === 0 ? !!selectedCategory : step === 1 ? formData.name.trim().length > 1 : true;
+  const [tried, setTried] = useState<Record<number, boolean>>({});
+  // Teléfono fijo (054…) o celular: entre 6 y 11 dígitos
+  const landline = (v: string) => (!v.trim() || /^\d{6,11}$/.test(v.replace(/\D/g, '')) ? '' : 'Escribe un teléfono válido, por ejemplo 054 234567');
+  const fieldErrors: Record<string, string> = {
+    category: selectedCategory ? '' : 'Elige el tipo de negocio para continuar',
+    name: firstError(validators.name(formData.name).replace('tu nombre', 'el nombre del negocio'), validators.maxLength(formData.name, 100)),
+    phone: landline(formData.phone),
+    whatsapp: validators.phonePe(formData.whatsapp),
+    email: formData.email.trim() ? validators.email(formData.email) : '',
+    contact: formData.phone.trim() || formData.whatsapp.trim() || formData.email.trim() ? '' : 'Agrega al menos un teléfono, WhatsApp o email para que te contacten',
+    address: formData.address.trim().length >= 5 ? '' : 'Escribe la dirección del local, por ejemplo Av. Ejército 420',
+  };
+  const STEP_FIELDS: Record<number, string[]> = { 0: ['category'], 1: ['name', 'phone', 'whatsapp', 'email', 'contact'], 2: ['address'] };
+  const stepErrors = (STEP_FIELDS[step] ?? []).filter((f) => fieldErrors[f]);
+  const canNext = stepErrors.length === 0;
+  const err = (f: string) => (tried[step] ? fieldErrors[f] : '');
+  const inputCls = (f: string) =>
+    `w-full px-4 py-3 rounded-2xl border-[1.5px] outline-none transition-all focus:ring-4 ${err(f) ? 'border-error focus:border-error focus:ring-error/15' : 'border-sand focus:border-primary focus:ring-primary/15'}`;
 
   if (submitted) {
     return (
@@ -142,26 +161,26 @@ export default function BusinessRegisterPage() {
                 <p className="text-sm text-bark mb-6">Información que verán tus clientes</p>
                 <div className="space-y-4">
                   <div>
-                    <label className="text-sm font-semibold text-dark block mb-1.5">Nombre del negocio *</label>
-                    <input className="w-full px-4 py-3 rounded-button border-[1.5px] border-sand focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" placeholder="Ej: Veterinaria Patitas Felices" value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} />
+                    <label htmlFor="b-name" className="text-sm font-semibold text-dark block mb-1.5">Nombre del negocio *</label>
+                    <input id="b-name" aria-invalid={!!err('name')} aria-describedby="b-name-e" className={inputCls('name')} placeholder="Ej: Veterinaria Patitas Felices" value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} />
                   </div>
                   <div>
-                    <label className="text-sm font-semibold text-dark block mb-1.5">Descripción</label>
-                    <textarea className="w-full px-4 py-3 rounded-button border-[1.5px] border-sand focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all min-h-[100px]" placeholder="Describe tu negocio, servicios principales, experiencia..." value={formData.description} onChange={(e) => setFormData({...formData, description: e.target.value})} />
+                    <label htmlFor="b-description" className="text-sm font-semibold text-dark block mb-1.5">Descripción</label>
+                    <textarea id="b-description" aria-invalid={!!err('description')} aria-describedby="b-description-e" className={inputCls('description')} placeholder="Describe tu negocio, servicios principales, experiencia..." value={formData.description} onChange={(e) => setFormData({...formData, description: e.target.value})} />
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label className="text-sm font-semibold text-dark block mb-1.5">Teléfono</label>
-                      <input className="w-full px-4 py-3 rounded-button border-[1.5px] border-sand focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" placeholder="054-234567" value={formData.phone} onChange={(e) => setFormData({...formData, phone: e.target.value})} />
+                      <label htmlFor="b-phone" className="text-sm font-semibold text-dark block mb-1.5">Teléfono</label>
+                      <input id="b-phone" aria-invalid={!!err('phone')} aria-describedby="b-phone-e" className={inputCls('phone')} placeholder="054-234567" value={formData.phone} onChange={(e) => setFormData({...formData, phone: e.target.value})} />
                     </div>
                     <div>
-                      <label className="text-sm font-semibold text-dark block mb-1.5">WhatsApp</label>
-                      <input className="w-full px-4 py-3 rounded-button border-[1.5px] border-sand focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" placeholder="51 954 234 567" value={formData.whatsapp} onChange={(e) => setFormData({...formData, whatsapp: e.target.value})} />
+                      <label htmlFor="b-whatsapp" className="text-sm font-semibold text-dark block mb-1.5">WhatsApp</label>
+                      <input id="b-whatsapp" aria-invalid={!!err('whatsapp')} aria-describedby="b-whatsapp-e" className={inputCls('whatsapp')} placeholder="987 654 321" value={formData.whatsapp} onChange={(e) => setFormData({...formData, whatsapp: e.target.value})} />
                     </div>
                   </div>
                   <div>
-                    <label className="text-sm font-semibold text-dark block mb-1.5">Email del negocio</label>
-                    <input type="email" className="w-full px-4 py-3 rounded-button border-[1.5px] border-sand focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" placeholder="contacto@tunegocio.com" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} />
+                    <label htmlFor="b-email" className="text-sm font-semibold text-dark block mb-1.5">Email del negocio</label>
+                    <input type="email" id="b-email" aria-invalid={!!err('email')} aria-describedby="b-email-e" className={inputCls('email')} placeholder="contacto@tunegocio.com" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} />
                   </div>
                 </div>
               </div>
@@ -174,13 +193,13 @@ export default function BusinessRegisterPage() {
                 <p className="text-sm text-bark mb-6">Tu ubicación aparecerá en el mapa de HuellaGo</p>
                 <div className="space-y-4">
                   <div>
-                    <label className="text-sm font-semibold text-dark block mb-1.5">Dirección *</label>
-                    <input className="w-full px-4 py-3 rounded-button border-[1.5px] border-sand focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" placeholder="Av. Ejército 420" value={formData.address} onChange={(e) => setFormData({...formData, address: e.target.value})} />
+                    <label htmlFor="b-address" className="text-sm font-semibold text-dark block mb-1.5">Dirección *</label>
+                    <input id="b-address" aria-invalid={!!err('address')} aria-describedby="b-address-e" className={inputCls('address')} placeholder="Av. Ejército 420" value={formData.address} onChange={(e) => setFormData({...formData, address: e.target.value})} />
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label className="text-sm font-semibold text-dark block mb-1.5">Ciudad *</label>
-                      <select className="w-full px-4 py-3 rounded-button border-[1.5px] border-sand focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all bg-white" value={formData.city} onChange={(e) => setFormData({...formData, city: e.target.value})}>
+                      <label htmlFor="b-city" className="text-sm font-semibold text-dark block mb-1.5">Ciudad *</label>
+                      <select id="b-city" aria-invalid={!!err('city')} aria-describedby="b-city-e" className={inputCls('city')} value={formData.city} onChange={(e) => setFormData({...formData, city: e.target.value})}>
                         <option>Arequipa</option>
                         <option>Lima</option>
                         <option>Cusco</option>
@@ -188,8 +207,8 @@ export default function BusinessRegisterPage() {
                       </select>
                     </div>
                     <div>
-                      <label className="text-sm font-semibold text-dark block mb-1.5">Distrito</label>
-                      <input className="w-full px-4 py-3 rounded-button border-[1.5px] border-sand focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" placeholder="Cayma, Yanahuara, Cercado..." value={formData.district} onChange={(e) => setFormData({...formData, district: e.target.value})} />
+                      <label htmlFor="b-district" className="text-sm font-semibold text-dark block mb-1.5">Distrito</label>
+                      <input id="b-district" aria-invalid={!!err('district')} aria-describedby="b-district-e" className={inputCls('district')} placeholder="Cayma, Yanahuara, Cercado..." value={formData.district} onChange={(e) => setFormData({...formData, district: e.target.value})} />
                     </div>
                   </div>
                   {/* Location picker with geolocation */}
@@ -323,8 +342,11 @@ export default function BusinessRegisterPage() {
 
             {step < STEPS.length - 1 ? (
               <button
-                onClick={() => { if (canNext) { setStep(step + 1); window.scrollTo({ top: 0, behavior: 'smooth' }); } }}
-                aria-disabled={!canNext}
+                onClick={() => {
+                  setTried((t) => ({ ...t, [step]: true }));
+                  if (canNext) { setStep(step + 1); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+                  else document.getElementById(`b-${stepErrors[0]}`)?.focus();
+                }}
                 className={`flex items-center gap-1 px-6 py-3 rounded-button font-semibold text-sm transition-all ${
                   canNext
                     ? 'bg-primary text-white shadow-button hover:bg-primary-dark boop-btn'
@@ -334,7 +356,7 @@ export default function BusinessRegisterPage() {
                 Siguiente <ChevronRight size={16} />
               </button>
             ) : (
-              <button onClick={() => { setSubmitted(true); window.scrollTo({ top: 0 }); }} className="flex items-center gap-1 px-8 py-3 rounded-full font-bold text-sm bg-secondary text-white shadow-button-secondary hover:bg-secondary-dark boop-btn transition-all">
+              <button onClick={() => { track('business_register', { category: selectedCategory ?? '' }); setSubmitted(true); window.scrollTo({ top: 0 }); }} className="flex items-center gap-1 px-8 py-3 rounded-full font-bold text-sm bg-secondary text-white shadow-button-secondary hover:bg-secondary-dark boop-btn transition-all">
                 <Check size={16} /> Enviar registro
               </button>
             )}

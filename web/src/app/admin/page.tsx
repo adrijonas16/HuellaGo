@@ -17,9 +17,9 @@ const STATS = [
   { label: 'Usuarios', value: '2,847', change: '+12%', icon: Users, color: '#3352F5' },
   { label: 'Negocios', value: '48', change: '+5', icon: Building2, color: '#7B5CE0' },
   { label: 'Eventos activos', value: '6', change: '+2', icon: CalendarDays, color: '#FFC531' },
-  { label: 'Rutas creadas', value: '23', change: '+8', icon: Route, color: '#12A594' },
+  { label: 'Rutas creadas', value: '23', change: '+8', icon: Route, color: '#0E7F72' },
   { label: 'Reportes pendientes', value: '3', change: '', icon: AlertTriangle, color: '#D93636' },
-  { label: 'Fotos subidas', value: '1,204', change: '+156', icon: Image, color: '#F0506E' },
+  { label: 'Fotos subidas', value: '1,204', change: '+156', icon: Image, color: '#D6335A' },
 ];
 
 export default function AdminPage() {
@@ -43,7 +43,7 @@ export default function AdminPage() {
                 key={tab}
                 onClick={() => setActiveTab(tab)}
                 className={`w-full text-left px-4 py-2.5 rounded-lg text-sm font-medium transition-all mb-1 ${
-                  activeTab === tab ? 'bg-primary/20 text-primary' : 'text-gray-400 hover:text-white hover:bg-white/5'
+                  activeTab === tab ? 'bg-primary/20 text-primary' : 'text-bark hover:text-white hover:bg-white/5'
                 }`}
               >
                 {tab}

@@ -76,3 +76,18 @@ export async function createReview(input: { businessId?: string; routeId?: strin
 
 /** Los IDs reales son UUID; los de los datos de ejemplo no. */
 export const isApiId = (id: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(id);
+
+export interface ContactInput {
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+  /** campo trampa para bots: siempre vacío en personas */
+  website: string;
+  elapsedMs: number;
+}
+
+/** Formulario de contacto (público, no requiere sesión). */
+export async function sendContactMessage(input: ContactInput) {
+  return api.post<{ ok: boolean }>('/contact', input);
+}

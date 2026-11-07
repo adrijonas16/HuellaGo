@@ -42,7 +42,7 @@ export function BusinessCard({ business, distance, onClick }: BusinessCardProps)
           </div>
 
           {distance !== undefined && (
-            <div className="flex items-center gap-1.5 text-sm text-gray-500">
+            <div className="flex items-center gap-1.5 text-sm text-bark">
               <MapPin size={14} />
               <span>{formatDistance(distance)}</span>
             </div>

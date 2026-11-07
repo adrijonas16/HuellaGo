@@ -94,7 +94,7 @@ export default function EventDetailPage({ params }: { params: { id: string } }) 
       <main id="contenido" className="min-h-screen bg-cream">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Back */}
-          <Link href="/events" className="inline-flex items-center gap-1 text-gray-500 hover:text-primary mb-6 text-sm font-medium">
+          <Link href="/events" className="inline-flex items-center gap-1 text-bark hover:text-primary mb-6 text-sm font-medium">
             <ChevronLeft size={16} /> Volver a eventos
           </Link>
 
@@ -166,7 +166,7 @@ export default function EventDetailPage({ params }: { params: { id: string } }) 
                     </div>
                     <div>
                       <div className="text-sm font-semibold text-dark">Punto de partida</div>
-                      <div className="text-sm text-gray-500">{event.meetingPoint}</div>
+                      <div className="text-sm text-bark">{event.meetingPoint}</div>
                     </div>
                   </div>
                   {event.endPoint && (
@@ -178,7 +178,7 @@ export default function EventDetailPage({ params }: { params: { id: string } }) 
                         </div>
                         <div>
                           <div className="text-sm font-semibold text-dark">Punto de llegada</div>
-                          <div className="text-sm text-gray-500">{event.endPoint}</div>
+                          <div className="text-sm text-bark">{event.endPoint}</div>
                         </div>
                       </div>
                     </>
@@ -228,14 +228,14 @@ export default function EventDetailPage({ params }: { params: { id: string } }) 
                     <div className="h-2.5 bg-gray-100 rounded-full overflow-hidden">
                       <div className="h-full bg-gradient-to-r from-primary to-primary-dark rounded-full transition-all" style={{ width: `${Math.min(spotsPercent, 100)}%` }} />
                     </div>
-                    <p className="text-xs text-gray-400 mt-1">
+                    <p className="text-xs text-bark mt-1">
                       {spotsLeft !== null && spotsLeft > 0 ? `${spotsLeft} cupos disponibles` : 'Evento lleno'}
                     </p>
                   </div>
                 )}
 
                 <div className="space-y-3">
-                  <h3 className="text-sm font-semibold text-gray-500">Perritos que asistirán 🐶</h3>
+                  <h3 className="text-sm font-semibold text-bark">Perritos que asistirán 🐶</h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {(event.attendees || []).map((att: any, i: number) => (
                       <div key={i} className="flex items-center gap-3 bg-cream rounded-xl p-3">
@@ -244,16 +244,16 @@ export default function EventDetailPage({ params }: { params: { id: string } }) 
                         </div>
                         <div>
                           <div className="text-sm font-semibold text-dark">{att.pet?.name || 'Perrito'}</div>
-                          <div className="text-xs text-gray-400">{att.pet?.breed || ''} · {att.user?.firstName || ''} {att.user?.lastName || ''}</div>
+                          <div className="text-xs text-bark">{att.pet?.breed || ''} · {att.user?.firstName || ''} {att.user?.lastName || ''}</div>
                         </div>
                       </div>
                     ))}
                     {event._count.attendances > (event.attendees || []).length && (
                       <div className="flex items-center gap-3 bg-cream rounded-xl p-3">
-                        <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-sm font-bold text-gray-500">
+                        <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-sm font-bold text-bark">
                           +{event._count.attendances - (event.attendees || []).length}
                         </div>
-                        <div className="text-sm text-gray-400">más perritos inscritos</div>
+                        <div className="text-sm text-bark">más perritos inscritos</div>
                       </div>
                     )}
                   </div>
@@ -329,7 +329,7 @@ export default function EventDetailPage({ params }: { params: { id: string } }) 
                       <div className="text-sm font-semibold text-dark">
                         {formatDateFull(event.date)}
                       </div>
-                      <div className="text-sm text-gray-400">
+                      <div className="text-sm text-bark">
                         {formatTime(event.date)}
                         {event.endDate && ` - ${formatTime(event.endDate)}`}
                       </div>
@@ -342,7 +342,7 @@ export default function EventDetailPage({ params }: { params: { id: string } }) 
                     </div>
                     <div>
                       <div className="text-sm font-semibold text-dark">{event.meetingPoint}</div>
-                      <div className="text-sm text-gray-400">{event.district}, {event.city}</div>
+                      <div className="text-sm text-bark">{event.district}, {event.city}</div>
                     </div>
                   </div>
 
@@ -354,7 +354,7 @@ export default function EventDetailPage({ params }: { params: { id: string } }) 
                       <div className="text-sm font-semibold text-dark">
                         {event._count.attendances + (iAmIn ? 1 : 0)} inscritos{iAmIn ? ' (tú incluido)' : ''}
                       </div>
-                      <div className="text-sm text-gray-400">
+                      <div className="text-sm text-bark">
                         {spotsLeft !== null ? `${spotsLeft} cupos restantes` : 'Cupos ilimitados'}
                       </div>
                     </div>
@@ -365,7 +365,7 @@ export default function EventDetailPage({ params }: { params: { id: string } }) 
                       <div className="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center text-lg">💰</div>
                       <div>
                         <div className="text-xl font-bold text-dark">S/ {event.price}</div>
-                        <div className="text-sm text-gray-400">por persona</div>
+                        <div className="text-sm text-bark">por persona</div>
                       </div>
                     </div>
                   )}
@@ -383,7 +383,7 @@ export default function EventDetailPage({ params }: { params: { id: string } }) 
                   </div>
                   <div>
                     <div className="font-semibold text-dark text-sm">{event.organizer.firstName} {event.organizer.lastName}</div>
-                    <div className="text-xs text-gray-400">Organizador</div>
+                    <div className="text-xs text-bark">Organizador</div>
                   </div>
                 </div>
               </div>

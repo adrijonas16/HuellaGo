@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { track } from '@/lib/analytics';
 import Link from 'next/link';
 import { Navbar } from '@/components/layout/navbar';
 import { Footer } from '@/components/layout/footer';
@@ -338,20 +339,30 @@ export default function BusinessDetailPage({ params }: { params: { id: string } 
             <div className="space-y-6">
               <ScrollReveal delay={100}>
                 <div className="bg-white rounded-card p-6 shadow-card lg:sticky lg:top-24">
-                  <div className="grid grid-cols-2 gap-3 mb-4">
-                    <a href={phone ? `tel:${phone}` : undefined} aria-disabled={!phone} className="flex items-center justify-center gap-2 bg-primary text-white font-bold py-3.5 rounded-full boop-btn hover:bg-primary-dark shadow-button aria-disabled:opacity-40 aria-disabled:pointer-events-none">
-                      <Phone size={16} /> Llamar
-                    </a>
-                    <a
-                      href={whatsapp ? `https://wa.me/${whatsapp}?text=${encodeURIComponent(`Hola ${biz.name}, los encontré en HuellaGo y quisiera información.`)}` : undefined}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-disabled={!whatsapp}
-                      className="flex items-center justify-center gap-2 bg-secondary text-white font-bold py-3.5 rounded-full boop-btn hover:bg-secondary-dark shadow-button-secondary aria-disabled:opacity-40 aria-disabled:pointer-events-none"
-                    >
-                      <MessageCircle size={16} /> WhatsApp
-                    </a>
-                  </div>
+                  {phone || whatsapp ? (
+                    <div className={`grid gap-3 mb-4 ${phone && whatsapp ? 'grid-cols-2' : 'grid-cols-1'}`}>
+                      {phone && (
+                        <a href={`tel:${phone}`} onClick={() => track('cta_click', { cta: 'llamar', business_id: String(biz.id) })} className="flex items-center justify-center gap-2 bg-primary text-white font-bold py-3.5 rounded-full boop-btn hover:bg-primary-dark shadow-button">
+                          <Phone size={16} /> Llamar
+                        </a>
+                      )}
+                      {whatsapp && (
+                        <a
+                          href={`https://wa.me/${whatsapp}?text=${encodeURIComponent(`Hola ${biz.name}, los encontré en HuellaGo y quisiera información.`)}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={() => track('cta_click', { cta: 'whatsapp', business_id: String(biz.id) })}
+                          className="flex items-center justify-center gap-2 bg-secondary text-white font-bold py-3.5 rounded-full boop-btn hover:bg-secondary-dark shadow-button-secondary"
+                        >
+                          <MessageCircle size={16} /> Escribir por WhatsApp
+                        </a>
+                      )}
+                    </div>
+                  ) : (
+                    <p className="text-sm text-bark bg-cream rounded-2xl px-4 py-3 mb-4">
+                      Este negocio todavía no agregó un teléfono. Puedes visitarlo en su local.
+                    </p>
+                  )}
                   <a href={directions} target="_blank" rel="noopener noreferrer" className="w-full flex items-center justify-center gap-2 border-2 border-dark text-dark font-bold py-3 rounded-full hover:bg-dark hover:text-white transition-colors mb-3">
                     <MapPin size={16} /> Cómo llegar
                   </a>

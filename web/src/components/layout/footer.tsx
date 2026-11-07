@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Logo, PawMark } from '@/components/layout/logo';
+import { CookiePreferencesButton } from '@/components/legal/cookie-preferences-button';
 
 const COLS = [
   {
@@ -28,6 +29,7 @@ const COLS = [
       { href: '/contact', label: 'Contacto' },
       { href: '/terms', label: 'Términos' },
       { href: '/privacy', label: 'Privacidad' },
+      { href: '/cookies', label: 'Cookies' },
     ],
   },
 ];
@@ -66,9 +68,9 @@ export function Footer() {
           ))}
         </div>
 
-        <div className="border-t border-white/10 mt-14 pt-6 flex flex-col sm:flex-row gap-2 justify-between text-sm text-white/45">
+        <div className="border-t border-white/10 mt-14 pt-6 flex flex-col sm:flex-row gap-2 justify-between text-sm text-white/70">
           <span>© {new Date().getFullYear()} HuellaGo · Arequipa, Perú</span>
-          <span>Hecho para los que caminan con su mejor amigo.</span>
+          <CookiePreferencesButton label="Preferencias de cookies" className="bg-transparent px-0 py-0 font-normal text-white/60 hover:bg-transparent hover:text-white underline underline-offset-2 self-start" />
         </div>
       </div>
     </footer>

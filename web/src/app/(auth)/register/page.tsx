@@ -10,8 +10,9 @@ import { AuthShell } from '@/components/layout/auth-shell';
 import { useAuth } from '@/hooks';
 import { useAppStore } from '@/lib/store';
 import { PET_TYPES } from '@/lib/mock-data';
+import { EMAIL_RE } from '@/lib/validation';
+import { track } from '@/lib/analytics';
 
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function strength(pw: string) {
   let s = 0;
@@ -36,6 +37,7 @@ export default function RegisterPage() {
   const [petName, setPetName] = useState('');
   const [touched, setTouched] = useState(false);
   const [error, setError] = useState('');
+  const [trap, setTrap] = useState(''); // honeypot: las personas no lo ven ni lo llenan
 
   const errors = {
     firstName: touched && !firstName.trim() ? 'Escribe tu nombre' : '',
@@ -53,9 +55,11 @@ export default function RegisterPage() {
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setError('');
+    if (trap) return; // bot: no enviamos nada
     try {
       await register(email, password, firstName.trim(), lastName.trim());
       notify(`¡Bienvenido a la manada, ${firstName.trim()}!${petName ? ` Saluda a ${petName} de nuestra parte.` : ''}`, { tone: 'success' });
+      track('sign_up', { method: 'email' });
       router.push('/dashboard');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'No pudimos crear tu cuenta. Inténtalo otra vez.');
@@ -116,6 +120,10 @@ export default function RegisterPage() {
 
       {step === 1 && (
         <form onSubmit={handleSubmit} className="space-y-5 animate-slide-in-right">
+          <div aria-hidden="true" className="absolute -left-[9999px] w-px h-px overflow-hidden">
+            <label htmlFor="r-website">No llenes este campo</label>
+            <input id="r-website" name="website" tabIndex={-1} autoComplete="off" value={trap} onChange={(e) => setTrap(e.target.value)} />
+          </div>
           <fieldset>
             <legend className="text-sm font-semibold text-dark mb-2">¿Qué mascota tienes? <span className="font-normal text-bark">(opcional)</span></legend>
             <div className="grid grid-cols-4 gap-2">

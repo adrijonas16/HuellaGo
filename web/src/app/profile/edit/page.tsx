@@ -98,35 +98,35 @@ export default function EditProfilePage() {
             {/* Fields */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="text-sm font-semibold text-dark block mb-1.5">Nombre</label>
-                <input className="w-full px-4 py-3 rounded-2xl border-[1.5px] border-sand focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" value={form.firstName} onChange={(e) => setForm({ ...form, firstName: e.target.value })} />
+                <label htmlFor="edit-f1" className="text-sm font-semibold text-dark block mb-1.5">Nombre</label>
+                <input id="edit-f1" className="w-full px-4 py-3 rounded-2xl border-[1.5px] border-sand focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" value={form.firstName} onChange={(e) => setForm({ ...form, firstName: e.target.value })} />
               </div>
               <div>
-                <label className="text-sm font-semibold text-dark block mb-1.5">Apellido</label>
-                <input className="w-full px-4 py-3 rounded-2xl border-[1.5px] border-sand focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" value={form.lastName} onChange={(e) => setForm({ ...form, lastName: e.target.value })} />
+                <label htmlFor="edit-f2" className="text-sm font-semibold text-dark block mb-1.5">Apellido</label>
+                <input id="edit-f2" className="w-full px-4 py-3 rounded-2xl border-[1.5px] border-sand focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" value={form.lastName} onChange={(e) => setForm({ ...form, lastName: e.target.value })} />
               </div>
             </div>
 
             <div>
-              <label className="text-sm font-semibold text-dark block mb-1.5">Email</label>
-              <input type="email" className="w-full px-4 py-3 rounded-2xl border-[1.5px] border-sand focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
+              <label htmlFor="edit-f3" className="text-sm font-semibold text-dark block mb-1.5">Email</label>
+              <input id="edit-f3" type="email" className="w-full px-4 py-3 rounded-2xl border-[1.5px] border-sand focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
             </div>
 
             <div>
-              <label className="text-sm font-semibold text-dark block mb-1.5">Teléfono</label>
-              <input className="w-full px-4 py-3 rounded-2xl border-[1.5px] border-sand focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
+              <label htmlFor="edit-f4" className="text-sm font-semibold text-dark block mb-1.5">Teléfono</label>
+              <input id="edit-f4" className="w-full px-4 py-3 rounded-2xl border-[1.5px] border-sand focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="text-sm font-semibold text-dark block mb-1.5">Ciudad</label>
-                <select className="w-full px-4 py-3 rounded-2xl border-[1.5px] border-sand focus:border-primary outline-none bg-white" value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })}>
+                <label htmlFor="edit-f5" className="text-sm font-semibold text-dark block mb-1.5">Ciudad</label>
+                <select id="edit-f5" className="w-full px-4 py-3 rounded-2xl border-[1.5px] border-sand focus:border-primary outline-none bg-white" value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })}>
                   <option>Arequipa</option><option>Lima</option><option>Cusco</option><option>Trujillo</option><option>Chiclayo</option><option>Piura</option><option>Tacna</option>
                 </select>
               </div>
               <div>
-                <label className="text-sm font-semibold text-dark block mb-1.5">Distrito</label>
-                <input className="w-full px-4 py-3 rounded-2xl border-[1.5px] border-sand focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" value={form.district} onChange={(e) => setForm({ ...form, district: e.target.value })} />
+                <label htmlFor="edit-f6" className="text-sm font-semibold text-dark block mb-1.5">Distrito</label>
+                <input id="edit-f6" className="w-full px-4 py-3 rounded-2xl border-[1.5px] border-sand focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" value={form.district} onChange={(e) => setForm({ ...form, district: e.target.value })} />
               </div>
             </div>
 

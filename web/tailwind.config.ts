@@ -21,7 +21,7 @@ const config: Config = {
           soft: '#E8ECFF',
         },
         secondary: {
-          DEFAULT: '#0F8A5F',
+          DEFAULT: '#0D7F57',
           dark: '#0B6B4A',
           light: '#4CC596',
         },
@@ -31,16 +31,16 @@ const config: Config = {
           soft: '#FFF4CF',
         },
         teal: {
-          DEFAULT: '#12A594',
-          dark: '#0C7D70',
+          DEFAULT: '#0E7F72',
+          dark: '#0A6359',
         },
         rose: {
-          DEFAULT: '#F0506E',
-          dark: '#CF3554',
+          DEFAULT: '#D6335A',
+          dark: '#B42347',
         },
         bark: {
           DEFAULT: '#555C7A',
-          light: '#8A90A8',
+          light: '#666C88',
         },
         dark: '#191C33',
         cream: '#F5F6F1',

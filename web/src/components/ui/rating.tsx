@@ -39,7 +39,7 @@ export function Rating({
         </span>
       )}
       {count !== undefined && (
-        <span className="text-sm text-gray-400">({count})</span>
+        <span className="text-sm text-bark">({count})</span>
       )}
     </div>
   );

@@ -49,6 +49,9 @@ Los parámetros de paginación son `?page=1&limit=20&search=texto`. Los mensajes
 | 🔒 | GET | `/walks/history` · `/walks/stats` | Historial y estadísticas |
 | 🔒 | POST · GET · DELETE | `/photos/...` | Fotos de paseos, eventos y mascotas |
 | 🔒 | GET · PATCH | `/notifications...` | Notificaciones |
+| | POST | `/contact` | Mensaje del formulario de contacto (`name`, `email`, `subject`, `message`, y `website` + `elapsedMs` para el filtro anti-spam). Responde `{ ok: true }` |
+
+**Límites de uso:** 120 peticiones por minuto por IP en general; 10 por minuto en `/auth/login` y `/auth/register`; 5 por minuto y 5 por hora en `/contact`. Al superarlos, la API responde `429` con un mensaje en español.
 
 ## Quién consume qué
 

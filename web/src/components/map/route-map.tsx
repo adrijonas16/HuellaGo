@@ -30,7 +30,7 @@ function createIcon(color: string, label: string) {
   });
 }
 
-const startIcon = createIcon('#0F8A5F', 'A');
+const startIcon = createIcon('#0D7F57', 'A');
 const endIcon = createIcon('#D93636', 'B');
 
 export default function RouteMap({ route }: { route: RouteData }) {

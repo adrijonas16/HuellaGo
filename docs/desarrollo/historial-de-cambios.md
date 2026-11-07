@@ -1,5 +1,18 @@
 # Historial de cambios
 
+## Noviembre 2026: preparación para el lanzamiento
+
+- Política de privacidad (Ley N.º 29733), términos y condiciones y política de cookies nuevas, con banner de consentimiento y botón para cambiar la elección.
+- GA4 con Consent Mode v2: solo se carga si la persona acepta. Eventos: `sign_up`, `login`, `event_register`, `business_register`, `contact_submit`, `adoption_request` y `cta_click`.
+- SEO: metadatos por página, canonical, Open Graph y Twitter con imágenes generadas, favicon y `apple-icon`, `manifest`, `sitemap.xml` dinámico y `robots.txt` (bloquea vistas previas y páginas privadas), y JSON-LD.
+- Página 404 propia.
+- Formulario de contacto conectado a la API (`POST /contact`) con validación, campo trampa, tiempo mínimo, límite por IP y almacenamiento en `contact_messages`.
+- Límites de peticiones en la API (`@nestjs/throttler`) y HSTS; cabeceras de seguridad en la web.
+- Validación en línea en el registro de negocios, solicitud de adopción y recuperar contraseña; etiquetas asociadas a todos los campos.
+- Imágenes servidas comprimidas (AVIF/WebP, `srcset`) mediante el optimizador de Next.
+- Contraste AA: `secondary`, `rose`, `teal` y `bark-light` más oscuros; `text-gray-400` reemplazado por `text-bark`.
+- Se quitaron los teléfonos, webs y redes inventadas de los datos de ejemplo y las cifras de usuarios no verificables del inicio. CTA claros en el inicio y en Planes.
+
 ## Noviembre 2026: rediseño, QA y puesta en producción
 
 ### Mejoras de diseño y funcionalidad (web)

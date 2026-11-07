@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import { X, Smartphone } from 'lucide-react';
 import { PawMark } from '@/components/layout/logo';
 import { useAppStore } from '@/lib/store';
+import { useConsent } from '@/lib/consent';
 
 const KEY = 'hg-app-banner-dismissed-at';
 const WEEK = 7 * 24 * 60 * 60 * 1000;
@@ -18,6 +19,7 @@ const WEEK = 7 * 24 * 60 * 60 * 1000;
 export function AppBanner() {
   const pathname = usePathname();
   const notify = useAppStore((s) => s.notify);
+  const consentDecided = useConsent((s) => s.decided);
   const [eligible, setEligible] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -43,7 +45,7 @@ export function AppBanner() {
 
   return (
     <>
-      {scrolled && (
+      {scrolled && consentDecided && (
         <div className="fixed bottom-3 left-3 right-3 z-40 lg:hidden animate-toast-in">
           <div className="bg-white border border-sand rounded-2xl shadow-card-hover p-3 flex items-center gap-3">
             <div className="w-10 h-10 bg-primary text-white rounded-xl flex items-center justify-center shrink-0 -rotate-6">

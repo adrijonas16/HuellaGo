@@ -9,8 +9,9 @@ import { PasswordInput } from '@/components/ui/password-input';
 import { AuthShell } from '@/components/layout/auth-shell';
 import { useAuth } from '@/hooks';
 import { useAppStore } from '@/lib/store';
+import { EMAIL_RE } from '@/lib/validation';
+import { track } from '@/lib/analytics';
 
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function LoginPage() {
   const router = useRouter();
@@ -33,6 +34,7 @@ export default function LoginPage() {
       await login(email, password);
       const { isDemo, user } = useAuth.getState();
       notify(isDemo ? `Hola, ${user?.firstName}. Entraste en modo demo (sin servidor).` : `Hola de nuevo, ${user?.firstName}`, { tone: 'success' });
+      track('login', { method: isDemo ? 'demo' : 'email' });
       router.push('/dashboard');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'No pudimos iniciar sesión. Inténtalo otra vez.');

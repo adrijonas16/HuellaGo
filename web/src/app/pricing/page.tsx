@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { track } from '@/lib/analytics';
 import { Navbar } from '@/components/layout/navbar';
 import { Footer } from '@/components/layout/footer';
 import { ScrollReveal } from '@/components/effects/scroll-reveal';
@@ -12,10 +13,11 @@ const PLANS = [
     price: 0,
     period: '',
     icon: '🐾',
-    color: '#0F8A5F',
+    color: '#0D7F57',
     description: 'Ideal para empezar. Registra tu negocio y aparece en el mapa.',
     popular: false,
     cta: 'Empezar gratis',
+    href: '/business/register',
     features: [
       { text: 'Perfil de negocio básico', included: true },
       { text: 'Ubicación en el mapa', included: true },
@@ -40,6 +42,7 @@ const PLANS = [
     description: 'Para negocios que quieren crecer. Destaca y atrae más clientes.',
     popular: true,
     cta: 'Comenzar prueba gratis',
+    href: '/business/register?plan=pro',
     features: [
       { text: 'Todo del plan Gratis', included: true },
       { text: 'Hasta 20 fotos', included: true },
@@ -63,7 +66,8 @@ const PLANS = [
     color: '#7B5CE0',
     description: 'Para negocios que quieren la experiencia completa.',
     popular: false,
-    cta: 'Contactar ventas',
+    cta: 'Hablar con ventas',
+    href: '/contact?asunto=planes',
     features: [
       { text: 'Todo del plan Pro', included: true },
       { text: 'Fotos ilimitadas', included: true },
@@ -96,7 +100,7 @@ const FAQS = [
   },
   {
     q: '¿Cómo funcionan las reservas online?',
-    a: 'Tus clientes pueden reservar citas directamente desde tu perfil en HuellaGo. Tu recibes una notificación y puedes confirmar o rechazar.',
+    a: 'Tus clientes pueden reservar citas directamente desde tu perfil en HuellaGo. Tú recibes una notificación y puedes confirmar o rechazar.',
   },
   {
     q: '¿Qué métodos de pago aceptan?',
@@ -160,7 +164,7 @@ export default function PricingPage() {
                       </div>
                     </div>
 
-                    <Link href="/business/register" className={`block text-center w-full font-bold py-3.5 rounded-full boop-btn transition-all text-sm ${
+                    <Link href={plan.href} onClick={() => track('cta_click', { cta: plan.cta })} className={`block text-center w-full font-bold py-3.5 rounded-full boop-btn transition-all text-sm ${
                         plan.popular
                           ? 'bg-primary text-white shadow-button hover:bg-primary-dark'
                           : plan.price === 0
@@ -178,7 +182,7 @@ export default function PricingPage() {
                           ) : (
                             <X size={16} className="text-gray-300 mt-0.5 shrink-0" />
                           )}
-                          <span className={`text-sm ${f.included ? 'text-dark' : 'text-gray-400'}`}>
+                          <span className={`text-sm ${f.included ? 'text-dark' : 'text-bark'}`}>
                             {f.text}
                           </span>
                         </div>

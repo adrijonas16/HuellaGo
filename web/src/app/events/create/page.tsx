@@ -94,28 +94,28 @@ export default function CreateEventPage() {
               <h2 className="font-heading font-bold text-dark text-lg mb-4">Información básica</h2>
               <div className="space-y-4">
                 <div>
-                  <label className="text-sm font-semibold text-dark block mb-1.5">Nombre del evento *</label>
-                  <input className="w-full px-4 py-3 rounded-2xl border-[1.5px] border-sand aria-[invalid=true]:border-error focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" placeholder="Ej: Caminata canina en Yanahuara" value={title} onChange={(e) => setTitle(e.target.value)} aria-invalid={tried && !title.trim()} />
+                  <label htmlFor="create-f1" className="text-sm font-semibold text-dark block mb-1.5">Nombre del evento *</label>
+                  <input id="create-f1" className="w-full px-4 py-3 rounded-2xl border-[1.5px] border-sand aria-[invalid=true]:border-error focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" placeholder="Ej: Caminata canina en Yanahuara" value={title} onChange={(e) => setTitle(e.target.value)} aria-invalid={tried && !title.trim()} />
                   {tried && !title.trim() && <p className="text-sm text-error mt-1.5">Ponle un nombre a tu evento</p>}
                 </div>
                 <div>
-                  <label className="text-sm font-semibold text-dark block mb-1.5">Descripción</label>
-                  <textarea className="w-full px-4 py-3 rounded-2xl border-[1.5px] border-sand aria-[invalid=true]:border-error focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all min-h-[100px]" placeholder="Describe tu evento, que actividades habra, que deben traer..." value={description} onChange={(e) => setDescription(e.target.value)} />
+                  <label htmlFor="create-f2" className="text-sm font-semibold text-dark block mb-1.5">Descripción</label>
+                  <textarea id="create-f2" className="w-full px-4 py-3 rounded-2xl border-[1.5px] border-sand aria-[invalid=true]:border-error focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all min-h-[100px]" placeholder="Describe tu evento, que actividades habra, que deben traer..." value={description} onChange={(e) => setDescription(e.target.value)} />
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="text-sm font-semibold text-dark block mb-1.5">Fecha y hora de inicio *</label>
-                    <input type="datetime-local" className="w-full px-4 py-3 rounded-2xl border-[1.5px] border-sand aria-[invalid=true]:border-error focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" value={date} onChange={(e) => setDate(e.target.value)} aria-invalid={tried && !date} />
+                    <label htmlFor="create-f3" className="text-sm font-semibold text-dark block mb-1.5">Fecha y hora de inicio *</label>
+                    <input id="create-f3" type="datetime-local" className="w-full px-4 py-3 rounded-2xl border-[1.5px] border-sand aria-[invalid=true]:border-error focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" value={date} onChange={(e) => setDate(e.target.value)} aria-invalid={tried && !date} />
                     {tried && !date && <p className="text-sm text-error mt-1.5">Elige la fecha y hora de inicio</p>}
                   </div>
                   <div>
-                    <label className="text-sm font-semibold text-dark block mb-1.5">Fecha y hora de fin</label>
-                    <input type="datetime-local" className="w-full px-4 py-3 rounded-2xl border-[1.5px] border-sand aria-[invalid=true]:border-error focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
+                    <label htmlFor="create-f4" className="text-sm font-semibold text-dark block mb-1.5">Fecha y hora de fin</label>
+                    <input id="create-f4" type="datetime-local" className="w-full px-4 py-3 rounded-2xl border-[1.5px] border-sand aria-[invalid=true]:border-error focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
                   </div>
                 </div>
                 <div>
-                  <label className="text-sm font-semibold text-dark block mb-1.5">Ciudad *</label>
-                  <select className="w-full px-4 py-3 rounded-2xl border-[1.5px] border-sand aria-[invalid=true]:border-error focus:border-primary outline-none bg-white" value={city} onChange={(e) => setCity(e.target.value)}>
+                  <label htmlFor="create-f5" className="text-sm font-semibold text-dark block mb-1.5">Ciudad *</label>
+                  <select id="create-f5" className="w-full px-4 py-3 rounded-2xl border-[1.5px] border-sand aria-[invalid=true]:border-error focus:border-primary outline-none bg-white" value={city} onChange={(e) => setCity(e.target.value)}>
                     <option>Arequipa</option><option>Lima</option><option>Cusco</option><option>Trujillo</option>
                   </select>
                 </div>
@@ -185,8 +185,8 @@ export default function CreateEventPage() {
               <h2 className="font-heading font-bold text-dark text-lg mb-4">Cupos y precio</h2>
               <div className="space-y-4">
                 <div>
-                  <label className="text-sm font-semibold text-dark block mb-1.5">Cupos maximos (dejar vacio = ilimitados)</label>
-                  <input type="number" min="1" className="w-full px-4 py-3 rounded-2xl border-[1.5px] border-sand aria-[invalid=true]:border-error focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" placeholder="30" value={maxAttendees} onChange={(e) => setMaxAttendees(e.target.value)} />
+                  <label htmlFor="create-f6" className="text-sm font-semibold text-dark block mb-1.5">Cupos maximos (dejar vacio = ilimitados)</label>
+                  <input id="create-f6" type="number" min="1" className="w-full px-4 py-3 rounded-2xl border-[1.5px] border-sand aria-[invalid=true]:border-error focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" placeholder="30" value={maxAttendees} onChange={(e) => setMaxAttendees(e.target.value)} />
                 </div>
                 <div className="flex items-center justify-between bg-cream rounded-card p-4">
                   <span className="text-sm font-semibold text-dark">Evento gratuito</span>
@@ -196,8 +196,8 @@ export default function CreateEventPage() {
                 </div>
                 {!isFree && (
                   <div>
-                    <label className="text-sm font-semibold text-dark block mb-1.5">Precio (S/)</label>
-                    <input type="number" min="0" step="0.5" className="w-full px-4 py-3 rounded-2xl border-[1.5px] border-sand aria-[invalid=true]:border-error focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" placeholder="25.00" value={price} onChange={(e) => setPrice(e.target.value)} />
+                    <label htmlFor="create-f7" className="text-sm font-semibold text-dark block mb-1.5">Precio (S/)</label>
+                    <input id="create-f7" type="number" min="0" step="0.5" className="w-full px-4 py-3 rounded-2xl border-[1.5px] border-sand aria-[invalid=true]:border-error focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" placeholder="25.00" value={price} onChange={(e) => setPrice(e.target.value)} />
                   </div>
                 )}
                 <div className="flex items-center justify-between bg-cream rounded-card p-4">

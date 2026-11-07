@@ -1,134 +1,206 @@
 'use client';
 
-import { useState } from 'react';
+import { FormEvent, useEffect, useRef, useState } from 'react';
+import Link from 'next/link';
 import { Navbar } from '@/components/layout/navbar';
 import { Footer } from '@/components/layout/footer';
-import { ScrollReveal } from '@/components/effects/scroll-reveal';
-import { Mail, Phone, MapPin, Send, MessageCircle } from 'lucide-react';
+import { Mail, MapPin, Send, Check, Loader2, Store, HelpCircle } from 'lucide-react';
+import { ObfuscatedEmail } from '@/components/legal/obfuscated-email';
+import { sendContactMessage, errorMessage } from '@/lib/backend';
+import { validators, firstError } from '@/lib/validation';
+import { track } from '@/lib/analytics';
+import { SITE } from '@/lib/site';
+import { cn } from '@/lib/utils';
+
+const SUBJECTS = [
+  'Consulta general',
+  'Soporte técnico',
+  'Registrar negocio',
+  'Reportar problema',
+  'Alianzas comerciales',
+  'Prensa',
+  'Privacidad y datos personales',
+  'Otro',
+];
+
+const MAX = 2000;
+
+type Field = 'name' | 'email' | 'subject' | 'message' | 'consent';
 
 export default function ContactPage() {
+  const [form, setForm] = useState({ name: '', email: '', subject: '', message: '', website: '' });
+  const [consent, setConsent] = useState(false);
+  const [touched, setTouched] = useState<Partial<Record<Field, boolean>>>({});
+  const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
+  const [serverError, setServerError] = useState('');
+  const shownAt = useRef(Date.now());
+
+  useEffect(() => {
+    shownAt.current = Date.now();
+  }, [sent]);
+
+  // Los enlaces de otras páginas pueden preelegir el asunto (?asunto=planes|negocio|privacidad)
+  useEffect(() => {
+    const preset: Record<string, string> = { planes: 'Alianzas comerciales', negocio: 'Registrar negocio', privacidad: 'Privacidad y datos personales', soporte: 'Soporte técnico' };
+    const asunto = new URLSearchParams(window.location.search).get('asunto') ?? '';
+    if (preset[asunto]) setForm((f) => ({ ...f, subject: preset[asunto] }));
+  }, []);
+
+  const errors: Record<Field, string> = {
+    name: validators.name(form.name),
+    email: validators.email(form.email),
+    subject: form.subject ? '' : 'Elige un asunto',
+    message: firstError(validators.minLength(form.message, 20, 'tu mensaje'), validators.maxLength(form.message, MAX)),
+    consent: consent ? '' : 'Necesitamos tu permiso para responderte',
+  };
+  const show = (f: Field) => (touched[f] ? errors[f] : '');
+  const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) =>
+    setForm((f) => ({ ...f, [k]: e.target.value }));
+  const blur = (f: Field) => () => setTouched((t) => ({ ...t, [f]: true }));
+
+  async function onSubmit(e: FormEvent) {
+    e.preventDefault();
+    setTouched({ name: true, email: true, subject: true, message: true, consent: true });
+    setServerError('');
+    const first = (Object.keys(errors) as Field[]).find((k) => errors[k]);
+    if (first) {
+      document.getElementById(`c-${first}`)?.focus();
+      return;
+    }
+    setSending(true);
+    try {
+      await sendContactMessage({ ...form, elapsedMs: Date.now() - shownAt.current });
+      track('contact_submit', { subject: form.subject });
+      setSent(true);
+      setForm({ name: '', email: '', subject: '', message: '', website: '' });
+      setConsent(false);
+      setTouched({});
+    } catch (err) {
+      setServerError(errorMessage(err, 'No pudimos enviar tu mensaje. Revisa tu conexión e inténtalo otra vez.'));
+    } finally {
+      setSending(false);
+    }
+  }
+
+  const inputCls = (f: Field) =>
+    cn(
+      'w-full px-4 py-3 rounded-2xl border-[1.5px] bg-white text-dark placeholder:text-bark/60 outline-none transition-all focus:ring-4',
+      show(f) ? 'border-error focus:border-error focus:ring-error/15' : 'border-sand focus:border-primary focus:ring-primary/15',
+    );
 
   return (
     <>
       <Navbar />
-      <main id="contenido" className="min-h-screen bg-cream paw-bg">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <ScrollReveal>
-            <div className="text-center mb-12">
-              <div className="text-5xl mb-4">💬</div>
-              <h1 className="font-heading font-extrabold text-4xl text-dark mb-2">Hablemos</h1>
-              <p className="text-bark text-lg">Estamos aquí para ayudarte</p>
-            </div>
-          </ScrollReveal>
+      <main id="contenido" className="min-h-screen bg-cream">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-20">
+          <header className="max-w-2xl">
+            <h1 className="font-heading font-extrabold text-dark leading-[0.95]" style={{ fontSize: 'clamp(38px, 5.4vw, 64px)', letterSpacing: '-0.045em' }}>
+              Escríbenos
+            </h1>
+            <p className="text-bark text-lg mt-3">Respondemos en 1 día hábil. Si es sobre tu cuenta, escribe desde el email con el que te registraste.</p>
+          </header>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Contact info */}
-            <div className="space-y-4">
-              <ScrollReveal>
-                <div className="bg-white rounded-card shadow-card p-5">
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center"><Mail size={18} className="text-primary" /></div>
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.6fr] gap-8 mt-10">
+            <aside className="space-y-3 order-2 lg:order-1">
+              <div className="bg-white rounded-card border border-sand p-5 flex items-start gap-3">
+                <span className="w-10 h-10 bg-primary-soft text-primary rounded-xl flex items-center justify-center shrink-0"><Mail size={18} /></span>
+                <div>
+                  <h2 className="font-heading font-bold text-dark">Email</h2>
+                  <ObfuscatedEmail className="text-sm text-primary font-semibold underline underline-offset-2 break-all" />
+                </div>
+              </div>
+              <div className="bg-white rounded-card border border-sand p-5 flex items-start gap-3">
+                <span className="w-10 h-10 bg-secondary/10 text-secondary rounded-xl flex items-center justify-center shrink-0"><MapPin size={18} /></span>
+                <div>
+                  <h2 className="font-heading font-bold text-dark">Dónde estamos</h2>
+                  <p className="text-sm text-bark">{SITE.city}</p>
+                </div>
+              </div>
+              <Link href="/business/register" className="bg-white rounded-card border border-sand p-5 flex items-start gap-3 card-hover">
+                <span className="w-10 h-10 bg-accent-soft text-dark rounded-xl flex items-center justify-center shrink-0"><Store size={18} /></span>
+                <span>
+                  <span className="block font-heading font-bold text-dark">¿Quieres registrar tu negocio?</span>
+                  <span className="block text-sm text-bark">Hazlo tú mismo en 5 minutos, gratis.</span>
+                </span>
+              </Link>
+              <Link href="/help" className="bg-white rounded-card border border-sand p-5 flex items-start gap-3 card-hover">
+                <span className="w-10 h-10 bg-rose/10 text-rose-dark rounded-xl flex items-center justify-center shrink-0"><HelpCircle size={18} /></span>
+                <span>
+                  <span className="block font-heading font-bold text-dark">Preguntas frecuentes</span>
+                  <span className="block text-sm text-bark">Quizá tu respuesta ya está ahí.</span>
+                </span>
+              </Link>
+            </aside>
+
+            <div className="order-1 lg:order-2 bg-white rounded-card border border-sand p-6 md:p-8">
+              {sent ? (
+                <div className="text-center py-10 animate-bounce-in" role="status">
+                  <span className="w-16 h-16 mx-auto rounded-full bg-secondary text-white flex items-center justify-center"><Check size={30} strokeWidth={3} /></span>
+                  <h2 className="font-heading font-extrabold text-2xl text-dark mt-5">Mensaje enviado</h2>
+                  <p className="text-bark mt-2">Te responderemos al email que nos dejaste en 1 día hábil.</p>
+                  <button onClick={() => setSent(false)} className="mt-6 text-sm font-bold text-primary link-route">Escribir otro mensaje</button>
+                </div>
+              ) : (
+                <form onSubmit={onSubmit} noValidate className="space-y-5" aria-describedby={serverError ? 'c-server' : undefined}>
+                  {/* Trampa para bots: invisible para personas y lectores de pantalla */}
+                  <div aria-hidden="true" className="absolute -left-[9999px] w-px h-px overflow-hidden">
+                    <label htmlFor="c-website">No completes este campo</label>
+                    <input id="c-website" name="website" tabIndex={-1} autoComplete="off" value={form.website} onChange={set('website')} />
+                  </div>
+
+                  <div className="grid sm:grid-cols-2 gap-4">
                     <div>
-                      <h3 className="font-heading font-bold text-dark text-sm">Email</h3>
-                      <p className="text-sm text-bark">hola@huellago.pe</p>
+                      <label htmlFor="c-name" className="text-sm font-semibold text-dark block mb-1.5">Nombre</label>
+                      <input id="c-name" name="name" autoComplete="name" value={form.name} onChange={set('name')} onBlur={blur('name')} className={inputCls('name')} placeholder="Tu nombre" aria-invalid={!!show('name')} aria-describedby="c-name-e" maxLength={80} />
+                      <p id="c-name-e" className="text-sm text-error mt-1 min-h-[1.25rem]">{show('name')}</p>
                     </div>
-                  </div>
-                </div>
-              </ScrollReveal>
-
-              <ScrollReveal delay={60}>
-                <div className="bg-white rounded-card shadow-card p-5">
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="w-10 h-10 bg-success/10 rounded-xl flex items-center justify-center"><MessageCircle size={18} className="text-success" /></div>
                     <div>
-                      <h3 className="font-heading font-bold text-dark text-sm">WhatsApp</h3>
-                      <p className="text-sm text-bark">+51 954 000 000</p>
+                      <label htmlFor="c-email" className="text-sm font-semibold text-dark block mb-1.5">Email</label>
+                      <input id="c-email" name="email" type="email" inputMode="email" autoComplete="email" value={form.email} onChange={set('email')} onBlur={blur('email')} className={inputCls('email')} placeholder="tu@email.com" aria-invalid={!!show('email')} aria-describedby="c-email-e" maxLength={120} />
+                      <p id="c-email-e" className="text-sm text-error mt-1 min-h-[1.25rem]">{show('email')}</p>
                     </div>
                   </div>
-                </div>
-              </ScrollReveal>
 
-              <ScrollReveal delay={120}>
-                <div className="bg-white rounded-card shadow-card p-5">
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="w-10 h-10 bg-secondary/10 rounded-xl flex items-center justify-center"><MapPin size={18} className="text-secondary" /></div>
-                    <div>
-                      <h3 className="font-heading font-bold text-dark text-sm">Ubicación</h3>
-                      <p className="text-sm text-bark">Arequipa, Perú</p>
-                    </div>
+                  <div>
+                    <label htmlFor="c-subject" className="text-sm font-semibold text-dark block mb-1.5">Asunto</label>
+                    <select id="c-subject" name="subject" value={form.subject} onChange={set('subject')} onBlur={blur('subject')} className={inputCls('subject')} aria-invalid={!!show('subject')} aria-describedby="c-subject-e">
+                      <option value="" disabled>Elige un asunto</option>
+                      {SUBJECTS.map((s) => <option key={s}>{s}</option>)}
+                    </select>
+                    <p id="c-subject-e" className="text-sm text-error mt-1 min-h-[1.25rem]">{show('subject')}</p>
                   </div>
-                </div>
-              </ScrollReveal>
 
-              <ScrollReveal delay={180}>
-                <div className="bg-white rounded-card shadow-card p-5">
-                  <h3 className="font-heading font-bold text-dark text-sm mb-3">Redes sociales</h3>
-                  <div className="flex gap-3">
-                    {[
-                      { icon: '📸', label: 'Instagram', handle: '@huellago' },
-                      { icon: '📘', label: 'Facebook', handle: 'HuellaGo' },
-                      { icon: '🎵', label: 'TikTok', handle: '@huellago' },
-                    ].map((social) => (
-                      <div key={social.label} className="text-center flex-1 bg-cream rounded-xl p-3 hover:bg-primary/5 transition-all cursor-pointer">
-                        <div className="text-xl">{social.icon}</div>
-                        <div className="text-[10px] font-semibold text-bark mt-1">{social.handle}</div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </ScrollReveal>
-            </div>
-
-            {/* Contact form */}
-            <div className="lg:col-span-2">
-              <ScrollReveal>
-                <div className="bg-white rounded-card shadow-card p-6 md:p-8">
-                  {sent ? (
-                    <div className="text-center py-8 animate-bounce-in">
-                      <div className="text-6xl mb-4">✅</div>
-                      <h2 className="font-heading font-extrabold text-2xl text-dark mb-2">Mensaje enviado!</h2>
-                      <p className="text-bark mb-6">Te responderemos en menos de 24 horas.</p>
-                      <button onClick={() => setSent(false)} className="text-sm font-semibold text-primary hover:underline">Enviar otro mensaje</button>
+                  <div>
+                    <div className="flex justify-between items-baseline mb-1.5">
+                      <label htmlFor="c-message" className="text-sm font-semibold text-dark">Mensaje</label>
+                      <span className={cn('text-xs tabular-nums', form.message.length > MAX ? 'text-error' : 'text-bark')}>{form.message.length}/{MAX}</span>
                     </div>
-                  ) : (
-                    <>
-                      <h2 className="font-heading font-bold text-dark text-lg mb-6">Envianos un mensaje</h2>
-                      <div className="space-y-4">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div>
-                            <label className="text-sm font-semibold text-dark block mb-1.5">Nombre</label>
-                            <input className="w-full px-4 py-3 rounded-button border-[1.5px] border-sand focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" placeholder="Tu nombre" />
-                          </div>
-                          <div>
-                            <label className="text-sm font-semibold text-dark block mb-1.5">Email</label>
-                            <input type="email" className="w-full px-4 py-3 rounded-button border-[1.5px] border-sand focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" placeholder="tu@email.com" />
-                          </div>
-                        </div>
-                        <div>
-                          <label className="text-sm font-semibold text-dark block mb-1.5">Asunto</label>
-                          <select className="w-full px-4 py-3 rounded-button border-[1.5px] border-sand focus:border-primary outline-none transition-all bg-white">
-                            <option>Consulta general</option>
-                            <option>Soporte tecnico</option>
-                            <option>Registrar negocio</option>
-                            <option>Reportar problema</option>
-                            <option>Alianzas comerciales</option>
-                            <option>Prensa</option>
-                            <option>Otro</option>
-                          </select>
-                        </div>
-                        <div>
-                          <label className="text-sm font-semibold text-dark block mb-1.5">Mensaje</label>
-                          <textarea className="w-full px-4 py-3 rounded-button border-[1.5px] border-sand focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all min-h-[140px]" placeholder="Escribe tu mensaje..." />
-                        </div>
-                        <button onClick={() => setSent(true)} className="w-full bg-primary text-white font-bold py-3.5 rounded-button shadow-button boop-btn hover:bg-primary-dark transition-all flex items-center justify-center gap-2">
-                          <Send size={16} /> Enviar mensaje
-                        </button>
-                      </div>
-                    </>
+                    <textarea id="c-message" name="message" value={form.message} onChange={set('message')} onBlur={blur('message')} className={cn(inputCls('message'), 'min-h-[160px] resize-y')} placeholder="Cuéntanos en qué podemos ayudarte" aria-invalid={!!show('message')} aria-describedby="c-message-e" />
+                    <p id="c-message-e" className="text-sm text-error mt-1 min-h-[1.25rem]">{show('message')}</p>
+                  </div>
+
+                  <div>
+                    <label className="flex items-start gap-3 text-sm text-bark cursor-pointer">
+                      <input id="c-consent" type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} onBlur={blur('consent')} className="mt-0.5 w-4 h-4 accent-primary" aria-invalid={!!show('consent')} aria-describedby="c-consent-e" />
+                      <span>
+                        Acepto que HuellaGo use estos datos para responder mi mensaje, según la{' '}
+                        <Link href="/privacy" className="font-semibold text-primary underline underline-offset-2">política de privacidad</Link>.
+                      </span>
+                    </label>
+                    <p id="c-consent-e" className="text-sm text-error mt-1 min-h-[1.25rem]">{show('consent')}</p>
+                  </div>
+
+                  {serverError && (
+                    <p id="c-server" role="alert" className="text-sm text-error bg-error/5 rounded-xl px-4 py-3">{serverError}</p>
                   )}
-                </div>
-              </ScrollReveal>
+
+                  <button type="submit" disabled={sending} className="w-full bg-primary text-white font-bold py-4 rounded-full shadow-button boop-btn hover:bg-primary-dark disabled:opacity-60 flex items-center justify-center gap-2 text-lg">
+                    {sending ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
+                    {sending ? 'Enviando…' : 'Enviar mensaje'}
+                  </button>
+                </form>
+              )}
             </div>
           </div>
         </div>
