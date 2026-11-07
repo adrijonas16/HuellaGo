@@ -28,6 +28,14 @@ Plataforma digital peruana para duenos de perros que centraliza servicios, event
 ### 05-prototipo/
 - **01-prompt-mockups.md** - Guia para prototipo interactivo, flujos navegables, y prompt listo para copiar en Pencil/Claude Design/Figma.
 
+### desarrollo/
+- **arquitectura.md** - Cómo se conectan web, API, app móvil y base de datos, y por qué.
+- **contrato-api.md** - Rutas de la API, formas de respuesta y quién las consume.
+- **despliegue.md** - Vercel, Supabase, variables de entorno y rollback.
+- **historial-de-cambios.md** - Registro de cambios importantes.
+
+Las convenciones para cambiar el código están en `AGENTS.md` y `.claude/` (raíz del repo).
+
 ---
 
 ## Resumen ejecutivo
