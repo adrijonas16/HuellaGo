@@ -8,6 +8,8 @@ import { ScrollReveal } from '@/components/effects/scroll-reveal';
 import { Heart, MapPin, Calendar, Filter, Plus, Building2, HandHeart, Search, X, Phone, MessageCircle, CheckCircle } from 'lucide-react';
 import { SafeImage } from '@/components/ui/safe-image';
 import { useAppStore } from '@/lib/store';
+import { validators } from '@/lib/validation';
+import { track } from '@/lib/analytics';
 
 const ADOPTABLE_PETS = [
   { id: 'a1', name: 'Canela', type: 'DOG', icon: '🐕', breed: 'Mestiza', age: '2 años aprox.', size: 'Mediana', gender: 'Hembra', photo: 'https://picsum.photos/seed/adopt-dog1/400/400', description: 'Canela fue rescatada de la calle. Es muy cariñosa, le encanta jugar y se lleva bien con otros perros. Esta vacunada y esterilizada.', location: 'Refugio Patitas Sin Hogar, Cayma', source: 'shelter', shelterName: 'Patitas Sin Hogar', date: '28 jun 2026', vaccinated: true, sterilized: true },
@@ -29,6 +31,24 @@ export default function AdoptionsPage() {
   const [typeFilter, setTypeFilter] = useState<string | null>(null);
   const [adoptModal, setAdoptModal] = useState<any>(null);
   const [adoptStep, setAdoptStep] = useState(0); // 0=info, 1=form, 2=sent
+  const [req, setReq] = useState({ name: '', phone: '', district: '', reason: '' });
+  const [reqTried, setReqTried] = useState(false);
+  const reqErrors = {
+    name: validators.name(req.name),
+    phone: req.phone.trim() ? validators.phonePe(req.phone) : 'Escribe tu celular para que el refugio te contacte',
+    district: validators.required(req.district, 'tu distrito'),
+    reason: validators.minLength(req.reason, 20, 'tu respuesta'),
+  };
+  const reqErr = (k: keyof typeof reqErrors) => (reqTried ? reqErrors[k] : '');
+  function sendRequest() {
+    setReqTried(true);
+    const first = (Object.keys(reqErrors) as (keyof typeof reqErrors)[]).find((k) => reqErrors[k]);
+    if (first) { document.getElementById(`adopt-${first}`)?.focus(); return; }
+    track('adoption_request', { pet: String(adoptModal?.name ?? '') });
+    setAdoptStep(2);
+    setReq({ name: '', phone: '', district: '', reason: '' });
+    setReqTried(false);
+  }
   const notify = useAppStore((s) => s.notify);
   const [published, setPublished] = useState(false);
 
@@ -180,8 +200,8 @@ export default function AdoptionsPage() {
 
                   <div className="space-y-4">
                     <div>
-                      <label className="text-sm font-semibold text-dark block mb-1.5">Situacion</label>
-                      <select className="w-full px-4 py-3 rounded-button border-[1.5px] border-sand focus:border-primary outline-none bg-white">
+                      <label htmlFor="adopti-f1" className="text-sm font-semibold text-dark block mb-1.5">Situacion</label>
+                      <select id="adopti-f1" className="w-full px-4 py-3 rounded-button border-[1.5px] border-sand focus:border-primary outline-none bg-white">
                         <option>Encontre una mascota en la calle</option>
                         <option>Mi mascota necesita un nuevo hogar</option>
                         <option>Soy refugio y quiero publicar</option>
@@ -189,41 +209,41 @@ export default function AdoptionsPage() {
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <label className="text-sm font-semibold text-dark block mb-1.5">Nombre (o apodo)</label>
-                        <input className="w-full px-4 py-3 rounded-button border-[1.5px] border-sand focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none" placeholder="¿Cómo le dices?" />
+                        <label htmlFor="adopti-f2" className="text-sm font-semibold text-dark block mb-1.5">Nombre (o apodo)</label>
+                        <input id="adopti-f2" className="w-full px-4 py-3 rounded-button border-[1.5px] border-sand focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none" placeholder="¿Cómo le dices?" />
                       </div>
                       <div>
-                        <label className="text-sm font-semibold text-dark block mb-1.5">Tipo de mascota</label>
-                        <select className="w-full px-4 py-3 rounded-button border-[1.5px] border-sand focus:border-primary outline-none bg-white">
+                        <label htmlFor="adopti-f3" className="text-sm font-semibold text-dark block mb-1.5">Tipo de mascota</label>
+                        <select id="adopti-f3" className="w-full px-4 py-3 rounded-button border-[1.5px] border-sand focus:border-primary outline-none bg-white">
                           <option>Perro</option><option>Gato</option><option>Conejo</option><option>Ave</option><option>Otro</option>
                         </select>
                       </div>
                     </div>
                     <div className="grid grid-cols-3 gap-4">
                       <div>
-                        <label className="text-sm font-semibold text-dark block mb-1.5">Edad aprox.</label>
-                        <input className="w-full px-4 py-3 rounded-button border-[1.5px] border-sand focus:border-primary outline-none" placeholder="2 años" />
+                        <label htmlFor="adopti-f4" className="text-sm font-semibold text-dark block mb-1.5">Edad aprox.</label>
+                        <input id="adopti-f4" className="w-full px-4 py-3 rounded-button border-[1.5px] border-sand focus:border-primary outline-none" placeholder="2 años" />
                       </div>
                       <div>
-                        <label className="text-sm font-semibold text-dark block mb-1.5">Tamano</label>
-                        <select className="w-full px-4 py-3 rounded-button border-[1.5px] border-sand focus:border-primary outline-none bg-white">
+                        <label htmlFor="adopti-f5" className="text-sm font-semibold text-dark block mb-1.5">Tamaño</label>
+                        <select id="adopti-f5" className="w-full px-4 py-3 rounded-button border-[1.5px] border-sand focus:border-primary outline-none bg-white">
                           <option>Pequeño</option><option>Mediano</option><option>Grande</option>
                         </select>
                       </div>
                       <div>
-                        <label className="text-sm font-semibold text-dark block mb-1.5">Genero</label>
-                        <select className="w-full px-4 py-3 rounded-button border-[1.5px] border-sand focus:border-primary outline-none bg-white">
+                        <label htmlFor="adopti-f6" className="text-sm font-semibold text-dark block mb-1.5">Género</label>
+                        <select id="adopti-f6" className="w-full px-4 py-3 rounded-button border-[1.5px] border-sand focus:border-primary outline-none bg-white">
                           <option>Macho</option><option>Hembra</option><option>No se</option>
                         </select>
                       </div>
                     </div>
                     <div>
-                      <label className="text-sm font-semibold text-dark block mb-1.5">Descripción</label>
-                      <textarea className="w-full px-4 py-3 rounded-button border-[1.5px] border-sand focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none min-h-[100px]" placeholder="Cuenta su historia, como lo encontraste, como se comporta..." />
+                      <label htmlFor="adopti-f7" className="text-sm font-semibold text-dark block mb-1.5">Descripción</label>
+                      <textarea id="adopti-f7" className="w-full px-4 py-3 rounded-button border-[1.5px] border-sand focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none min-h-[100px]" placeholder="Cuenta su historia, cómo lo encontraste, cómo se comporta..." />
                     </div>
                     <div>
-                      <label className="text-sm font-semibold text-dark block mb-1.5">Donde esta?</label>
-                      <input className="w-full px-4 py-3 rounded-button border-[1.5px] border-sand focus:border-primary outline-none" placeholder="Distrito y ciudad" />
+                      <label htmlFor="adopti-f8" className="text-sm font-semibold text-dark block mb-1.5">¿Dónde está?</label>
+                      <input id="adopti-f8" className="w-full px-4 py-3 rounded-button border-[1.5px] border-sand focus:border-primary outline-none" placeholder="Distrito y ciudad" />
                     </div>
                     <div className="flex gap-4">
                       <label className="flex items-center gap-2 text-sm text-dark"><input type="checkbox" className="rounded" /> Vacunado</label>
@@ -310,37 +330,41 @@ export default function AdoptionsPage() {
                     <p className="text-xs text-bark mb-4">Completa tus datos para contactar al responsable de {adoptModal.name}</p>
                     <div className="space-y-3">
                       <div>
-                        <label className="text-sm font-semibold text-dark block mb-1">Tu nombre completo</label>
-                        <input className="w-full px-4 py-2.5 rounded-button border-[1.5px] border-sand focus:border-primary outline-none text-sm" placeholder="María García" />
+                        <label htmlFor="adopt-name" className="text-sm font-semibold text-dark block mb-1">Tu nombre completo</label>
+                        <input id="adopt-name" value={req.name} onChange={(e) => setReq({ ...req, name: e.target.value })} aria-invalid={!!reqErr('name')} aria-describedby="adopt-name-e" className={`w-full px-4 py-2.5 rounded-button border-[1.5px] ${reqErr('name') ? 'border-error' : 'border-sand'} focus:border-primary outline-none text-sm`} placeholder="María García" />
+                        <p id="adopt-name-e" className="text-xs text-error mt-1 empty:hidden">{reqErr('name')}</p>
                       </div>
                       <div>
-                        <label className="text-sm font-semibold text-dark block mb-1">Teléfono / WhatsApp</label>
-                        <input className="w-full px-4 py-2.5 rounded-button border-[1.5px] border-sand focus:border-primary outline-none text-sm" placeholder="954 000 000" />
+                        <label htmlFor="adopt-phone" className="text-sm font-semibold text-dark block mb-1">Teléfono / WhatsApp</label>
+                        <input id="adopt-phone" value={req.phone} onChange={(e) => setReq({ ...req, phone: e.target.value })} aria-invalid={!!reqErr('phone')} aria-describedby="adopt-phone-e" className={`w-full px-4 py-2.5 rounded-button border-[1.5px] ${reqErr('phone') ? 'border-error' : 'border-sand'} focus:border-primary outline-none text-sm`} placeholder="987 654 321" inputMode="tel" />
+                        <p id="adopt-phone-e" className="text-xs text-error mt-1 empty:hidden">{reqErr('phone')}</p>
                       </div>
                       <div>
-                        <label className="text-sm font-semibold text-dark block mb-1">Distrito</label>
-                        <input className="w-full px-4 py-2.5 rounded-button border-[1.5px] border-sand focus:border-primary outline-none text-sm" placeholder="Cayma, Arequipa" />
+                        <label htmlFor="adopt-district" className="text-sm font-semibold text-dark block mb-1">Distrito</label>
+                        <input id="adopt-district" value={req.district} onChange={(e) => setReq({ ...req, district: e.target.value })} aria-invalid={!!reqErr('district')} aria-describedby="adopt-district-e" className={`w-full px-4 py-2.5 rounded-button border-[1.5px] ${reqErr('district') ? 'border-error' : 'border-sand'} focus:border-primary outline-none text-sm`} placeholder="Cayma, Arequipa" />
+                        <p id="adopt-district-e" className="text-xs text-error mt-1 empty:hidden">{reqErr('district')}</p>
                       </div>
                       <div>
-                        <label className="text-sm font-semibold text-dark block mb-1">Tienes otras mascotas?</label>
-                        <select className="w-full px-4 py-2.5 rounded-button border-[1.5px] border-sand focus:border-primary outline-none text-sm bg-white">
-                          <option>No</option><option>Si, 1 perro</option><option>Si, 1 gato</option><option>Si, varias mascotas</option>
+                        <label htmlFor="adopti-f13" className="text-sm font-semibold text-dark block mb-1">¿Tienes otras mascotas?</label>
+                        <select id="adopti-f13" className="w-full px-4 py-2.5 rounded-button border-[1.5px] border-sand focus:border-primary outline-none text-sm bg-white">
+                          <option>No</option><option>Sí, 1 perro</option><option>Sí, 1 gato</option><option>Sí, varias mascotas</option>
                         </select>
                       </div>
                       <div>
-                        <label className="text-sm font-semibold text-dark block mb-1">Tipo de vivienda</label>
-                        <select className="w-full px-4 py-2.5 rounded-button border-[1.5px] border-sand focus:border-primary outline-none text-sm bg-white">
-                          <option>Casa con jardin</option><option>Casa sin jardin</option><option>Departamento grande</option><option>Departamento pequeño</option>
+                        <label htmlFor="adopti-f14" className="text-sm font-semibold text-dark block mb-1">Tipo de vivienda</label>
+                        <select id="adopti-f14" className="w-full px-4 py-2.5 rounded-button border-[1.5px] border-sand focus:border-primary outline-none text-sm bg-white">
+                          <option>Casa con jardín</option><option>Casa sin jardín</option><option>Departamento grande</option><option>Departamento pequeño</option>
                         </select>
                       </div>
                       <div>
-                        <label className="text-sm font-semibold text-dark block mb-1">Por que quieres adoptar a {adoptModal.name}?</label>
-                        <textarea className="w-full px-4 py-2.5 rounded-button border-[1.5px] border-sand focus:border-primary outline-none text-sm min-h-[80px]" placeholder="Cuentanos..." />
+                        <label htmlFor="adopt-reason" className="text-sm font-semibold text-dark block mb-1">¿Por qué quieres adoptar a {adoptModal.name}?</label>
+                        <textarea id="adopt-reason" value={req.reason} onChange={(e) => setReq({ ...req, reason: e.target.value })} aria-invalid={!!reqErr('reason')} aria-describedby="adopt-reason-e" className={`w-full px-4 py-2.5 rounded-button border-[1.5px] ${reqErr('reason') ? 'border-error' : 'border-sand'} focus:border-primary outline-none text-sm min-h-[80px]`} placeholder="Cuéntanos sobre tu hogar y tu rutina…" />
+                        <p id="adopt-reason-e" className="text-xs text-error mt-1 empty:hidden">{reqErr('reason')}</p>
                       </div>
                     </div>
                     <div className="flex gap-2 mt-4">
                       <button onClick={() => setAdoptStep(0)} className="flex-1 bg-sand text-bark font-semibold py-3 rounded-button text-sm">Volver</button>
-                      <button onClick={() => setAdoptStep(2)} className="flex-1 boop-btn bg-rose text-white font-bold py-3 rounded-button text-sm">Enviar solicitud</button>
+                      <button onClick={sendRequest} className="flex-1 boop-btn bg-rose text-white font-bold py-3 rounded-button text-sm">Enviar solicitud</button>
                     </div>
                   </div>
                 )}

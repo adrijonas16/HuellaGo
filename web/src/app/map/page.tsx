@@ -2,6 +2,7 @@
 
 import dynamic from 'next/dynamic';
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { fetchApi } from '@/lib/api';
 import { Navbar } from '@/components/layout/navbar';
 import { MOCK_BUSINESSES, CATEGORY_ICONS, CATEGORY_LABELS, CATEGORY_COLORS } from '@/lib/mock-data';
@@ -88,7 +89,7 @@ export default function MapPage() {
                     </div>
                   </div>
                   <button onClick={() => setSelectedBiz(null)} className="p-1.5 hover:bg-gray-100 rounded-lg">
-                    <X size={18} className="text-gray-400" />
+                    <X size={18} className="text-bark" />
                   </button>
                 </div>
 
@@ -100,7 +101,7 @@ export default function MapPage() {
                     ))}
                   </div>
                   <span className="font-bold text-sm">{selectedBiz.avgRating}</span>
-                  <span className="text-sm text-gray-400">({selectedBiz._count.reviews} reseñas)</span>
+                  <span className="text-sm text-bark">({selectedBiz._count.reviews} reseñas)</span>
                 </div>
 
                 {/* Badges */}
@@ -167,12 +168,13 @@ export default function MapPage() {
 
                 {/* Action buttons */}
                 <div className="grid grid-cols-2 gap-3 sticky bottom-0 bg-white pt-4 border-t border-gray-100">
-                  <a href={`tel:${String(selectedBiz.phone ?? '').replace(/[^0-9+]/g, '')}`} className="flex items-center justify-center gap-2 bg-primary text-white font-bold py-3 rounded-full boop-btn hover:bg-primary-dark">
+                  <Link href={`/directory/${selectedBiz.id}`} className="order-last col-span-2 flex items-center justify-center gap-2 border-2 border-dark text-dark font-bold py-3 rounded-full hover:bg-dark hover:text-white transition-colors">Ver ficha completa</Link>
+                  {selectedBiz.phone ? (<a href={`tel:${String(selectedBiz.phone).replace(/[^0-9+]/g, '')}`} className="flex items-center justify-center gap-2 bg-primary text-white font-bold py-3 rounded-full boop-btn hover:bg-primary-dark">
                     <Phone size={16} /> Llamar
-                  </a>
-                  <a href={`https://wa.me/${String(selectedBiz.whatsapp ?? '').replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 bg-secondary text-white font-bold py-3 rounded-full boop-btn hover:bg-secondary-dark">
+                  </a>) : null}
+                  {selectedBiz.whatsapp ? (<a href={`https://wa.me/${String(selectedBiz.whatsapp).replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 bg-secondary text-white font-bold py-3 rounded-full boop-btn hover:bg-secondary-dark">
                     <MessageCircle size={16} /> WhatsApp
-                  </a>
+                  </a>) : null}
                 </div>
               </div>
             </div>
@@ -199,12 +201,13 @@ export default function MapPage() {
               </button>
             </div>
             <div className="grid grid-cols-2 gap-3">
-              <a href={`tel:${String(selectedBiz.phone ?? '').replace(/[^0-9+]/g, '')}`} className="flex items-center justify-center gap-2 bg-primary text-white font-bold py-3 rounded-full boop-btn hover:bg-primary-dark">
+              <Link href={`/directory/${selectedBiz.id}`} className="order-last col-span-2 flex items-center justify-center gap-2 border-2 border-dark text-dark font-bold py-3 rounded-full hover:bg-dark hover:text-white transition-colors">Ver ficha completa</Link>
+              {selectedBiz.phone ? (<a href={`tel:${String(selectedBiz.phone).replace(/[^0-9+]/g, '')}`} className="flex items-center justify-center gap-2 bg-primary text-white font-bold py-3 rounded-full boop-btn hover:bg-primary-dark">
                     <Phone size={16} /> Llamar
-                  </a>
-              <a href={`https://wa.me/${String(selectedBiz.whatsapp ?? '').replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 bg-secondary text-white font-bold py-3 rounded-full boop-btn hover:bg-secondary-dark">
+                  </a>) : null}
+              {selectedBiz.whatsapp ? (<a href={`https://wa.me/${String(selectedBiz.whatsapp).replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 bg-secondary text-white font-bold py-3 rounded-full boop-btn hover:bg-secondary-dark">
                     <MessageCircle size={16} /> WhatsApp
-                  </a>
+                  </a>) : null}
             </div>
           </div>
         )}

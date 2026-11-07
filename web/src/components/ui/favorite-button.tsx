@@ -15,7 +15,7 @@ interface FavoriteButtonProps {
   subtitle?: string;
 }
 
-const BURST = ['#F0506E', '#FFC531', '#3352F5', '#F0506E', '#0F8A5F', '#FFC531'];
+const BURST = ['#D6335A', '#FFC531', '#3352F5', '#D6335A', '#0D7F57', '#FFC531'];
 
 /** Corazón de favoritos persistente, con animación de "pop" y partículas. */
 export function FavoriteButton({ kind, id, label, size = 16, className, subtitle }: FavoriteButtonProps) {

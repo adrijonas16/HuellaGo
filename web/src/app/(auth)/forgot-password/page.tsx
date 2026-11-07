@@ -1,13 +1,13 @@
 'use client';
 
 import { FormEvent, useState } from 'react';
+import { EMAIL_RE, validators } from '@/lib/validation';
 import Link from 'next/link';
 import { Loader2, Mail } from 'lucide-react';
 import { Input } from '@/components/ui';
 import { AuthShell } from '@/components/layout/auth-shell';
 import { api } from '@/services/api';
 
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
@@ -50,7 +50,7 @@ export default function ForgotPasswordPage() {
             placeholder="tu@email.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            error={touched && !EMAIL_RE.test(email) ? 'Escribe un email válido' : ''}
+            error={touched ? validators.email(email) : ''}
           />
           <button type="submit" disabled={sending} className="w-full inline-flex items-center justify-center gap-2 bg-primary text-white font-bold text-lg py-4 rounded-full shadow-button boop-btn disabled:opacity-60">
             {sending && <Loader2 size={18} className="animate-spin" />} Enviar enlace

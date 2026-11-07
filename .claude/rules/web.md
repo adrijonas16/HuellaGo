@@ -30,7 +30,16 @@ web/src/
 - **Acciones con sesión** (inscribir, reseñar, crear, borrar): `lib/backend.ts` decide con `hasRealSession()` e `isApiId()` si van al servidor o se quedan en `useAppStore`. Agrega ahí las funciones nuevas, no `fetch` sueltos en los componentes.
 - Los errores de la API se muestran con `notify(errorMessage(err), { tone: 'error' })`.
 - Las páginas de detalle que cargan por ID muestran un skeleton mientras llegan los datos y «no encontrado» solo cuando la respuesta ya llegó vacía.
-- `NEXT_PUBLIC_API_URL` es la única variable pública. Nunca expongas secretos con el prefijo `NEXT_PUBLIC_`.
+- Variables públicas permitidas (todas en `web/.env.example` y leídas solo desde `lib/site.ts` o `lib/api.ts`): `NEXT_PUBLIC_API_URL`, `NEXT_PUBLIC_SITE_URL`, `NEXT_PUBLIC_GA_ID`, `NEXT_PUBLIC_CONTACT_EMAIL`, las redes (`NEXT_PUBLIC_*_URL`) y los datos legales (`NEXT_PUBLIC_LEGAL_*`). Nada de eso es secreto. Nunca expongas una clave privada con el prefijo `NEXT_PUBLIC_`.
+
+## SEO, legal y analítica
+
+- Cada ruta tiene `metadata` en su `layout.tsx` (título, descripción de 150–160 caracteres, `alternates.canonical` y Open Graph). Las páginas privadas (cuenta, panel, formularios internos) llevan `robots: { index: false }` y se excluyen en `app/robots.ts`.
+- Si agregas una página pública, súmala a `app/sitemap.ts`.
+- GA4 solo se carga con consentimiento (`lib/consent.ts`). Para medir una acción usa `track('evento', {...})` de `lib/analytics.ts`; nunca envíes datos personales (email, nombre, teléfono) como parámetro.
+- Formularios públicos: validación con `lib/validation.ts`, un campo trampa (`website`) oculto y, si van a la API, `elapsedMs` para el filtro anti-spam.
+- No pongas teléfonos, webs ni redes inventadas en los datos de ejemplo: pueden ser de personas reales. Si un negocio no tiene contacto, la interfaz lo dice en vez de mostrar un botón roto.
+- Las fotos externas pasan por `SafeImage`, que las sirve comprimidas en WebP/AVIF; si agregas un dominio, súmalo a `next.config.js` y a `OPTIMIZABLE` en `safe-image.tsx`.
 
 ## Sistema visual
 

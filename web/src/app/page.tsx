@@ -101,16 +101,13 @@ export default async function LandingPage() {
                 <HeroSearch />
               </div>
 
-              <div className="flex items-center gap-3 mt-10 animate-fade-up delay-500">
-                <div className="flex -space-x-2" aria-hidden>
-                  {['🐕', '🐈', '🐇', '🦜'].map((e, i) => (
-                    <span key={i} className="w-9 h-9 rounded-full bg-white ring-2 ring-cream flex items-center justify-center text-lg">{e}</span>
-                  ))}
-                </div>
-                <p className="text-sm text-bark leading-snug">
-                  <strong className="text-dark">2.800 mascotas</strong> y <strong className="text-dark">50 negocios</strong>
-                  <br className="hidden sm:block" /> ya forman parte de la manada.
-                </p>
+              <div className="flex flex-wrap items-center gap-x-6 gap-y-3 mt-8 animate-fade-up delay-500">
+                <Link href="/register" className="inline-flex items-center justify-center gap-2 bg-dark text-white font-bold rounded-full px-6 py-3.5 boop-btn hover:bg-primary transition-colors">
+                  Crear cuenta gratis
+                </Link>
+                <Link href="/business/register" className="font-bold text-dark link-route">
+                  ¿Tienes un negocio pet? Publícalo gratis
+                </Link>
               </div>
             </div>
 

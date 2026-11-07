@@ -634,3 +634,18 @@ model Notification {
 
   @@map("notifications")
 }
+
+model ContactMessage {
+  id        String   @id @default(uuid())
+  name      String
+  email     String
+  subject   String
+  message   String
+  ipHash    String?  @map("ip_hash")
+  userAgent String?  @map("user_agent")
+  handled   Boolean  @default(false)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([createdAt])
+  @@map("contact_messages")
+}

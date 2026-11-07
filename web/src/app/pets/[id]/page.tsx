@@ -32,7 +32,7 @@ export default function PetProfilePage({ params }: { params: { id: string } }) {
           <ScrollReveal>
             <div className="bg-white rounded-card shadow-card overflow-hidden mb-6">
               <div className="h-48 md:h-56 relative overflow-hidden">
-                <SafeImage src={pet.heroPhoto} alt="" className="w-full h-full object-cover" />
+                <SafeImage src={pet.heroPhoto} alt={`Foto de ${pet.name}`} sizes="100vw" className="w-full h-full object-cover" />
                 <div className="absolute inset-0 bg-gradient-to-t from-dark/60 to-transparent" />
                 <div className="absolute top-4 right-4"><ShareButton title={`${pet.name} en HuellaGo`} className="w-10 h-10" /></div>
               </div>

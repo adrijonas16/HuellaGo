@@ -9,6 +9,7 @@ import { useAuth } from '@/hooks';
 import { MOCK_PETS } from '@/lib/mock-pets';
 import { PET_TYPES } from '@/lib/mock-data';
 import { hasRealSession, getMyPets, attendEvent, cancelAttendance, isApiId, errorMessage } from '@/lib/backend';
+import { track } from '@/lib/analytics';
 
 interface RegisterBoxProps {
   eventId: string;
@@ -91,6 +92,7 @@ export function RegisterBox({ eventId, eventTitle, spotsLeft, onChange }: Regist
     useAppStore.setState((s) => ({
       registrations: { ...s.registrations, [eventId]: { ...s.registrations[eventId], petId: chosen?.id } as any },
     }));
+    track('event_register', { event_id: eventId });
     setJustJoined(true);
     setOpen(false);
     if (live) onChange?.();

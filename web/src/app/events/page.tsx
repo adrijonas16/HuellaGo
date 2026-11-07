@@ -146,7 +146,7 @@ export default function EventsPage() {
                     <h3 className="font-heading font-bold text-dark text-lg mb-1 group-hover:text-primary transition-colors line-clamp-2">
                       {event.title}
                     </h3>
-                    <p className="text-sm text-gray-400 mb-3 line-clamp-2">{event.description}</p>
+                    <p className="text-sm text-bark mb-3 line-clamp-2">{event.description}</p>
 
                     <div className="space-y-2 mb-4">
                       <div className="flex items-center gap-2 text-sm text-gray-500">
@@ -158,7 +158,7 @@ export default function EventsPage() {
                         <span className="line-clamp-1">{event.meetingPoint}</span>
                       </div>
                       {event.endPoint && (
-                        <div className="flex items-center gap-2 text-sm text-gray-400">
+                        <div className="flex items-center gap-2 text-sm text-bark">
                           <ChevronRight size={14} className="text-gray-300 shrink-0" />
                           <span className="line-clamp-1">→ {event.endPoint}</span>
                         </div>
