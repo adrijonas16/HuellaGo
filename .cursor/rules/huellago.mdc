@@ -1,0 +1,15 @@
+---
+description: Convenciones de HuellaGo (aplica a todo el repo)
+alwaysApply: true
+---
+
+Sigue `AGENTS.md` en la raíz del repo: es la fuente única de convenciones. Antes de editar, lee la regla del área en `.claude/rules/`:
+
+- `backend/**` → `.claude/rules/backend.md`
+- `web/**` → `.claude/rules/web.md`
+- `backend/prisma/**` → `.claude/rules/database.md`
+- `mobile/**` → `.claude/rules/mobile.md`
+- Textos visibles → `.claude/rules/textos.md`
+- Siempre → `.claude/rules/seguridad.md` y `.claude/rules/git-y-despliegue.md`
+
+Para tareas habituales, sigue el procedimiento de `.claude/skills/<nombre>/SKILL.md`.

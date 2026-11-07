@@ -1,8 +1,12 @@
-# Mejoras de diseño y funcionalidad (web)
+# Historial de cambios
+
+## Noviembre 2026: rediseño, QA y puesta en producción
+
+### Mejoras de diseño y funcionalidad (web)
 
 Auditoría hecha como QA, usuario y diseñador sobre las 26 rutas de `web/`, en escritorio (1440 px) y móvil (390 px).
 
-## Bugs encontrados y corregidos
+### Bugs encontrados y corregidos
 
 | # | Problema | Solución |
 |---|----------|----------|
@@ -24,7 +28,7 @@ Auditoría hecha como QA, usuario y diseñador sobre las 26 rutas de `web/`, en 
 | 16 | Para quitar una foto en móvil hacía falta *hover* | Botón visible en pantallas táctiles |
 | 17 | Textos sin tildes ni ñ ("contrasena", "duenos", "Peru"…) | Corregidos en toda la interfaz |
 
-## Sistema visual nuevo: "Cielo de Arequipa"
+### Sistema visual nuevo: "Cielo de Arequipa"
 
 - **Paleta**: azul cielo `#3352F5` (acción), amarillo pelota `#FFC531` (destacados), verde parque `#0F8A5F` (rutas y confirmaciones), coral `#F0506E` (adopción y favoritos), tinta basalto `#191C33` sobre fondo sillar `#F5F6F1`. Reemplaza la combinación crema + terracota + serif, que se veía genérica.
 - **Tipografía**: Bricolage Grotesque (titulares) + Figtree (texto), alojadas en el propio proyecto con `@fontsource` (sin depender de Google Fonts).
@@ -33,7 +37,7 @@ Auditoría hecha como QA, usuario y diseñador sobre las 26 rutas de `web/`, en 
 - **Microinteracciones**: el corazón de favoritos hace "pop" y suelta partículas, avisos (toasts) con resorte, hojas modales que suben desde abajo en móvil, botones con sombra que se hunde al pulsarlos y menú móvil a pantalla completa con entrada escalonada.
 - **Accesibilidad**: enlace "Saltar al contenido", foco visible en todo el sitio, `aria-pressed` y `aria-expanded`, etiquetas en los botones de icono, `prefers-reduced-motion` y contraste revisado (los colores de energía "Moderado" y "Enérgico" no llegaban al mínimo).
 
-## Funciones nuevas
+### Funciones nuevas
 
 - `src/lib/store.ts`: favoritos, inscripciones a eventos, comunidades, mascotas nuevas y avisos, persistidos en `localStorage`.
 - Inscripción a eventos eligiendo la mascota, con el contador de cupos actualizado.
@@ -41,7 +45,7 @@ Auditoría hecha como QA, usuario y diseñador sobre las 26 rutas de `web/`, en 
 - Agregar mascota (`/pets?nueva=1`), editar perfil, cambiar contraseña y eliminar cuenta con confirmación.
 - Login y registro rediseñados: validación en línea, mostrar u ocultar contraseña, medidor de seguridad y registro en 2 pasos.
 
-## Cómo verificar
+### Cómo verificar
 
 ```bash
 cd web
@@ -51,19 +55,8 @@ npm run build && npm start   # http://localhost:3001
 
 Se probaron 21 flujos de punta a punta con Playwright, todos aprobados: búsqueda, filtros, favoritos con recarga, inscripción, login demo, agregar mascota, publicar, unirse, reseña, cerrar sesión, menú móvil y ausencia de errores de JS.
 
-## Despliegue
 
-| Pieza | Dónde | URL |
-|-------|-------|-----|
-| Web (Next.js, carpeta `web/`) | Vercel, proyecto `huellago` | https://huellago-sooty.vercel.app |
-| API (NestJS, carpeta `backend/`) | Vercel, proyecto `huellago-api` | https://huellago-api.vercel.app/api |
-| Base de datos (PostgreSQL) | Supabase, proyecto "adrijonas16's Project", esquema aislado `huellago` con usuario propio `huellago_app` | — |
-
-- Cuenta de ejemplo: `maria.garcia@gmail.com` / `HuellaGo2026!` (en la pantalla de ingreso hay un botón que la rellena).
-- Variables de la API en Vercel: `DATABASE_URL` (pooler 6543 con `pgbouncer=true`), `DIRECT_URL` (pooler 5432), `JWT_SECRET`, `JWT_REFRESH_SECRET`, `JWT_EXPIRATION`, `JWT_REFRESH_EXPIRATION`, `FRONTEND_URL`.
-- Variable de la web en Vercel: `NEXT_PUBLIC_API_URL=https://huellago-api.vercel.app/api`.
-- Cambios de esquema: `cd backend && DATABASE_URL=... DIRECT_URL=... npm run db:push`; datos de ejemplo: `npm run prisma:seed` (borra y vuelve a crear los datos del esquema `huellago`).
-- Las fechas del seed son relativas al día en que se ejecuta, así que los eventos siempre son futuros.
+El despliegue actual está documentado en `despliegue.md`.
 
 ### Correcciones del backend para que funcione en producción
 

@@ -5,7 +5,13 @@ import { NotificationsRepository } from './notifications.repository';
 export class NotificationsService {
   constructor(private notificationsRepository: NotificationsRepository) {}
 
-  async create(userId: string, type: string, title: string, body: string, data?: object) {
+  async create(
+    userId: string,
+    type: string,
+    title: string,
+    body: string,
+    data?: object,
+  ) {
     return this.notificationsRepository.create({
       type,
       title,

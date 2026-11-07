@@ -15,16 +15,32 @@ export class EventsRepository {
       where: { id },
       include: {
         organizer: {
-          select: { id: true, firstName: true, lastName: true, avatarUrl: true },
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            avatarUrl: true,
+          },
         },
         route: true,
         attendances: {
           include: {
             user: {
-              select: { id: true, firstName: true, lastName: true, avatarUrl: true },
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+                avatarUrl: true,
+              },
             },
             pet: {
-              select: { id: true, name: true, photoUrl: true, breed: true, size: true },
+              select: {
+                id: true,
+                name: true,
+                photoUrl: true,
+                breed: true,
+                size: true,
+              },
             },
           },
         },
@@ -45,7 +61,12 @@ export class EventsRepository {
         ...params,
         include: {
           organizer: {
-            select: { id: true, firstName: true, lastName: true, avatarUrl: true },
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              avatarUrl: true,
+            },
           },
           photos: { take: 1 },
           _count: { select: { attendances: true } },
@@ -74,6 +95,14 @@ export class EventsRepository {
     return this.prisma.eventAttendance.deleteMany({
       where: { eventId, userId, petId },
     });
+  }
+
+  async isPetOwnedBy(petId: string, userId: string) {
+    const pet = await this.prisma.pet.findFirst({
+      where: { id: petId, userId },
+      select: { id: true },
+    });
+    return !!pet;
   }
 
   async findAttendance(eventId: string, userId: string, petId: string) {

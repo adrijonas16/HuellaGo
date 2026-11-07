@@ -32,7 +32,9 @@ export class PetsService {
   async update(userId: string, petId: string, dto: UpdatePetDto) {
     const pet = await this.findOne(petId);
     if (pet.userId !== userId) {
-      throw new ForbiddenException('No tienes permiso para editar esta mascota');
+      throw new ForbiddenException(
+        'No tienes permiso para editar esta mascota',
+      );
     }
     return this.petsRepository.update(petId, {
       ...dto,

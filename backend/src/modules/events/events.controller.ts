@@ -72,7 +72,7 @@ export class EventsController {
   @Delete(':id/attend')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Cancelar inscripcion' })
+  @ApiOperation({ summary: 'Cancelar inscripción' })
   cancelAttendance(
     @CurrentUser('id') userId: string,
     @Param('id') id: string,

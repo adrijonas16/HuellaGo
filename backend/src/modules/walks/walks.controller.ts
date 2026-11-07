@@ -49,7 +49,7 @@ export class WalksController {
   }
 
   @Get('stats')
-  @ApiOperation({ summary: 'Estadisticas de paseos' })
+  @ApiOperation({ summary: 'Estadísticas de paseos' })
   stats(@CurrentUser('id') userId: string) {
     return this.walksService.getStats(userId);
   }

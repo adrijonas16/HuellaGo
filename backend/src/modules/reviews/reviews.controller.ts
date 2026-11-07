@@ -21,13 +21,13 @@ export class ReviewsController {
   @Post()
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Crear resena' })
+  @ApiOperation({ summary: 'Crear reseña' })
   create(@CurrentUser('id') userId: string, @Body() dto: CreateReviewDto) {
     return this.reviewsService.create(userId, dto);
   }
 
   @Get('business/:businessId')
-  @ApiOperation({ summary: 'Resenas de un negocio' })
+  @ApiOperation({ summary: 'Reseñas de un negocio' })
   findByBusiness(
     @Param('businessId') businessId: string,
     @Query('page') page?: number,
@@ -37,7 +37,7 @@ export class ReviewsController {
   }
 
   @Get('route/:routeId')
-  @ApiOperation({ summary: 'Resenas de una ruta' })
+  @ApiOperation({ summary: 'Reseñas de una ruta' })
   findByRoute(
     @Param('routeId') routeId: string,
     @Query('page') page?: number,
@@ -49,7 +49,7 @@ export class ReviewsController {
   @Delete(':id')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Eliminar resena' })
+  @ApiOperation({ summary: 'Eliminar reseña' })
   remove(@CurrentUser('id') userId: string, @Param('id') id: string) {
     return this.reviewsService.remove(userId, id);
   }

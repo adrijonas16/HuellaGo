@@ -20,10 +20,7 @@ export class UsersController {
 
   @Patch('me')
   @ApiOperation({ summary: 'Actualizar perfil del usuario actual' })
-  updateProfile(
-    @CurrentUser('id') userId: string,
-    @Body() dto: UpdateUserDto,
-  ) {
+  updateProfile(@CurrentUser('id') userId: string, @Body() dto: UpdateUserDto) {
     return this.usersService.updateProfile(userId, dto);
   }
 }

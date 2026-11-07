@@ -9,7 +9,10 @@ import { EventsRepository } from './events.repository';
 import { RoutesRepository } from '../routes/routes.repository';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
-import { PaginationDto, PaginatedResponse } from '../../common/dto/pagination.dto';
+import {
+  PaginationDto,
+  PaginatedResponse,
+} from '../../common/dto/pagination.dto';
 
 @Injectable()
 export class EventsService {
@@ -22,9 +25,7 @@ export class EventsService {
     const { routeId, inlineRoute, ...rest } = dto;
 
     if (routeId && inlineRoute) {
-      throw new BadRequestException(
-        'Envia routeId o inlineRoute, no ambos',
-      );
+      throw new BadRequestException('Envia routeId o inlineRoute, no ambos');
     }
 
     let finalRouteId = routeId;
@@ -64,7 +65,9 @@ export class EventsService {
     });
   }
 
-  async findAll(query: PaginationDto & { city?: string; status?: EventStatus }) {
+  async findAll(
+    query: PaginationDto & { city?: string; status?: EventStatus },
+  ) {
     const where = {
       ...(query.city && { city: query.city }),
       ...(query.status && { eventStatus: query.status }),
@@ -102,7 +105,14 @@ export class EventsService {
     const event = await this.findOne(eventId);
 
     if (event.eventStatus !== EventStatus.UPCOMING) {
-      throw new BadRequestException('Solo puedes inscribirte a eventos próximos');
+      throw new BadRequestException(
+        'Solo puedes inscribirte a eventos próximos',
+      );
+    }
+
+    const ownsPet = await this.eventsRepository.isPetOwnedBy(petId, userId);
+    if (!ownsPet) {
+      throw new ForbiddenException('Solo puedes inscribir a tus mascotas');
     }
 
     if (event.maxAttendees) {

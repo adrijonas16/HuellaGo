@@ -7,7 +7,10 @@ import { Prisma } from '@prisma/client';
 import { RoutesRepository } from './routes.repository';
 import { CreateRouteDto } from './dto/create-route.dto';
 import { UpdateRouteDto } from './dto/update-route.dto';
-import { PaginationDto, PaginatedResponse } from '../../common/dto/pagination.dto';
+import {
+  PaginationDto,
+  PaginatedResponse,
+} from '../../common/dto/pagination.dto';
 
 @Injectable()
 export class RoutesService {
@@ -22,9 +25,7 @@ export class RoutesService {
     });
   }
 
-  async findAll(
-    query: PaginationDto & { city?: string; difficulty?: string },
-  ) {
+  async findAll(query: PaginationDto & { city?: string; difficulty?: string }) {
     const where = {
       isPublic: true,
       ...(query.city && { city: query.city }),
@@ -56,7 +57,9 @@ export class RoutesService {
     return this.routesRepository.update(routeId, {
       ...rest,
       ...(waypoints && {
-        waypoints: JSON.parse(JSON.stringify(waypoints)) as Prisma.InputJsonValue,
+        waypoints: JSON.parse(
+          JSON.stringify(waypoints),
+        ) as Prisma.InputJsonValue,
       }),
     });
   }
