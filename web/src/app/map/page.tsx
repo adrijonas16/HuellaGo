@@ -85,7 +85,7 @@ export default function MapPage() {
                     </div>
                     <div>
                       <h2 className="font-heading font-bold text-lg text-dark">{selectedBiz.name}</h2>
-                      <p className="text-sm text-gray-500">{CATEGORY_LABELS[selectedBiz.category]}</p>
+                      <p className="text-sm text-bark">{CATEGORY_LABELS[selectedBiz.category]}</p>
                     </div>
                   </div>
                   <button onClick={() => setSelectedBiz(null)} className="p-1.5 hover:bg-gray-100 rounded-lg">
@@ -114,7 +114,7 @@ export default function MapPage() {
                   {selectedBiz.isVerified && (
                     <span className="text-xs font-bold text-primary bg-primary/10 px-3 py-1 rounded-full">✓ VERIFICADO</span>
                   )}
-                  <span className="text-xs font-medium text-gray-500 bg-gray-100 px-3 py-1 rounded-full flex items-center gap-1">
+                  <span className="text-xs font-medium text-bark bg-gray-100 px-3 py-1 rounded-full flex items-center gap-1">
                     <Heart size={12} /> {selectedBiz._count.favorites}
                   </span>
                 </div>
@@ -189,7 +189,7 @@ export default function MapPage() {
               <div className="text-2xl">{CATEGORY_ICONS[selectedBiz.category]}</div>
               <div className="flex-1">
                 <h3 className="font-heading font-bold text-dark">{selectedBiz.name}</h3>
-                <div className="flex items-center gap-1 text-sm text-gray-500">
+                <div className="flex items-center gap-1 text-sm text-bark">
                   <Star size={12} className="fill-accent text-accent" /> {selectedBiz.avgRating}
                   <span>({selectedBiz._count.reviews})</span>
                   <span className="mx-1">·</span>

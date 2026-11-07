@@ -29,7 +29,7 @@ export function RouteCard({ route, onClick }: RouteCardProps) {
             {route.name}
           </h3>
 
-          <div className="flex items-center gap-4 text-sm text-gray-500 mb-2">
+          <div className="flex items-center gap-4 text-sm text-bark mb-2">
             <span className="flex items-center gap-1">
               <Footprints size={14} />
               {formatDistance(route.distance)}

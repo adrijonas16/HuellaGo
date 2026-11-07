@@ -40,20 +40,20 @@ export function EventCard({ event, onClick }: EventCardProps) {
             {event.title}
           </h3>
 
-          <div className="flex items-center gap-1.5 text-sm text-gray-500 mb-1.5">
+          <div className="flex items-center gap-1.5 text-sm text-bark mb-1.5">
             <Calendar size={14} />
             <span>
               {formatDate(event.date)} - {formatTime(event.date)}
             </span>
           </div>
 
-          <div className="flex items-center gap-1.5 text-sm text-gray-500 mb-3">
+          <div className="flex items-center gap-1.5 text-sm text-bark mb-3">
             <MapPin size={14} />
             <span className="line-clamp-1">{event.meetingPoint}</span>
           </div>
 
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-1.5 text-sm text-gray-500">
+            <div className="flex items-center gap-1.5 text-sm text-bark">
               <Users size={14} />
               <span>
                 {attendeesCount}

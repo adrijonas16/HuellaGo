@@ -94,7 +94,7 @@ export default function EventDetailPage({ params }: { params: { id: string } }) 
       <main id="contenido" className="min-h-screen bg-cream">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Back */}
-          <Link href="/events" className="inline-flex items-center gap-1 text-gray-500 hover:text-primary mb-6 text-sm font-medium">
+          <Link href="/events" className="inline-flex items-center gap-1 text-bark hover:text-primary mb-6 text-sm font-medium">
             <ChevronLeft size={16} /> Volver a eventos
           </Link>
 
@@ -166,7 +166,7 @@ export default function EventDetailPage({ params }: { params: { id: string } }) 
                     </div>
                     <div>
                       <div className="text-sm font-semibold text-dark">Punto de partida</div>
-                      <div className="text-sm text-gray-500">{event.meetingPoint}</div>
+                      <div className="text-sm text-bark">{event.meetingPoint}</div>
                     </div>
                   </div>
                   {event.endPoint && (
@@ -178,7 +178,7 @@ export default function EventDetailPage({ params }: { params: { id: string } }) 
                         </div>
                         <div>
                           <div className="text-sm font-semibold text-dark">Punto de llegada</div>
-                          <div className="text-sm text-gray-500">{event.endPoint}</div>
+                          <div className="text-sm text-bark">{event.endPoint}</div>
                         </div>
                       </div>
                     </>
@@ -235,7 +235,7 @@ export default function EventDetailPage({ params }: { params: { id: string } }) 
                 )}
 
                 <div className="space-y-3">
-                  <h3 className="text-sm font-semibold text-gray-500">Perritos que asistirán 🐶</h3>
+                  <h3 className="text-sm font-semibold text-bark">Perritos que asistirán 🐶</h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {(event.attendees || []).map((att: any, i: number) => (
                       <div key={i} className="flex items-center gap-3 bg-cream rounded-xl p-3">
@@ -250,7 +250,7 @@ export default function EventDetailPage({ params }: { params: { id: string } }) 
                     ))}
                     {event._count.attendances > (event.attendees || []).length && (
                       <div className="flex items-center gap-3 bg-cream rounded-xl p-3">
-                        <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-sm font-bold text-gray-500">
+                        <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-sm font-bold text-bark">
                           +{event._count.attendances - (event.attendees || []).length}
                         </div>
                         <div className="text-sm text-bark">más perritos inscritos</div>

@@ -589,9 +589,9 @@ export const ENERGY_LABELS: Record<string, string> = {
 };
 
 export const ENERGY_COLORS: Record<string, string> = {
-  LOW: '#0D7F57',
-  MEDIUM: '#C26100',
-  HIGH: '#E5482B',
+  LOW: '#0A6346',
+  MEDIUM: '#9A4A00',
+  HIGH: '#B8321A',
 };
 
 export const PET_TYPE_ICONS: Record<string, string> = {

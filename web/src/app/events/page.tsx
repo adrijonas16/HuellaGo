@@ -101,6 +101,7 @@ export default function EventsPage() {
             </div>
           )}
           {/* Events grid */}
+          <h2 className="sr-only">Lista de eventos</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filtered.map((event, i) => (
               <Link href={`/events/${event.id}`} key={event.id}>
@@ -149,11 +150,11 @@ export default function EventsPage() {
                     <p className="text-sm text-bark mb-3 line-clamp-2">{event.description}</p>
 
                     <div className="space-y-2 mb-4">
-                      <div className="flex items-center gap-2 text-sm text-gray-500">
+                      <div className="flex items-center gap-2 text-sm text-bark">
                         <Calendar size={14} className="text-primary shrink-0" />
                         <span>{formatDateShort(event.date)}</span>
                       </div>
-                      <div className="flex items-center gap-2 text-sm text-gray-500">
+                      <div className="flex items-center gap-2 text-sm text-bark">
                         <MapPin size={14} className="text-secondary shrink-0" />
                         <span className="line-clamp-1">{event.meetingPoint}</span>
                       </div>
@@ -163,7 +164,7 @@ export default function EventsPage() {
                           <span className="line-clamp-1">→ {event.endPoint}</span>
                         </div>
                       )}
-                      <div className="flex items-center gap-2 text-sm text-gray-500">
+                      <div className="flex items-center gap-2 text-sm text-bark">
                         <Users size={14} className="text-accent shrink-0" />
                         <span>{event._count.attendances} inscritos{event.maxAttendees && ` de ${event.maxAttendees}`}</span>
                         {event.maxAttendees && (
@@ -186,7 +187,7 @@ export default function EventsPage() {
                           </span>
                         )}
                         {event.recommendedSize.length < 5 && event.recommendedSize.length > 0 && (
-                          <span className="text-[11px] font-semibold text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">
+                          <span className="text-[11px] font-semibold text-bark bg-gray-100 px-2 py-0.5 rounded-full">
                             {event.recommendedSize.map((s: string) => SIZE_LABELS[s]).join(', ')}
                           </span>
                         )}

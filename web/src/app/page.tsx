@@ -93,7 +93,7 @@ export default async function LandingPage() {
                 </span>
               </h1>
 
-              <p className="text-bark text-lg sm:text-xl leading-relaxed mt-6 max-w-[34ch] animate-text-reveal delay-300">
+              <p className="text-bark text-lg sm:text-xl leading-relaxed mt-6 max-w-[34ch]">
                 Veterinarias, rutas para pasear y eventos pet friendly en tu ciudad. Todo lo que tu mascota necesita, cerca de ti.
               </p>
 
