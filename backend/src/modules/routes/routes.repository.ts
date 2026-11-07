@@ -18,7 +18,12 @@ export class RoutesRepository {
         reviews: {
           include: {
             user: {
-              select: { id: true, firstName: true, lastName: true, avatarUrl: true },
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+                avatarUrl: true,
+              },
             },
           },
           orderBy: { createdAt: 'desc' },

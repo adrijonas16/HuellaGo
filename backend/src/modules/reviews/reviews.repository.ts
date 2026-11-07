@@ -11,7 +11,12 @@ export class ReviewsRepository {
       data,
       include: {
         user: {
-          select: { id: true, firstName: true, lastName: true, avatarUrl: true },
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            avatarUrl: true,
+          },
         },
       },
     });
@@ -26,7 +31,12 @@ export class ReviewsRepository {
         orderBy: { createdAt: 'desc' },
         include: {
           user: {
-            select: { id: true, firstName: true, lastName: true, avatarUrl: true },
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              avatarUrl: true,
+            },
           },
         },
       }),
@@ -44,7 +54,12 @@ export class ReviewsRepository {
         orderBy: { createdAt: 'desc' },
         include: {
           user: {
-            select: { id: true, firstName: true, lastName: true, avatarUrl: true },
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              avatarUrl: true,
+            },
           },
         },
       }),

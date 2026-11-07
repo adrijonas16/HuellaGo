@@ -24,9 +24,14 @@ export class BusinessesService {
     const { data, total } = await this.businessesRepository.findMany(query);
     const enriched = data.map((biz: any) => {
       const reviews = biz.reviews || [];
-      const avgRating = reviews.length > 0
-        ? Math.round((reviews.reduce((sum: number, r: any) => sum + r.rating, 0) / reviews.length) * 10) / 10
-        : 0;
+      const avgRating =
+        reviews.length > 0
+          ? Math.round(
+              (reviews.reduce((sum: number, r: any) => sum + r.rating, 0) /
+                reviews.length) *
+                10,
+            ) / 10
+          : 0;
       const { reviews: _, ...rest } = biz;
       return { ...rest, avgRating };
     });
@@ -48,7 +53,9 @@ export class BusinessesService {
   async update(ownerId: string, businessId: string, dto: UpdateBusinessDto) {
     const business = await this.findOne(businessId);
     if (business.ownerId !== ownerId) {
-      throw new ForbiddenException('No tienes permiso para editar este negocio');
+      throw new ForbiddenException(
+        'No tienes permiso para editar este negocio',
+      );
     }
     return this.businessesRepository.update(businessId, dto);
   }

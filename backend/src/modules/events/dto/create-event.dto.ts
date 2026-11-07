@@ -174,12 +174,16 @@ export class CreateEventDto {
   @IsString({ each: true })
   requirements?: string[];
 
-  @ApiPropertyOptional({ description: 'ID de ruta existente (alternativa a inlineRoute)' })
+  @ApiPropertyOptional({
+    description: 'ID de ruta existente (alternativa a inlineRoute)',
+  })
   @IsOptional()
   @IsString()
   routeId?: string;
 
-  @ApiPropertyOptional({ description: 'Ruta nueva grabada desde la app (alternativa a routeId)' })
+  @ApiPropertyOptional({
+    description: 'Ruta nueva grabada desde la app (alternativa a routeId)',
+  })
   @IsOptional()
   @ValidateNested()
   @Type(() => InlineRouteDto)

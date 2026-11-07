@@ -16,7 +16,12 @@ export class BusinessesRepository {
       where: { id },
       include: {
         owner: {
-          select: { id: true, firstName: true, lastName: true, avatarUrl: true },
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            avatarUrl: true,
+          },
         },
         hours: { orderBy: { dayOfWeek: 'asc' } },
         services: true,
@@ -24,7 +29,12 @@ export class BusinessesRepository {
         reviews: {
           include: {
             user: {
-              select: { id: true, firstName: true, lastName: true, avatarUrl: true },
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+                avatarUrl: true,
+              },
             },
           },
           orderBy: { createdAt: 'desc' },

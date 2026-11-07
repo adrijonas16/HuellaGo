@@ -8,7 +8,12 @@ import { GlobalExceptionFilter } from './common/filters/http-exception.filter';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  app.use(helmet({ contentSecurityPolicy: false, crossOriginResourcePolicy: { policy: 'cross-origin' } }));
+  app.use(
+    helmet({
+      contentSecurityPolicy: false,
+      crossOriginResourcePolicy: { policy: 'cross-origin' },
+    }),
+  );
 
   // FRONTEND_URL admite varios orígenes separados por coma.
   // También se aceptan los despliegues de vista previa del front en Vercel.
@@ -18,7 +23,11 @@ async function bootstrap() {
     .filter(Boolean);
   app.enableCors({
     origin: (origin, cb) => {
-      if (!origin || allowed.includes(origin) || /^https:\/\/huellago[\w-]*\.vercel\.app$/.test(origin)) {
+      if (
+        !origin ||
+        allowed.includes(origin) ||
+        /^https:\/\/huellago[\w-]*\.vercel\.app$/.test(origin)
+      ) {
         return cb(null, true);
       }
       return cb(new Error(`Origen no permitido: ${origin}`), false);

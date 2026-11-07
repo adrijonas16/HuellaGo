@@ -30,21 +30,21 @@ export class NotificationsController {
   }
 
   @Get('unread-count')
-  @ApiOperation({ summary: 'Contar notificaciones no leidas' })
+  @ApiOperation({ summary: 'Contar notificaciones no leídas' })
   countUnread(@CurrentUser('id') userId: string) {
     return this.notificationsService.countUnread(userId);
   }
 
   @Patch(':id/read')
   @HttpCode(200)
-  @ApiOperation({ summary: 'Marcar como leida' })
+  @ApiOperation({ summary: 'Marcar como leída' })
   markAsRead(@Param('id') id: string) {
     return this.notificationsService.markAsRead(id);
   }
 
   @Patch('read-all')
   @HttpCode(200)
-  @ApiOperation({ summary: 'Marcar todas como leidas' })
+  @ApiOperation({ summary: 'Marcar todas como leídas' })
   markAllAsRead(@CurrentUser('id') userId: string) {
     return this.notificationsService.markAllAsRead(userId);
   }

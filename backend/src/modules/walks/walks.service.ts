@@ -31,7 +31,10 @@ export class WalksService {
     if (walk.userId !== userId) {
       throw new ForbiddenException('No tienes permiso');
     }
-    if (walk.walkStatus !== WalkStatus.IN_PROGRESS && walk.walkStatus !== WalkStatus.PAUSED) {
+    if (
+      walk.walkStatus !== WalkStatus.IN_PROGRESS &&
+      walk.walkStatus !== WalkStatus.PAUSED
+    ) {
       throw new BadRequestException('Este paseo ya fue finalizado');
     }
 
